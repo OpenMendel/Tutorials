@@ -1,0 +1,12 @@
+#
+# Input and Output files.
+#
+snpdata_file = SNP_data29a.bed
+snpdefinition_file = SNP_def29a_converted.txt
+pedigree_file = Ped29a.in
+#
+# Analysis parameters for Kinship option.
+#
+compare_kinships = true
+kinship_plot = kinship_plot
+z_score_plot = z_score_plot

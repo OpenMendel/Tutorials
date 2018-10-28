@@ -1,0 +1,11 @@
+# Mac OS
+.DS_store
+
+# julia
+*.jl.cov
+*.jl.*.cov
+*.jl.mem
+deps/deps.jl
+
+# Jupyter
+.ipynb_checkpoints

@@ -1,0 +1,99 @@
+
+                              PEDIGREE GWAS OPTION
+
+                   ADDITIVE (CODOMINANT) MODEL FOR ALL SNPS.
+
+               SNP-BASED GLOBAL KINSHIP COEFFICIENTS ARE ESTIMATED
+                     IGNORING ALL INPUT PEDIGREE STRUCTURES
+                            AND WITH ALL 253141 SNPS.
+             ESTIMATION IS VIA THE GENETIC RELATIONSHIP MATRIX METHOD.
+ 
+
+ 
+        EFFECT ESTIMATES UNDER NULL MODEL WITH NO SNPS INCLUDED
+
+                    SUMMARY FOR MEAN PARAMETERS
+ 
+ TRAIT             PARAMETER    PREDICTOR          ESTIMATE        STD ERR
+ 
+ simTrait              1        GRAND               37.0443         0.0962
+ simTrait              2        FEMALE              -3.1472         0.1576
+ simTrait              3        MALE                 3.1472         0.1576
+
+                    SUMMARY FOR VARIANCE COMPONENTS
+ 
+ TRAIT             PARAMETER    VARIANCE           ESTIMATE        STD ERR
+ 
+ simTrait              4        ADDITIVE             4.8851         1.0359
+ simTrait              5        ENVIRONMENTAL        1.9221         0.5474
+
+ TRAIT             TOTAL VARIANCE
+ 
+ simTrait              6.8071
+
+ TRAIT             HERITABILITY    STD ERR
+
+ simTrait              0.7176       0.0664
+
+ 
+        EFFECT ESTIMATES UNDER ALTERNATE MODEL FOR THE TOP SNPS
+
+   IN THIS RUN, P-VALUES HAVE BEEN CALCULATED FOR 219206 SNPS.
+   THUS, THE BONFERRONI SIGNIFICANCE THRESHOLD IS 0.22810E-06,
+   WHICH ON THE -LOG10 SCALE IS 6.64188.
+
+   IN THIS RUN, THE ANALYSIS USED 212 INDIVIDUALS.
+
+   THE GENOMIC CONTROL VALUE LAMBDA IS 1.05088.
+
+
+ PREDICTOR      CHROMOSOME   POSITION      MARGINAL     MARGINAL       EFFECT      EFFECT    FRACTION OF   REGRESSION    MINOR       HARDY-    GENOTYPING   SNP    GROUP
+   NAME            NAME       IN BP        P-VALUE   -LOG10(P-VAL)    ESTIMATE    STANDARD    VARIANCE       ALLELE     ALLELE      WEINBERG     SUCCESS   MODEL   NAME
+                                                                                   ERROR      EXPLAINED                FREQUENCY    P-VALUE       RATE
+                                                                                                                      IN FOUNDERS  IN FOUNDERS
+ 
+ rs10412915       19         55494740   0.47926E-08      8.31943      -1.82343     0.29709     0.18740      2=Major     0.25882      0.69472     1.00000    Add    NLRP2
+ rs55799796       19         55493441   0.96138E-07      7.01711       1.65955     0.29924     0.15052      2=Minor     0.24706      0.91260     1.00000    Add      -
+ rs34804158       19         55494651   0.15194E-06      6.81832       1.63949     0.30056     0.14691      2=Minor     0.24706      0.91260     1.00000    Add    NLRP2
+ rs3826883        19         55494188   0.18790E-06      6.72608       1.69073     0.31306     0.14847      2=Minor     0.22941      0.77141     1.00000    Add    NLRP2
+ rs59004768       19         55488728   0.10876E-05      5.96354      -1.55703     0.31000     0.12816      2=Major     0.23529      0.85927     1.00000    Add      -
+ rs71367132       19         55497506   0.18932E-05      5.72281       1.48404     0.30185     0.12037      2=Minor     0.24706      0.91260     1.00000    Add      -
+ rs2116886        19         55497039   0.18932E-05      5.72281      -1.48404     0.30185     0.12037      2=Major     0.24706      0.91260     1.00000    Add      -
+ rs1036231        19         55497843   0.18932E-05      5.72281      -1.48404     0.30185     0.12037      2=Major     0.24706      0.91260     1.00000    Add      -
+ rs1036232        19         55497943   0.18932E-05      5.72281       1.48404     0.30185     0.12037      2=Minor     0.24706      0.91260     1.00000    Add      -
+ rs172006         19         55484559   0.21122E-05      5.67527       1.62368     0.33121     0.12393      2=Minor     0.20000      0.68420     1.00000    Add      -
+
+ 
+ FALSE DISCOVERY RATE THRESHOLDS FOR INDIVIDUAL PREDICTORS:
+ 
+                    P-VALUE     NUMBER OF PASSING
+      FDR          THRESHOLD       PREDICTORS
+ 
+   0.010000       0.47926E-08          1
+   0.050000       0.10876E-05          5
+   0.100000       0.66717E-05         17
+   0.200000       0.12969E-04         29
+   0.300000       0.12969E-04         29
+   0.400000       0.54944E-04         32
+   0.500000           0.00013         63
+   0.600000           0.00013         63
+   0.700000           0.00022         69
+   0.800000           0.00028         79
+   0.900000           0.00037         91
+
+
+ THE FILE Plot29b.out IS THE OUTPUT PLOT FILE.
+
+ 
+ FOR PUBLICATION PURPOSES, PLEASE CITE THE OVERALL REFERENCE:
+
+ Lange K, Papp JC, Sinsheimer JS, Sripracha R, Zhou H, Sobel EM (2013)
+ Mendel: The Swiss army knife of genetic analysis programs.
+ Bioinformatics 29:1568-1570.
+
+ FOR THIS SPECIFIC ANALYSIS OPTION, PLEASE ALSO CITE THE REFERENCE:
+
+ Zhou H, Blangero J, Dyer TD, Chan KHK, Lange K, Sobel EM (2016).
+ Fast genome-wide QTL association mapping on pedigree and population data.
+ arXiv:1407.8253v2 [http://arxiv.org/abs/1407.8253v2].
+

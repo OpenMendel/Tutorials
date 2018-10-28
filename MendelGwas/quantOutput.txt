@@ -1,0 +1,47 @@
+ 
+Summary for Base Model with Formula: Trait ~ Sex
+Regression model: linear
+Link function: canonical
+Base components' effect estimates: 
+   (Intercept) : 0.142482
+   Sex : -0.0129378
+Base model loglikelihood: -1258.177
+ 
+ 
+
+Summary for SNP rs1935681
+ on chromosome 6 at basepair 112651205
+SNP p-value: 1.124e-11
+Minor allele frequency: 0.2523
+Hardy-Weinberg p-value: 0.3666
+SNP effect estimate: -0.2496
+SNP model loglikelihood: -1235.1273
+Proportion of base-model variance explained: 0.0207
+ 
+
+Summary for SNP rs2256412
+ on chromosome 12 at basepair 41913108
+SNP p-value: 1.431e-34
+Minor allele frequency: 0.4741
+Hardy-Weinberg p-value: 0.1844
+SNP effect estimate: -0.3857
+SNP model loglikelihood: -1182.9861
+Proportion of base-model variance explained: 0.0661
+ 
+ 
+ 
+        P-value   Number of Passing
+FDR    Threshold     Predictors 
+
+0.01    0.00000           2
+0.05    0.00000           2
+0.10    0.00000           2
+0.20    0.00009           5
+0.30    0.00021           8
+0.40    0.00048          14
+0.50    0.00048          14
+0.60    0.00091          19
+0.70    0.00177          29
+0.80    0.00274          39
+0.90    0.00564          65
+ 

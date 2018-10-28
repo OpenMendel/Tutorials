@@ -1,0 +1,46 @@
+ 
+Summary for Base Model with Formula: Case_Control ~ Sex + BMI
+Regression model: logistic
+Link function: canonical
+Base components' effect estimates: 
+   (Intercept) : -0.699975
+   Sex : 0.0132831
+   BMI : -0.00875774
+Base model loglikelihood: -1315.0784
+ 
+ 
+
+Summary for SNP rs1935681
+ on chromosome 6 at basepair 112651205
+SNP p-value: 1.515e-9
+Minor allele frequency: 0.2523
+Hardy-Weinberg p-value: 0.3666
+SNP effect estimate: -0.4831
+SNP model loglikelihood: -1296.8209
+ 
+
+Summary for SNP rs2256412
+ on chromosome 12 at basepair 41913108
+SNP p-value: 6.68e-21
+Minor allele frequency: 0.4741
+Hardy-Weinberg p-value: 0.1844
+SNP effect estimate: -0.6371
+SNP model loglikelihood: -1271.0984
+ 
+ 
+ 
+        P-value   Number of Passing
+FDR    Threshold     Predictors 
+
+0.01    0.00000           2
+0.05    0.00000           2
+0.10    0.00000           2
+0.20    0.00000           2
+0.30    0.00000           2
+0.40    0.00000           2
+0.50    0.00000           2
+0.60    0.00044           8
+0.70    0.00108          16
+0.80    0.00540          68
+0.90    0.02661         297
+ 

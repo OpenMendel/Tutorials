@@ -1,0 +1,11 @@
+#
+# Input and Output files.
+#
+plink_input_basename = gwasdata
+output_file = quantOutput.txt
+manhattan_plot_file = quantgwasManhattanPlotOutput.png
+#
+# Analysis parameters for GWAS option.
+#
+regression = linear
+regression_formula = Trait ~ Sex

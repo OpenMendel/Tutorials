@@ -1,0 +1,100 @@
+
+                              PEDIGREE GWAS OPTION
+
+                   ADDITIVE (CODOMINANT) MODEL FOR ALL SNPS.
+
+               SNP-BASED GLOBAL KINSHIP COEFFICIENTS ARE ESTIMATED
+                           WITHIN EACH INPUT PEDIGREE
+                       AND WITH 50628 EVENLY SPACED SNPS
+                    (USING A SNP SAMPLING INCREMENT OF 5 SNPS).
+             ESTIMATION IS VIA THE GENETIC RELATIONSHIP MATRIX METHOD.
+ 
+
+ 
+        EFFECT ESTIMATES UNDER NULL MODEL WITH NO SNPS INCLUDED
+
+                    SUMMARY FOR MEAN PARAMETERS
+ 
+ TRAIT             PARAMETER    PREDICTOR          ESTIMATE        STD ERR
+ 
+ simTrait              1        GRAND               36.9358         0.2684
+ simTrait              2        FEMALE              -3.1415         0.1596
+ simTrait              3        MALE                 3.1415         0.1596
+
+                    SUMMARY FOR VARIANCE COMPONENTS
+ 
+ TRAIT             PARAMETER    VARIANCE           ESTIMATE        STD ERR
+ 
+ simTrait              4        ADDITIVE             4.9865         1.0055
+ simTrait              5        ENVIRONMENTAL        1.8435         0.5524
+
+ TRAIT             TOTAL VARIANCE
+ 
+ simTrait              6.8300
+
+ TRAIT             HERITABILITY    STD ERR
+
+ simTrait              0.7301       0.0641
+
+ 
+        EFFECT ESTIMATES UNDER ALTERNATE MODEL FOR THE TOP SNPS
+
+   IN THIS RUN, P-VALUES HAVE BEEN CALCULATED FOR 219206 SNPS.
+   THUS, THE BONFERRONI SIGNIFICANCE THRESHOLD IS 0.22810E-06,
+   WHICH ON THE -LOG10 SCALE IS 6.64188.
+
+   IN THIS RUN, THE ANALYSIS USED 212 INDIVIDUALS.
+
+   THE GENOMIC CONTROL VALUE LAMBDA IS 1.06924.
+
+
+ PREDICTOR      CHROMOSOME   POSITION      MARGINAL     MARGINAL       EFFECT      EFFECT    FRACTION OF   REGRESSION    MINOR       HARDY-    GENOTYPING   SNP    GROUP
+   NAME            NAME       IN BP        P-VALUE   -LOG10(P-VAL)    ESTIMATE    STANDARD    VARIANCE       ALLELE     ALLELE      WEINBERG     SUCCESS   MODEL   NAME
+                                                                                   ERROR      EXPLAINED                FREQUENCY    P-VALUE       RATE
+                                                                                                                      IN FOUNDERS  IN FOUNDERS
+ 
+ rs10412915       19         55494740   0.17066E-08      8.76787      -1.83499     0.28988     0.18915      2=Major     0.25882      0.69472     1.00000    Add    NLRP2
+ rs55799796       19         55493441   0.25161E-07      7.59926       1.69992     0.29286     0.15741      2=Minor     0.24706      0.91260     1.00000    Add      -
+ rs3826883        19         55494188   0.28821E-07      7.54029       1.76543     0.30614     0.16134      2=Minor     0.22941      0.77141     1.00000    Add    NLRP2
+ rs34804158       19         55494651   0.37076E-07      7.43091       1.68033     0.29328     0.15380      2=Minor     0.24706      0.91260     1.00000    Add    NLRP2
+ rs59004768       19         55488728   0.12852E-06      6.89104      -1.64111     0.30059     0.14190      2=Major     0.23529      0.85927     1.00000    Add      -
+ rs11667481       19         55497826   0.29125E-06      6.53573      -1.61686     0.30557     0.13533      2=Major     0.22941      0.77141     1.00000    Add      -
+ rs7253480        19         55498744   0.29125E-06      6.53573      -1.61686     0.30557     0.13533      2=Major     0.22941      0.77141     1.00000    Add      -
+ rs11671837       19         55498129   0.29125E-06      6.53573      -1.61686     0.30557     0.13533      2=Major     0.22941      0.77141     1.00000    Add      -
+ rs11672206       19         55495215   0.29125E-06      6.53573       1.61686     0.30557     0.13533      2=Minor     0.22941      0.77141     1.00000    Add      -
+ rs35121332       19         55487042   0.33104E-06      6.48011      -1.60399     0.30461     0.13076      2=Major     0.22353      0.63797     1.00000    Add      -
+
+ 
+ FALSE DISCOVERY RATE THRESHOLDS FOR INDIVIDUAL PREDICTORS:
+ 
+                    P-VALUE     NUMBER OF PASSING
+      FDR          THRESHOLD       PREDICTORS
+ 
+   0.010000       0.12852E-06          5
+   0.050000       0.27889E-05         29
+   0.100000       0.13268E-04         32
+   0.200000       0.36431E-04         49
+   0.300000       0.94110E-04         75
+   0.400000           0.00014         79
+   0.500000           0.00021         95
+   0.600000           0.00073        267
+   0.700000           0.00105        333
+   0.800000           0.00471       1292
+   0.900000           0.05475      13337
+
+
+ THE FILE Plot29a.out IS THE OUTPUT PLOT FILE.
+
+ 
+ FOR PUBLICATION PURPOSES, PLEASE CITE THE OVERALL REFERENCE:
+
+ Lange K, Papp JC, Sinsheimer JS, Sripracha R, Zhou H, Sobel EM (2013)
+ Mendel: The Swiss army knife of genetic analysis programs.
+ Bioinformatics 29:1568-1570.
+
+ FOR THIS SPECIFIC ANALYSIS OPTION, PLEASE ALSO CITE THE REFERENCE:
+
+ Zhou H, Blangero J, Dyer TD, Chan KHK, Lange K, Sobel EM (2016).
+ Fast genome-wide QTL association mapping on pedigree and population data.
+ arXiv:1407.8253v2 [http://arxiv.org/abs/1407.8253v2].
+

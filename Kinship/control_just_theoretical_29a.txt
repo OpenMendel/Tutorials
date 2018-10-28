@@ -1,0 +1,8 @@
+#
+# Input and Output files.
+#
+pedigree_file = Ped29a.in
+#
+# Analysis parameters for Kinship option.
+#
+kinship_output_file = just_theoretical_output.txt
