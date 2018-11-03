@@ -1,7 +1,9 @@
 <!DOCTYPE html>
 <html>
 <head><meta charset="utf-8" />
-<title>Mendel_IHT_tutorialJSS</title><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
+<title>Mendel_IHT_tutorialJSS</title>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
 
 <style type="text/css">
@@ -11,8 +13,8 @@
 *
 */
 /*!
- * Bootstrap v3.3.7 (http://getbootstrap.com)
- * Copyright 2011-2016 Twitter, Inc.
+ * Bootstrap v3.3.6 (http://getbootstrap.com)
+ * Copyright 2011-2015 Twitter, Inc.
  * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
  */
 /*! normalize.css v3.0.3 | MIT License | github.com/necolas/normalize.css */
@@ -1107,6 +1109,7 @@ a:focus {
   text-decoration: underline;
 }
 a:focus {
+  outline: thin dotted;
   outline: 5px auto -webkit-focus-ring-color;
   outline-offset: -2px;
 }
@@ -2535,6 +2538,7 @@ select[size] {
 input[type="file"]:focus,
 input[type="radio"]:focus,
 input[type="checkbox"]:focus {
+  outline: thin dotted;
   outline: 5px auto -webkit-focus-ring-color;
   outline-offset: -2px;
 }
@@ -3025,6 +3029,7 @@ select[multiple].input-lg {
 .btn.focus,
 .btn:active.focus,
 .btn.active.focus {
+  outline: thin dotted;
   outline: 5px auto -webkit-focus-ring-color;
   outline-offset: -2px;
 }
@@ -8755,9 +8760,6 @@ body > #header .header-bar {
     margin-left: 10px;
   }
 }
-[dir="rtl"] #ipython_notebook {
-  float: right !important;
-}
 #noscript {
   width: auto;
   padding-top: 16px;
@@ -8960,14 +8962,8 @@ span#login_widget > .button .badge,
  *
  * Author: Jupyter Development Team
  */
-[dir="rtl"] #tabs li {
-  float: right;
-}
 ul#tabs {
   margin-bottom: 4px;
-}
-[dir="rtl"] ul#tabs {
-  margin-right: 0px;
 }
 ul#tabs a {
   padding-top: 6px;
@@ -8990,16 +8986,6 @@ ul.breadcrumb span {
 }
 .list_toolbar .tree-buttons {
   padding-top: 1px;
-}
-[dir="rtl"] .list_toolbar .tree-buttons {
-  float: left !important;
-}
-[dir="rtl"] .list_toolbar .pull-right {
-  padding-top: 1px;
-  float: left !important;
-}
-[dir="rtl"] .list_toolbar .pull-left {
-  float: right !important;
 }
 .dynamic-buttons {
   padding-top: 3px;
@@ -9136,9 +9122,6 @@ ul.breadcrumb span {
 #tree-selector {
   padding-right: 0px;
 }
-[dir="rtl"] #tree-selector a {
-  float: right;
-}
 #button-select-all {
   min-width: 50px;
 }
@@ -9228,9 +9211,6 @@ ul#new-menu {
   left: auto;
   right: 0;
 }
-[dir="rtl"] #new-menu {
-  text-align: right;
-}
 .kernel-menu-icon {
   padding-right: 12px;
   width: 24px;
@@ -9275,9 +9255,6 @@ ul#new-menu {
 }
 #running .panel-group .panel .panel-body .list_container .list_item:last-child {
   border-bottom: 0px;
-}
-[dir="rtl"] #running .col-sm-8 {
-  float: right !important;
 }
 .delete-button {
   display: none;
@@ -9574,7 +9551,6 @@ div.cell.selected.jupyter-soft-selected {
   }
 }
 div.inner_cell {
-  min-width: 0;
   /* Old browsers */
   display: -webkit-box;
   -webkit-box-orient: vertical;
@@ -9595,6 +9571,11 @@ div.inner_cell {
   box-flex: 1;
   /* Modern browsers */
   flex: 1;
+}
+@-moz-document url-prefix() {
+  div.inner_cell {
+    overflow-x: hidden;
+  }
 }
 /* input_area and input_prompt must match in top border and margin for alignment */
 div.input_area {
@@ -11265,7 +11246,7 @@ div#pager .ui-resizable-handle::after {
 }
 .shortcut_key {
   display: inline-block;
-  width: 21ex;
+  width: 20ex;
   text-align: right;
   font-family: monospace;
 }
@@ -11577,7 +11558,6 @@ ul.typeahead-list > li > a {
   box-shadow: 0px 0px 12px 1px rgba(87, 87, 87, 0.2);
 }
 .terminal-app .terminal {
-  width: 100%;
   float: left;
   font-family: monospace;
   color: white;
@@ -11591,9 +11571,6 @@ ul.typeahead-list > li > a {
 .terminal-app .terminal dummy-screen {
   line-height: 1em;
   font-size: 14px;
-}
-.terminal-app .terminal .xterm-rows {
-  padding: 10px;
 }
 .terminal-app .terminal-cursor {
   color: black;
@@ -11654,10 +11631,8 @@ ul.typeahead-list > li > a {
 .highlight .mh { color: #666666 } /* Literal.Number.Hex */
 .highlight .mi { color: #666666 } /* Literal.Number.Integer */
 .highlight .mo { color: #666666 } /* Literal.Number.Oct */
-.highlight .sa { color: #BA2121 } /* Literal.String.Affix */
 .highlight .sb { color: #BA2121 } /* Literal.String.Backtick */
 .highlight .sc { color: #BA2121 } /* Literal.String.Char */
-.highlight .dl { color: #BA2121 } /* Literal.String.Delimiter */
 .highlight .sd { color: #BA2121; font-style: italic } /* Literal.String.Doc */
 .highlight .s2 { color: #BA2121 } /* Literal.String.Double */
 .highlight .se { color: #BB6622; font-weight: bold } /* Literal.String.Escape */
@@ -11668,11 +11643,9 @@ ul.typeahead-list > li > a {
 .highlight .s1 { color: #BA2121 } /* Literal.String.Single */
 .highlight .ss { color: #19177C } /* Literal.String.Symbol */
 .highlight .bp { color: #008000 } /* Name.Builtin.Pseudo */
-.highlight .fm { color: #0000FF } /* Name.Function.Magic */
 .highlight .vc { color: #19177C } /* Name.Variable.Class */
 .highlight .vg { color: #19177C } /* Name.Variable.Global */
 .highlight .vi { color: #19177C } /* Name.Variable.Instance */
-.highlight .vm { color: #19177C } /* Name.Variable.Magic */
 .highlight .il { color: #666666 } /* Literal.Number.Integer.Long */
     </style>
 <style type="text/css">
@@ -11726,7 +11699,9 @@ body {
 div#notebook {
   overflow: visible;
   border-top: none;
-}@media print {
+}
+
+@media print {
   div.cell {
     display: block;
     page-break-inside: avoid;
@@ -11747,7 +11722,7 @@ div#notebook {
 
 <!-- Loading mathjax macro -->
 <!-- Load mathjax -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS_HTML"></script>
+    <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML"></script>
     <!-- MathJax configuration -->
     <script type="text/x-mathjax-config">
     MathJax.Hub.Config({
@@ -11771,15 +11746,17 @@ div#notebook {
   <div tabindex="-1" id="notebook" class="border-box-sizing">
     <div class="container" id="notebook-container">
 
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h1 id="OpenMendel:-Iterative-Hard-Thresholding-Tutorial">OpenMendel: Iterative Hard Thresholding Tutorial<a class="anchor-link" href="#OpenMendel:-Iterative-Hard-Thresholding-Tutorial">&#182;</a></h1><h3 id="Last-update:-10/20/2018">Last update: 10/20/2018<a class="anchor-link" href="#Last-update:-10/20/2018">&#182;</a></h3>
+<h1 id="OpenMendel:-Iterative-Hard-Thresholding-Tutorial">OpenMendel: Iterative Hard Thresholding Tutorial<a class="anchor-link" href="#OpenMendel:-Iterative-Hard-Thresholding-Tutorial">&#182;</a></h1><h3 id="Last-update:-11/3/2018">Last update: 11/3/2018<a class="anchor-link" href="#Last-update:-11/3/2018">&#182;</a></h3>
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
@@ -11791,7 +11768,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="prompt input_prompt">In&nbsp;[1]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-julia"><pre><span></span><span class="n">versioninfo</span><span class="p">()</span>
@@ -11801,26 +11778,52 @@ div#notebook {
 </div>
 </div>
 
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>Julia Version 0.6.4
+Commit 9d11f62bcb (2018-07-09 19:09 UTC)
+Platform Info:
+  OS: macOS (x86_64-apple-darwin14.5.0)
+  CPU: Intel(R) Core(TM) i7-3740QM CPU @ 2.70GHz
+  WORD_SIZE: 64
+  BLAS: libopenblas (USE64BITINT DYNAMIC_ARCH NO_AFFINITY Sandybridge MAX_THREADS=16)
+  LAPACK: libopenblas64_
+  LIBM: libopenlibm
+  LLVM: libLLVM-3.9.1 (ORCJIT, ivybridge)
+</pre>
 </div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h3 id="When-to-use-Iterative-Hard-Thresholding">When to use Iterative Hard Thresholding<a class="anchor-link" href="#When-to-use-Iterative-Hard-Thresholding">&#182;</a></h3><p><em>Continuous</em> model selection is advantageous in situations where the multivariate nature of the regressors plays a significant role <em>together</em>. Iterative hard-thresholing (IHT) performs continuous model selection on a GWAS dataset $\mathbf{X} \in \{0, 1, 2\}^{n \times p}$ and continuous phenotype vector $\mathbf{y}$ by minimizing the residual sum of squares $f(\beta) = \frac{1}{2}||\mathbf{y} - \mathbf{X}\beta||^2$ subject to the constraint that $\beta$ is $k-$sparse. Parallel computing is offered through <code>q-</code>fold cross validation, and in the near future, dense (genotype matrix)-(dense vector) multiplication.</p>
+<h3 id="When-to-use-Iterative-Hard-Thresholding">When to use Iterative Hard Thresholding<a class="anchor-link" href="#When-to-use-Iterative-Hard-Thresholding">&#182;</a></h3><p><em>Continuous</em> model selection is advantageous in situations where the multivariate nature of the regressors plays a significant role <em>together</em>. As an alternative to traditional SNP-by-SNP association testing, iterative hard-thresholing (IHT) performs continuous model selection on a GWAS dataset $\mathbf{X} \in \{0, 1, 2\}^{n \times p}$ and continuous phenotype vector $\mathbf{y}$ by minimizing the residual sum of squares $f(\beta) = \frac{1}{2}||\mathbf{y} - \mathbf{X}\beta||^2$ subject to the constraint that $\beta$ is $k-$sparse. This method has the edge over LASSO (which also provides continuous model selection) because IHT does not shrink estimated effect sizes. Parallel computing is offered through <code>q-</code>fold cross validation, and in the near future, dense (genotype matrix)-(dense vector) multiplication.</p>
 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h3 id="Appropriate-Datasets-and-Example-Inputs">Appropriate Datasets and Example Inputs<a class="anchor-link" href="#Appropriate-Datasets-and-Example-Inputs">&#182;</a></h3><p>All genotype data <strong>must</strong> be stored in the <a href="https://www.cog-genomics.org/plink2/formats#bed">PLINK binary genotype format</a>, where the triplets <code>.bim</code>, <code>.bed</code> and <code>.fam</code> must all be present. Additional non-genetic covariates should be stored in a separate file (e.g. comma separated file). In this tutorial, we use "gwas 1 data" (github repo: <a href="https://github.com/OpenMendel/MendelGWAS.jl/tree/master/docs">here</a>) to illustrate the functionalities of MendelIHT. This dataset has 2200 people and a modest 10000 simulated SNPs, with 2 SNPs (<code>rs1935681</code> and <code>rs2256412</code>) contributing to the response. One can obtain this dataset from the first example input of <a href="https://openmendel.github.io/MendelGWAS.jl/">MendelGWAS.jl</a>, or via option 24a of the free application <a href="http://www.genetics.ucla.edu/software/mendel">Mendel version 16</a>.</p>
+<h3 id="Appropriate-Datasets-and-Example-Inputs">Appropriate Datasets and Example Inputs<a class="anchor-link" href="#Appropriate-Datasets-and-Example-Inputs">&#182;</a></h3><p>All genotype data <strong>must</strong> be stored in the <a href="https://www.cog-genomics.org/plink2/formats#bed">PLINK binary genotype format</a>, where the triplets <code>.bim</code>, <code>.bed</code> and <code>.fam</code> must all be present. Additional non-genetic covariates should be stored in a separate file (e.g. comma separated file). In the first 3 examples of this tutorial, we use "gwas 1 data" (github repo: <a href="https://github.com/OpenMendel/MendelGWAS.jl/tree/master/docs">here</a>) to illustrate the basic usage and functionalities of MendelIHT. This dataset has 2200 people and a modest 10000 simulated SNPs, with 2 SNPs (<code>rs1935681</code> and <code>rs2256412</code>) contributing to the response. One can obtain this dataset from the first example input of <a href="https://openmendel.github.io/MendelGWAS.jl/">MendelGWAS.jl</a>, or via option 24a of the free application <a href="http://www.genetics.ucla.edu/software/mendel">Mendel version 16</a>. To examine the robustness and accuracy of IHT, examples 4 and 5 simulates data on the spot, and immediately calls IHT on the simulated data.</p>
 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
@@ -11829,16 +11832,18 @@ div#notebook {
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h3 id="Cross-Validation-and-Regularization-paths">Cross Validation and Regularization paths<a class="anchor-link" href="#Cross-Validation-and-Regularization-paths">&#182;</a></h3><p>We usually have very little information on how many SNPs are affecting the phenotype. In a typical GWAS study, anywhere between 1 to thousands of SNPs could play a role. Thus ideally, we can test many different models to find the best one. MendelIHT provides 2 ways for one to perform this automatically: user specified regulartization paths, and $q-$fold <a href="https://en.wikipedia.org/wiki/Cross-validation_(statistics">cross validation</a>. Users should know that, in the first method, increasing the number of predictors will almost always decrease the error, but as a result introduce overfitting. Therefore, in most practical situations, it is highly recommended to combine this method with cross validation. In $q-$fold cross validation, samples are divided into $q$ disjoint subsets, and IHT fits a model on $q-1$ of those sets data, then computes the <a href="https://en.wikipedia.org/wiki/Mean_squared_error">MSE</a> tested on the $qth$ samples. Each $q$ subsets are served as the test set exactly once. With noisy responses, IHT cross validation typically underestimates the true model size, as shown in an example below.</p>
+<h3 id="Cross-Validation-and-Regularization-paths">Cross Validation and Regularization paths<a class="anchor-link" href="#Cross-Validation-and-Regularization-paths">&#182;</a></h3><p>We usually have very little information on how many SNPs are affecting the phenotype. In a typical GWAS study, anywhere between 1 to thousands of SNPs could play a role. Thus ideally, we can test many different models to find the best one. MendelIHT provides 2 ways for one to perform this automatically: user specified regulartization paths, and $q-$fold <a href="https://en.wikipedia.org/wiki/Cross-validation_(statistics">cross validation</a>. Users should know that, in the first method, increasing the number of predictors will almost always decrease the error, but as a result introduce overfitting. Therefore, in most practical situations, it is highly recommended to combine this method with cross validation. In $q-$fold cross validation, samples are divided into $q$ disjoint subsets, and IHT fits a model on $q-1$ of those sets data, then computes the <a href="https://en.wikipedia.org/wiki/Mean_squared_error">MSE</a> tested on the $qth$ samples. Each $q$ subsets are served as the test set exactly once. With noisy responses, IHT cross validation typically underestimates the true model size, as shown in the examples below.</p>
 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
@@ -11909,7 +11914,8 @@ div#notebook {
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
@@ -11920,7 +11926,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="prompt input_prompt">In&nbsp;[2]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-julia"><pre><span></span><span class="p">;</span><span class="n">cat</span> <span class="s">&quot;gwas 1 Control basic.txt&quot;</span>
@@ -11930,8 +11936,30 @@ div#notebook {
 </div>
 </div>
 
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>#
+# Input and Output files.
+#
+plink_input_basename = gwas 1 data
+
+#
+# Analysis parameters for IHT option.
+#
+predictors = 2</pre>
 </div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
@@ -11942,7 +11970,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="prompt input_prompt">In&nbsp;[3]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-julia"><pre><span></span><span class="k">using</span> <span class="n">IHT</span>
@@ -11953,8 +11981,76 @@ div#notebook {
 </div>
 </div>
 
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre> 
+ 
+     Welcome to OpenMendel&#39;s
+      IHT analysis option
+        version 0.4.0
+ 
+ 
+Reading the data.
+
+The current working directory is &#34;/Users/biona001/.julia/v0.6/IHT/docs/MendelIHT_tutorial&#34;.
+
+Keywords modified by the user:
+
+  affected_designator = 2
+  control_file = gwas 1 Control basic.txt
+  pedigree_file = gwas 1 data.fam
+  plink_input_basename = gwas 1 data
+  predictors = 2
+  snpdata_file = gwas 1 data.bed
+  snpdefinition_file = gwas 1 data.bim
+ 
+</pre>
 </div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stderr output_text">
+<pre><span class="ansi-cyan-intense-fg ansi-bold">INFO: </span><span class="ansi-cyan-fg">Reading in data
+</span><span class="ansi-cyan-intense-fg ansi-bold">INFO: </span><span class="ansi-cyan-fg">v1.0 BED file detected
+</span><span class="ansi-cyan-intense-fg ansi-bold">INFO: </span><span class="ansi-cyan-fg">Analyzing the data for model size k = 2
+</span></pre>
+</div>
+</div>
+
+<div class="output_area"><div class="prompt output_prompt">Out[3]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>IHT results:
+
+Compute time (sec):     1.477848303
+Final loss:             1183.6890803583537
+Iterations:             4
+Max number of groups:   1
+Max predictors/group:   2
+IHT estimated 2 nonzero coefficients.
+2×3 DataFrames.DataFrame
+│ Row │ Group │ Predictor │ Estimated_β │
+├─────┼───────┼───────────┼─────────────┤
+│ 1   │ 1     │ 3981      │ 0.149073    │
+│ 2   │ 1     │ 7023      │ 0.272991    │
+
+Intercept of model = 0.0
+</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
@@ -11964,7 +12060,8 @@ div#notebook {
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
@@ -11973,7 +12070,8 @@ div#notebook {
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
@@ -11984,7 +12082,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="prompt input_prompt">In&nbsp;[4]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-julia"><pre><span></span><span class="p">;</span><span class="n">head</span> <span class="o">-</span><span class="mi">10</span> <span class="s">&quot;gwas 1 noncov.txt&quot;</span>
@@ -11994,19 +12092,43 @@ div#notebook {
 </div>
 </div>
 
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>1	-0.088704513339476
+1	-0.9575873240069772
+1	-0.9713258274139007
+1	-0.9847900613424241
+1	-0.5954781589540936
+1	0.2124813875751884
+1	2.28150775802523
+1	1.7643235366779797
+1	-0.3933262467789896
+1	-0.1348394065324508
+</pre>
 </div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h3 id="Step-2:-Prepare-Corresponding-Control-File">Step 2: Prepare Corresponding Control File<a class="anchor-link" href="#Step-2:-Prepare-Corresponding-Control-File">&#182;</a></h3><p>We need to tell MendelIHT that the covariates are separated by tabs. This can be achieved via the <a href="https://openmendel.github.io/MendelBase.jl/">MendelBase</a> keyword <code>field_separator</code> as follows:</p>
+<h3 id="Step-2:-Prepare-Corresponding-Control-File">Step 2: Prepare Corresponding Control File<a class="anchor-link" href="#Step-2:-Prepare-Corresponding-Control-File">&#182;</a></h3><p>We need to tell MendelIHT that the covariates are separated by tabs. This can be specified via the <a href="https://openmendel.github.io/MendelBase.jl/">MendelBase</a> keyword <code>field_separator</code> in the control file as follows:</p>
 
 </div>
 </div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="prompt input_prompt">In&nbsp;[5]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-julia"><pre><span></span><span class="p">;</span><span class="n">cat</span> <span class="s">&quot;gwas 1 Control nongen.txt&quot;</span>
@@ -12016,8 +12138,31 @@ div#notebook {
 </div>
 </div>
 
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>#
+# Input and Output files.
+#
+plink_input_basename = gwas 1 data
+non_genetic_covariates = gwas 1 noncov.txt
+field_separator = &#39;	&#39;
+#
+# Analysis parameters for IHT option.
+#
+predictors = 2</pre>
 </div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
@@ -12027,7 +12172,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="prompt input_prompt">In&nbsp;[6]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-julia"><pre><span></span><span class="k">using</span> <span class="n">IHT</span>
@@ -12038,26 +12183,98 @@ div#notebook {
 </div>
 </div>
 
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre> 
+ 
+     Welcome to OpenMendel&#39;s
+      IHT analysis option
+        version 0.4.0
+ 
+ 
+Reading the data.
+
+The current working directory is &#34;/Users/biona001/.julia/v0.6/IHT/docs/MendelIHT_tutorial&#34;.
+
+Keywords modified by the user:
+
+  affected_designator = 2
+  control_file = gwas 1 Control nongen.txt
+  field_separator = 	
+  non_genetic_covariates = gwas 1 noncov.txt
+  pedigree_file = gwas 1 data.fam
+  plink_input_basename = gwas 1 data
+  predictors = 2
+  snpdata_file = gwas 1 data.bed
+  snpdefinition_file = gwas 1 data.bim
+ 
+</pre>
 </div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stderr output_text">
+<pre><span class="ansi-cyan-intense-fg ansi-bold">INFO: </span><span class="ansi-cyan-fg">Reading in data
+</span><span class="ansi-cyan-intense-fg ansi-bold">INFO: </span><span class="ansi-cyan-fg">v1.0 BED file detected
+</span><span class="ansi-cyan-intense-fg ansi-bold">INFO: </span><span class="ansi-cyan-fg">Analyzing the data for model size k = 2
+</span></pre>
+</div>
+</div>
+
+<div class="output_area"><div class="prompt output_prompt">Out[6]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>IHT results:
+
+Compute time (sec):     0.979895101
+Final loss:             1183.6890803583544
+Iterations:             4
+Max number of groups:   1
+Max predictors/group:   2
+IHT estimated 2 nonzero coefficients.
+2×3 DataFrames.DataFrame
+│ Row │ Group │ Predictor │ Estimated_β │
+├─────┼───────┼───────────┼─────────────┤
+│ 1   │ 1     │ 3981      │ 0.149073    │
+│ 2   │ 1     │ 7023      │ 0.272991    │
+
+Intercept of model = 0.0
+</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p><strong>Remark:</strong> Observe that the overall error did not change by much, and the estimated coefficients and intercept remained roughly the same.</p>
+<p><strong>Remark:</strong> Observe that the resulting error and model is exactly the same, because the covariates we added is white noise, and thus, was not selected by IHT to be a significant predictor.</p>
 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h1 id="Example-3:-Cross-Validation">Example 3: Cross Validation<a class="anchor-link" href="#Example-3:-Cross-Validation">&#182;</a></h1><p>In this example, users can run IHT on any number of model in at most 8 parallel threads. Empirically, running on $n$ threads achieves roughly $n/2$ fold speedup. Note that running $q$ fold cross validation on $r$ different models entails running IHT $q \times r$ times.</p>
-<h3 id="IMPORTANT-in-order-to-take-advantage-of-multithreads,-discontinue-this-notebook-and-julia.-Have-a-terminal-open.">IMPORTANT in order to take advantage of multithreads, discontinue this notebook and julia. Have a terminal open.<a class="anchor-link" href="#IMPORTANT-in-order-to-take-advantage-of-multithreads,-discontinue-this-notebook-and-julia.-Have-a-terminal-open.">&#182;</a></h3>
+<h3 id="Step-0:-IMPORTANT-in-order-to-take-advantage-of-multithreads,-discontinue-this-notebook-and-julia.-Have-a-terminal-open.">Step 0: IMPORTANT in order to take advantage of multithreads, discontinue this notebook and julia. Have a terminal open.<a class="anchor-link" href="#Step-0:-IMPORTANT-in-order-to-take-advantage-of-multithreads,-discontinue-this-notebook-and-julia.-Have-a-terminal-open.">&#182;</a></h3>
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
@@ -12066,18 +12283,19 @@ div#notebook {
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h3 id="Step-2:-Verify-that-notebook-is-indeed-running-with-8-threads:">Step 2: Verify that notebook is indeed running with 8 threads:<a class="anchor-link" href="#Step-2:-Verify-that-notebook-is-indeed-running-with-8-threads:">&#182;</a></h3><p>Note that if you computer's capacity is less than 8, it will default to the largest number it can run.</p>
+<h3 id="Step-2:-Start-notebook-in-the-same-terminal-window-and-verify-that-notebook-is-indeed-running-with-8-threads:">Step 2: Start notebook in the same terminal window and verify that notebook is indeed running with 8 threads:<a class="anchor-link" href="#Step-2:-Start-notebook-in-the-same-terminal-window-and-verify-that-notebook-is-indeed-running-with-8-threads:">&#182;</a></h3><p>Note that if you computer's capacity is less than 8, it will default to the largest number it can run.</p>
 
 </div>
 </div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="prompt input_prompt">In&nbsp;[7]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-julia"><pre><span></span><span class="n">Threads</span><span class="o">.</span><span class="n">nthreads</span><span class="p">()</span>
@@ -12087,19 +12305,36 @@ div#notebook {
 </div>
 </div>
 
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[7]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>8</pre>
 </div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h3 id="Step-3:-Specify-the-model-sizes">Step 3: Specify the model sizes<a class="anchor-link" href="#Step-3:-Specify-the-model-sizes">&#182;</a></h3><p>The paths should be inside quotes and separated by comma, specified via the keyword <code>model_sizes</code>. Each entry must be an integer. In this example, we tried to run IHT for model sizes $k = 1, 2, ..., 20$. The resulting model is stored in the sparse matrix, and both these models and the associated error is returned.</p>
+<h3 id="Step-3:-Specify-the-model-sizes">Step 3: Specify the model sizes<a class="anchor-link" href="#Step-3:-Specify-the-model-sizes">&#182;</a></h3><p>The paths should be inside quotes and separated by comma, specified via the keyword <code>model_sizes</code>. Each entry must be an integer. In this example, we tried to run IHT for model sizes $k = 1, 2, ..., 10$ and 5 different folds. This is equivalent to running IHT 50 different times, and hence, ideal for parallel computing.</p>
 
 </div>
 </div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="prompt input_prompt">In&nbsp;[8]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-julia"><pre><span></span><span class="p">;</span><span class="n">cat</span> <span class="s">&quot;gwas 1 Control cv.txt&quot;</span>
@@ -12109,8 +12344,32 @@ div#notebook {
 </div>
 </div>
 
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>#
+# Input and Output files.
+#
+plink_input_basename = gwas 1 data
+#
+# Cross Validation parameters
+#
+run_cross_validation = true
+cv_folds = 5
+model_sizes = &#34;1,2,3,4,5,6,7,8,9,10&#34;
+</pre>
 </div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
@@ -12120,7 +12379,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="prompt input_prompt">In&nbsp;[9]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-julia"><pre><span></span><span class="k">using</span> <span class="n">IHT</span>
@@ -12131,19 +12390,95 @@ div#notebook {
 </div>
 </div>
 
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre> 
+ 
+     Welcome to OpenMendel&#39;s
+      IHT analysis option
+        version 0.4.0
+ 
+ 
+Reading the data.
+
+The current working directory is &#34;/Users/biona001/.julia/v0.6/IHT/docs/MendelIHT_tutorial&#34;.
+
+Keywords modified by the user:
+
+  affected_designator = 2
+  control_file = gwas 1 Control cv.txt
+  cv_folds = 5
+  model_sizes = 1,2,3,4,5,6,7,8,9,10
+  pedigree_file = gwas 1 data.fam
+  plink_input_basename = gwas 1 data
+  run_cross_validation = true
+  snpdata_file = gwas 1 data.bed
+  snpdefinition_file = gwas 1 data.bim
+ 
+</pre>
 </div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stderr output_text">
+<pre><span class="ansi-cyan-intense-fg ansi-bold">INFO: </span><span class="ansi-cyan-fg">Reading in data
+</span><span class="ansi-cyan-intense-fg ansi-bold">INFO: </span><span class="ansi-cyan-fg">v1.0 BED file detected
+</span></pre>
+</div>
+</div>
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>
+
+Crossvalidation Results:
+k	MSE
+1	0.5546784765054349
+2	0.6004528460555323
+3	0.6660062486666182
+4	0.7124842256809767
+5	0.7284745101298649
+6	0.6771718567273666
+7	0.6298517451998119
+8	0.6174543457147491
+9	0.6406876914640967
+10	0.6628730245475413
+
+The lowest MSE is achieved at k = 1
+</pre>
+</div>
+</div>
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stderr output_text">
+<pre><span class="ansi-cyan-intense-fg ansi-bold">INFO: </span><span class="ansi-cyan-fg">Running 5-fold cross validation on the following model sizes:
+1,2,3,4,5,6,7,8,9,10.
+Ignoring keyword predictors.
+</span></pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h3 id="Step-5:-Re-run-ordinary-IHT-on-the-best-model-size">Step 5: Re-run ordinary IHT on the best model size<a class="anchor-link" href="#Step-5:-Re-run-ordinary-IHT-on-the-best-model-size">&#182;</a></h3><p>According to our cross validation result, the best model size that minimizes out-of-sample errors (i.e. MSE on the q-th subset of samples) is attained at $k = 1$. Using this information, one can re-run the IHT code to obtain the estimated model. Note importantly, that cross-validation in this case <strong>did not</strong> return the true model size $k = 2$. This reflects the general tendency for IHT to <em>under</em> estimate the true model size, as highlighted in our <a href="https://github.com/klkeys/IHT.jl/blob/master/docs/IHT_tutorial_full.ipynb">previous tutorial</a>. Currently we are working hard to simulate varying datasets and model sizes to examine the behavior of using IHT.</p>
+<h3 id="Step-5:-Re-run-ordinary-IHT-on-the-best-model-size">Step 5: Re-run ordinary IHT on the best model size<a class="anchor-link" href="#Step-5:-Re-run-ordinary-IHT-on-the-best-model-size">&#182;</a></h3><p>According to our cross validation result, the best model size that minimizes out-of-sample errors (i.e. MSE on the q-th subset of samples) is attained at $k = 1$. Using this information, one can re-run the IHT code to obtain the estimated model. Note importantly, that cross-validation in this case <strong>did not</strong> return the true model size $k = 2$. This reflects the general tendency for IHT to <em>under</em> estimate the true model size.</p>
 
 </div>
 </div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="prompt input_prompt">In&nbsp;[10]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-julia"><pre><span></span><span class="p">;</span><span class="n">cat</span> <span class="s">&quot;gwas 1 Control basic2.txt&quot;</span>
@@ -12153,10 +12488,31 @@ div#notebook {
 </div>
 </div>
 
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>#
+# Input and Output files.
+#
+plink_input_basename = gwas 1 data
+
+#
+# Analysis parameters for IHT option.
+#
+predictors = 1</pre>
+</div>
+</div>
+
+</div>
+</div>
+
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="prompt input_prompt">In&nbsp;[11]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-julia"><pre><span></span><span class="n">MendelIHT</span><span class="p">(</span><span class="s">&quot;gwas 1 Control basic2.txt&quot;</span><span class="p">)</span> <span class="c"># change directory as necessary</span>
@@ -12166,19 +12522,86 @@ div#notebook {
 </div>
 </div>
 
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre> 
+ 
+     Welcome to OpenMendel&#39;s
+      IHT analysis option
+        version 0.4.0
+ 
+ 
+Reading the data.
+
+The current working directory is &#34;/Users/biona001/.julia/v0.6/IHT/docs/MendelIHT_tutorial&#34;.
+
+Keywords modified by the user:
+
+  affected_designator = 2
+  control_file = gwas 1 Control basic2.txt
+  pedigree_file = gwas 1 data.fam
+  plink_input_basename = gwas 1 data
+  predictors = 1
+  snpdata_file = gwas 1 data.bed
+  snpdefinition_file = gwas 1 data.bim
+ 
+</pre>
 </div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stderr output_text">
+<pre><span class="ansi-cyan-intense-fg ansi-bold">INFO: </span><span class="ansi-cyan-fg">Reading in data
+</span><span class="ansi-cyan-intense-fg ansi-bold">INFO: </span><span class="ansi-cyan-fg">v1.0 BED file detected
+</span><span class="ansi-cyan-intense-fg ansi-bold">INFO: </span><span class="ansi-cyan-fg">Analyzing the data for model size k = 1
+</span></pre>
+</div>
+</div>
+
+<div class="output_area"><div class="prompt output_prompt">Out[11]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>IHT results:
+
+Compute time (sec):     0.897766462
+Final loss:             1208.1108390895013
+Iterations:             3
+Max number of groups:   1
+Max predictors/group:   1
+IHT estimated 1 nonzero coefficients.
+1×3 DataFrames.DataFrame
+│ Row │ Group │ Predictor │ Estimated_β │
+├─────┼───────┼───────────┼─────────────┤
+│ 1   │ 1     │ 7023      │ 0.276275    │
+
+Intercept of model = 0.0
+</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h3 id="Step-6-(optional):-Running-different-path-sizes-but-don't-run-cross-validation">Step 6 (optional): Running different path sizes but don't run cross validation<a class="anchor-link" href="#Step-6-(optional):-Running-different-path-sizes-but-don't-run-cross-validation">&#182;</a></h3><p>Instead of cutting your sample size into $q$ disjoint sets, IHT optionally allows users to run various models on all the samples. This is happens if the user does not set <code>run_cross_validation</code> to true. An example is as follows:</p>
+<h3 id="Step-6-(optional):-Running-different-path-sizes-but-don't-run-cross-validation">Step 6 (optional): Running different path sizes but don't run cross validation<a class="anchor-link" href="#Step-6-(optional):-Running-different-path-sizes-but-don't-run-cross-validation">&#182;</a></h3><p>Instead of cutting your sample size into $q$ disjoint sets, IHT optionally allows users to run various models on all the samples. This happens if the user does not set <code>run_cross_validation</code> to true. An example is as follows:</p>
 
 </div>
 </div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="prompt input_prompt">In&nbsp;[12]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-julia"><pre><span></span><span class="p">;</span><span class="n">cat</span> <span class="s">&quot;gwas 1 Control userpath.txt&quot;</span>
@@ -12188,10 +12611,32 @@ div#notebook {
 </div>
 </div>
 
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>#
+# Input and Output files.
+#
+plink_input_basename = gwas 1 data
+#
+# Analysis parameters for IHT option.
+#
+predictors = 2
+model_sizes = &#34;1,2,3,4,5,6,7,8,9,10&#34;
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="prompt input_prompt">In&nbsp;[13]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-julia"><pre><span></span><span class="k">using</span> <span class="n">IHT</span>
@@ -12202,8 +12647,62 @@ div#notebook {
 </div>
 </div>
 
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre> 
+ 
+     Welcome to OpenMendel&#39;s
+      IHT analysis option
+        version 0.4.0
+ 
+ 
+Reading the data.
+
+The current working directory is &#34;/Users/biona001/.julia/v0.6/IHT/docs/MendelIHT_tutorial&#34;.
+
+Keywords modified by the user:
+
+  affected_designator = 2
+  control_file = gwas 1 Control userpath.txt
+  model_sizes = 1,2,3,4,5,6,7,8,9,10
+  pedigree_file = gwas 1 data.fam
+  plink_input_basename = gwas 1 data
+  predictors = 2
+  snpdata_file = gwas 1 data.bed
+  snpdefinition_file = gwas 1 data.bim
+ 
+</pre>
 </div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stderr output_text">
+<pre><span class="ansi-cyan-intense-fg ansi-bold">INFO: </span><span class="ansi-cyan-fg">Reading in data
+</span><span class="ansi-cyan-intense-fg ansi-bold">INFO: </span><span class="ansi-cyan-fg">v1.0 BED file detected
+</span><span class="ansi-cyan-intense-fg ansi-bold">INFO: </span><span class="ansi-cyan-fg">Running the following model sizes: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+</span></pre>
+</div>
+</div>
+
+<div class="output_area"><div class="prompt output_prompt">Out[13]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>([0.0 0.0 … 0.0 0.0; 0.0 0.0 … 0.0 0.0; … ; 0.0 0.0 … 0.0 0.0; 0.0 0.0 … 0.0 0.0], [0.0 0.0 … 0.140544 0.140545])</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
@@ -12214,11 +12713,109 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="prompt input_prompt">In&nbsp;[14]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-julia"><pre><span></span><span class="n">idx</span> <span class="o">=</span> <span class="n">find</span><span class="p">(</span><span class="n">models</span><span class="p">[</span><span class="o">:</span><span class="p">,</span> <span class="k">end</span><span class="p">])</span>
-<span class="n">full</span><span class="p">(</span><span class="n">models</span><span class="p">[</span><span class="n">idx</span><span class="p">,</span> <span class="o">:</span><span class="p">])</span>
+<div class=" highlight hl-julia"><pre><span></span><span class="n">idx</span> <span class="o">=</span> <span class="n">find</span><span class="p">(</span><span class="n">models</span><span class="p">[:,</span> <span class="k">end</span><span class="p">])</span>
+<span class="n">full</span><span class="p">(</span><span class="n">models</span><span class="p">[</span><span class="n">idx</span><span class="p">,</span> <span class="p">:])</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[14]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>9×10 Array{Float64,2}:
+ 0.0       0.0       0.0       …  -0.0756696  -0.0766181  -0.0782086
+ 0.0       0.0       0.0          -0.0780773  -0.077302   -0.0787067
+ 0.0       0.149073  0.149073      0.145485    0.144214    0.143389 
+ 0.0       0.0       0.0           0.08293     0.080625    0.0810577
+ 0.0       0.0       0.0          -0.087082   -0.0869424  -0.0890821
+ 0.0       0.0       0.0       …   0.0866336   0.0857555   0.0875377
+ 0.0       0.0       0.0           0.0        -0.0737263  -0.0751238
+ 0.276275  0.272991  0.272991      0.265817    0.264556    0.2656   
+ 0.0       0.0       0.0           0.0         0.0        -0.0832995</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Example-4:-Using-simulated-results-to-examine-IHT-signal-reconstruction">Example 4: Using simulated results to examine IHT signal reconstruction<a class="anchor-link" href="#Example-4:-Using-simulated-results-to-examine-IHT-signal-reconstruction">&#182;</a></h1><p>In this example, we want to explicitly examine the ability for IHT to recover signals. Note the follow 2 examples directly call functions of <code>IHT.jl</code> instead of using control files. This allows greater flexibility on end users because they can directly manipulate variables.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Step-1:-Simulate-data">Step 1: Simulate data<a class="anchor-link" href="#Step-1:-Simulate-data">&#182;</a></h3><p>We first simulate a uniform random SNP matrix $X$ and a known model $\beta$ as follows:
+$$\beta \sim N(0, 1),$$
+$$y = X\beta + \epsilon$$
+$$\epsilon \in N(0, s),$$
+$$s \in \{0.1, 1, 10, 25\}.$$</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[15]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-julia"><pre><span></span><span class="c">#load packages</span>
+<span class="k">using</span> <span class="n">IHT</span>
+<span class="k">using</span> <span class="n">SnpArrays</span>
+<span class="k">using</span> <span class="n">DataFrames</span>
+<span class="k">using</span> <span class="n">Distributions</span>
+
+<span class="c">#set random seed</span>
+<span class="n">srand</span><span class="p">(</span><span class="mi">1111</span><span class="p">)</span> 
+
+<span class="c">#specify dimension and noise of data</span>
+<span class="n">n</span> <span class="o">=</span> <span class="mi">5000</span>                        <span class="c"># number of cases</span>
+<span class="n">p</span> <span class="o">=</span> <span class="mi">30000</span>                       <span class="c"># number of predictors</span>
+<span class="n">k</span> <span class="o">=</span> <span class="mi">10</span>                          <span class="c"># number of true predictors per group</span>
+<span class="n">S</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">,</span> <span class="mf">25.0</span><span class="p">]</span>      <span class="c"># noise vector, from very little noise to a lot of noise</span>
+
+<span class="c">#construct snpmatrix, covariate files, and true model b</span>
+<span class="n">x</span>           <span class="o">=</span> <span class="n">SnpArray</span><span class="p">(</span><span class="n">rand</span><span class="p">(</span><span class="mi">0</span><span class="p">:</span><span class="mi">2</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">p</span><span class="p">))</span>    <span class="c"># a random snpmatrix</span>
+<span class="n">z</span>           <span class="o">=</span> <span class="n">ones</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>                   <span class="c"># non-genetic covariates, just the intercept</span>
+<span class="n">true_b</span>      <span class="o">=</span> <span class="n">zeros</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>                     <span class="c"># model vector</span>
+<span class="n">true_b</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">randn</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>                     <span class="c"># Initialize k non-zero entries in the true model</span>
+<span class="n">shuffle!</span><span class="p">(</span><span class="n">true_b</span><span class="p">)</span>                           <span class="c"># Shuffle the entries</span>
+<span class="n">correct_position</span> <span class="o">=</span> <span class="n">find</span><span class="p">(</span><span class="n">true_b</span><span class="p">)</span>            <span class="c"># keep track of what the true entries are</span>
+<span class="n">noise</span> <span class="o">=</span> <span class="p">[</span><span class="n">rand</span><span class="p">(</span><span class="n">Normal</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">s</span><span class="p">),</span> <span class="n">n</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="k">in</span> <span class="n">S</span><span class="p">]</span> <span class="c"># noise vectors from N(0, s) where s ∈ S = {0.01, 0.1, 1, 10}s</span>
+
+<span class="c">#compute mean and std used to standardize data to mean 0 variance 1</span>
+<span class="n">mean_vec</span><span class="p">,</span> <span class="n">minor_allele</span><span class="p">,</span> <span class="o">=</span> <span class="n">summarize</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">i</span> <span class="k">in</span> <span class="mi">1</span><span class="p">:</span><span class="n">p</span>
+    <span class="n">minor_allele</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">?</span> <span class="n">mean_vec</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mf">2.0</span> <span class="o">-</span> <span class="mf">2.0</span><span class="n">mean_vec</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="p">:</span> <span class="n">mean_vec</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mf">2.0</span><span class="n">mean_vec</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+<span class="k">end</span>
+<span class="n">std_vec</span> <span class="o">=</span> <span class="n">std_reciprocal</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">mean_vec</span><span class="p">)</span>
+
+<span class="c">#simulate phenotypes under different noises by: y = Xb + noise </span>
+<span class="n">y</span> <span class="o">=</span> <span class="p">[</span><span class="n">zeros</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="k">in</span> <span class="mi">1</span><span class="p">:</span><span class="n">length</span><span class="p">(</span><span class="n">S</span><span class="p">)]</span>
+<span class="k">for</span> <span class="n">i</span> <span class="k">in</span> <span class="mi">1</span><span class="p">:</span><span class="n">length</span><span class="p">(</span><span class="n">S</span><span class="p">)</span>
+    <span class="n">SnpArrays</span><span class="o">.</span><span class="n">A_mul_B!</span><span class="p">(</span><span class="n">y</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">x</span><span class="p">,</span> <span class="n">true_b</span><span class="p">,</span> <span class="n">mean_vec</span><span class="p">,</span> <span class="n">std_vec</span><span class="p">)</span>
+    <span class="n">y</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">.+=</span> <span class="n">noise</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+<span class="k">end</span>
 </pre></div>
 
 </div>
@@ -12226,11 +12823,302 @@ div#notebook {
 </div>
 
 </div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h1 id="Conclusion">Conclusion<a class="anchor-link" href="#Conclusion">&#182;</a></h1><p>This notebook demonstrated some of the basic features of IHT. It will be informative to simulate known values of $\beta$, because then we can compare reconstruction results directly. But in this notebook we instead chose to use a dataset that all other OpenMendel notebooks were using, with the values of $\beta_{true}$ unknown. Interested readers can visit our older notebooks <a href="https://github.com/klkeys/IHT.jl/blob/master/docs/IHT_tutorial_full.ipynb">here</a> and <a href="https://github.com/klkeys/IHT.jl/blob/master/docs/IHT_tutorial_brief.ipynb">here</a>, which additionally runs IHT on numeric data. In the near future, we will release a more detailed tutorial that includes tutorials on all the experiemental features of IHT on GWAS data, as well as direct comparison results on simulated data.</p>
+<h3 id="Observe-the-noisiness-of-our-observations.">Observe the noisiness of our observations.<a class="anchor-link" href="#Observe-the-noisiness-of-our-observations.">&#182;</a></h3><p>Each column is the same response vector with varying levels of noise added. The farther right, the noisier the data.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[16]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-julia"><pre><span></span><span class="p">[</span><span class="n">y</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="n">y</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="n">y</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="n">y</span><span class="p">[</span><span class="mi">4</span><span class="p">]]</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[16]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>5000×4 Array{Float64,2}:
+ -2.99018    -2.22532    -1.82439    6.86836
+  0.0639139  -0.369665    5.09387    5.69815
+  0.842478    0.752519   18.7169   -28.0052 
+ -2.82943    -3.8914      9.95096    4.61981
+ -1.67051    -0.116633   -4.05996  -33.7148 
+ -0.514721   -1.95655    -6.08555  -36.0566 
+ -0.801959   -1.37353    -7.47094  -16.0338 
+  2.96974     5.17726    -8.5696   -12.3472 
+  3.10826     2.3005      7.51206  -33.1643 
+ -0.464412    0.4904     -5.58351   16.1176 
+ -0.616762   -0.790245   10.3874   -21.1504 
+  0.626816    0.374474   -8.41267   31.0773 
+ -2.15693    -1.69911   -10.2978    23.1543 
+  ⋮                                         
+ -0.848227   -1.33377     6.24567  -25.5871 
+  1.77269     2.75435     1.8081   -14.2573 
+  3.28046     2.37263   -10.7767     2.74097
+  2.53484     3.85943   -14.6097   -27.4922 
+ -0.28382     1.24455     6.40927  -20.1135 
+  2.57121     3.26019    10.9377   -28.2579 
+  0.720075    0.407501  -14.2108   -24.9081 
+ -1.00212    -0.294159    2.86219  -22.3564 
+  1.99847     2.29386   -13.6361    -3.32973
+ -1.07315    -1.60252    -6.62297   17.6574 
+ -4.83795    -5.04249    -8.24915  -36.6602 
+ -0.942096   -0.998835    7.73013   45.3044 </pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Step-2:-Examine-reconstruction-of-IHT-given-true-model-size">Step 2: Examine reconstruction of IHT given true model size<a class="anchor-link" href="#Step-2:-Examine-reconstruction-of-IHT-given-true-model-size">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[17]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-julia"><pre><span></span><span class="c">#compute IHT result for less noisy data</span>
+<span class="n">estimated_models</span> <span class="o">=</span> <span class="p">[</span><span class="n">zeros</span><span class="p">(</span><span class="n">k</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="k">in</span> <span class="mi">1</span><span class="p">:</span><span class="n">length</span><span class="p">(</span><span class="n">y</span><span class="p">)]</span>
+<span class="k">for</span> <span class="n">i</span> <span class="k">in</span> <span class="mi">1</span><span class="p">:</span><span class="n">length</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+    <span class="n">v</span> <span class="o">=</span> <span class="n">IHTVariables</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">y</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="mi">1</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">L0_reg</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">y</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="mi">1</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span>
+    <span class="n">estimated_models</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">.=</span> <span class="n">result</span><span class="o">.</span><span class="n">beta</span><span class="p">[</span><span class="n">correct_position</span><span class="p">]</span>
+<span class="k">end</span>
+
+<span class="c">#compare and contrast</span>
+<span class="n">true_model</span> <span class="o">=</span> <span class="n">true_b</span><span class="p">[</span><span class="n">correct_position</span><span class="p">]</span>
+<span class="n">compare_model</span> <span class="o">=</span> <span class="n">DataFrame</span><span class="p">(</span>
+    <span class="n">correct_position</span> <span class="o">=</span> <span class="n">correct_position</span><span class="p">,</span> 
+    <span class="n">true_β</span>           <span class="o">=</span> <span class="n">true_model</span><span class="p">,</span> 
+    <span class="n">noise_level_1</span>    <span class="o">=</span> <span class="n">estimated_models</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>      <span class="c">#N(0, 0.1)</span>
+    <span class="n">noise_level_2</span>    <span class="o">=</span> <span class="n">estimated_models</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span>      <span class="c">#N(0, 1.0)</span>
+    <span class="n">noise_level_3</span>    <span class="o">=</span> <span class="n">estimated_models</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span>      <span class="c">#N(0, 10.0)</span>
+    <span class="n">noise_level_4</span>    <span class="o">=</span> <span class="n">estimated_models</span><span class="p">[</span><span class="mi">4</span><span class="p">])</span>      <span class="c">#N(0, 25.0)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[17]:</div>
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<table class="data-frame"><thead><tr><th></th><th>correct_position</th><th>true_β</th><th>noise_level_1</th><th>noise_level_2</th><th>noise_level_3</th><th>noise_level_4</th></tr></thead><tbody><tr><th>1</th><td>2012</td><td>0.20775</td><td>0.208856</td><td>0.205502</td><td>0.0</td><td>0.0</td></tr><tr><th>2</th><td>5685</td><td>0.372181</td><td>0.373598</td><td>0.357529</td><td>0.629893</td><td>0.0</td></tr><tr><th>3</th><td>7835</td><td>0.416006</td><td>0.414099</td><td>0.401277</td><td>0.0</td><td>0.0</td></tr><tr><th>4</th><td>9271</td><td>-0.160673</td><td>-0.161993</td><td>-0.168774</td><td>0.0</td><td>0.0</td></tr><tr><th>5</th><td>13188</td><td>-0.545489</td><td>-0.546157</td><td>-0.526095</td><td>0.0</td><td>0.0</td></tr><tr><th>6</th><td>19042</td><td>-0.695873</td><td>-0.696818</td><td>-0.714161</td><td>-0.672233</td><td>0.0</td></tr><tr><th>7</th><td>21966</td><td>-0.202504</td><td>-0.202652</td><td>-0.217099</td><td>0.0</td><td>0.0</td></tr><tr><th>8</th><td>23982</td><td>-0.489064</td><td>-0.489366</td><td>-0.495835</td><td>-0.56097</td><td>0.0</td></tr><tr><th>9</th><td>24758</td><td>0.551161</td><td>0.553689</td><td>0.529186</td><td>0.0</td><td>0.0</td></tr><tr><th>10</th><td>29481</td><td>-1.56535</td><td>-1.56519</td><td>-1.55339</td><td>-1.73005</td><td>-1.79669</td></tr></tbody></table>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Step-3:-Interpret-reconstruction-result">Step 3: Interpret reconstruction result<a class="anchor-link" href="#Step-3:-Interpret-reconstruction-result">&#182;</a></h3><p>IHT finds the correct 10 predictors if we add little noise. With greater noise, we lose predictors with smaller effect size, while losing accuracy. However, found predictors exhibit no shrinkage of effect size.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Example-5:-Using-simulated-results-to-examine-IHT-Cross-Validation">Example 5: Using simulated results to examine IHT Cross Validation<a class="anchor-link" href="#Example-5:-Using-simulated-results-to-examine-IHT-Cross-Validation">&#182;</a></h1>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Step-0:-Follow-steps-0~2-in-example-3-to-gain-access-to-multi-threading">Step 0: Follow steps 0~2 in example 3 to gain access to multi-threading<a class="anchor-link" href="#Step-0:-Follow-steps-0~2-in-example-3-to-gain-access-to-multi-threading">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[18]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-julia"><pre><span></span><span class="n">Threads</span><span class="o">.</span><span class="n">nthreads</span><span class="p">()</span> <span class="c"># check that multiple threads are running</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt output_prompt">Out[18]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>8</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Step-1:-Simulate-Data-(as-done-in-Example-4-step-1)">Step 1: Simulate Data (as done in Example 4 step 1)<a class="anchor-link" href="#Step-1:-Simulate-Data-(as-done-in-Example-4-step-1)">&#182;</a></h3><h3 id="Step-2:-Run-IHT-cross-validation-code">Step 2: Run IHT cross validation code<a class="anchor-link" href="#Step-2:-Run-IHT-cross-validation-code">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[19]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-julia"><pre><span></span><span class="n">srand</span><span class="p">(</span><span class="mi">1111</span><span class="p">)</span> <span class="c">#reset seed</span>
+
+<span class="c">#run cross validation on not-so-noisy data</span>
+<span class="n">path</span>      <span class="o">=</span> <span class="n">collect</span><span class="p">(</span><span class="mi">2</span><span class="p">:</span><span class="mi">2</span><span class="p">:</span><span class="mi">20</span><span class="p">)</span> 
+<span class="n">num_folds</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="n">folds</span>     <span class="o">=</span> <span class="n">rand</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="n">num_folds</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
+<span class="n">cv_iht</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">y</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mi">1</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">folds</span><span class="p">,</span> <span class="n">num_folds</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>
+
+Crossvalidation Results:
+k	MSE
+2	3.1677822019919044
+4	2.8842864963598736
+6	2.831063934427872
+8	1.8713059507183205
+10	2.257791657013664
+12	2.2743936672699987
+14	2.2656904985204647
+16	2.263997497534819
+18	2.2599121194306795
+20	2.2535873590855027
+
+The lowest MSE is achieved at k = 8
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[20]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-julia"><pre><span></span><span class="n">srand</span><span class="p">(</span><span class="mi">1111</span><span class="p">)</span> <span class="c">#reset seed</span>
+
+<span class="c">#run cross validation on quite noisy data</span>
+<span class="n">path</span>      <span class="o">=</span> <span class="n">collect</span><span class="p">(</span><span class="mi">2</span><span class="p">:</span><span class="mi">2</span><span class="p">:</span><span class="mi">20</span><span class="p">)</span> 
+<span class="n">num_folds</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="n">folds</span>     <span class="o">=</span> <span class="n">rand</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="n">num_folds</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
+<span class="n">cv_iht</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">y</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="mi">1</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">folds</span><span class="p">,</span> <span class="n">num_folds</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>
+
+Crossvalidation Results:
+k	MSE
+2	53.6730684917142
+4	53.65755181959526
+6	53.93280154016717
+8	54.69513090164977
+10	54.86837034931569
+12	53.55242920512205
+14	53.83447900670268
+16	55.6527829783363
+18	56.986528750175154
+20	57.14268507459773
+
+The lowest MSE is achieved at k = 12
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Step-3:-Interpreting-results-(recall-$k_{\text{true}}-=-10$)">Step 3: Interpreting results (recall $k_{\text{true}} = 10$)<a class="anchor-link" href="#Step-3:-Interpreting-results-(recall-$k_{\text{true}}-=-10$)">&#182;</a></h3><p>When noise $\epsilon \in N(0, 0.1)$, cross-validation slightly underestimates the true sparsity parameter: $k_{\text{estimate}} = 8$. For very noisy data $\epsilon \in N(0, 10)$, cross validation returns $k_{\text{estimate}} = 12$, which slightly over-estimates the true sparsity parameter.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Conclusion">Conclusion<a class="anchor-link" href="#Conclusion">&#182;</a></h1><p>This notebook demonstrated some of the basic features of IHT. For more examples (particularly on how to use IHT on numeric data), readers can visit our older notebooks <a href="https://github.com/klkeys/IHT.jl/blob/master/docs/IHT_tutorial_full.ipynb">here</a> and <a href="https://github.com/klkeys/IHT.jl/blob/master/docs/IHT_tutorial_brief.ipynb">here</a>. The first 3 examples illustrate the basic usage of IHT for general audiences. The last 2 examples illustrate how to make function calls directly and tests its robustness on reproducible simulated data. Notably, we selectively omitted several experimental features of IHT. In the near future, we will release a more detailed notebook that includes tutorials on all the experiemental features of IHT on GWAS data as well as motivations for them.</p>
 
 </div>
 </div>
@@ -12238,8 +13126,4 @@ div#notebook {
     </div>
   </div>
 </body>
-
- 
-
-
 </html>
