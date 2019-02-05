@@ -4,6 +4,8 @@
 plink_input_basename = gwasdata
 output_file = quantOutput.txt
 manhattan_plot_file = quantgwasManhattanPlotOutput.png
+qq_plot_file = quantqq.png
+output_table = quantresults.csv
 #
 # Analysis parameters for GWAS option.
 #
