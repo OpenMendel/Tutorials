@@ -11751,7 +11751,7 @@ div#notebook {
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h1 id="OpenMendel-Tutorial-on-Iterative-Hard-Thresholding-(IHT.jl)">OpenMendel Tutorial on Iterative Hard Thresholding (IHT.jl)<a class="anchor-link" href="#OpenMendel-Tutorial-on-Iterative-Hard-Thresholding-(IHT.jl)">&#182;</a></h1><h3 id="Last-update:-2/5/2019">Last update: 2/5/2019<a class="anchor-link" href="#Last-update:-2/5/2019">&#182;</a></h3>
+<h1 id="OpenMendel-Tutorial-on-Iterative-Hard-Thresholding-(IHT.jl)">OpenMendel Tutorial on Iterative Hard Thresholding (IHT.jl)<a class="anchor-link" href="#OpenMendel-Tutorial-on-Iterative-Hard-Thresholding-(IHT.jl)">&#182;</a></h1><h3 id="Last-update:-2/4/2019">Last update: 2/4/2019<a class="anchor-link" href="#Last-update:-2/4/2019">&#182;</a></h3>
 </div>
 </div>
 </div>
@@ -11760,22 +11760,16 @@ div#notebook {
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h3 id="Installation-instructions:">Installation instructions:<a class="anchor-link" href="#Installation-instructions:">&#182;</a></h3><p><code>IHT.jl</code> supports Julia 1.0, but is currently an unregistered package. To install, press <code>]</code> to enter package manager mode, and then install the following packages:</p>
+<h3 id="Julia-version">Julia version<a class="anchor-link" href="#Julia-version">&#182;</a></h3><p><code>IHT.jl</code> currently supports Julia 1.0 and 1.1, but it currently an unregistered package. To install, press <code>]</code> to invoke the package manager mode and install these packages by typing:</p>
 
-<pre><code>(v1.0) pkg&gt; add https://github.com/OpenMendel/SnpArrays.jl/
-(v1.0) pkg&gt; add https://github.com/OpenMendel/MendelSearch.jl
-(v1.0) pkg&gt; add https://github.com/OpenMendel/MendelBase.jl
-(v1.0) pkg&gt; add https://github.com/biona001/IHT.jl</code></pre>
+<pre><code>add https://github.com/OpenMendel/SnpArrays.jl/
+add https://github.com/OpenMendel/MendelSearch.jl
+add https://github.com/OpenMendel/MendelBase.jl
+add https://github.com/biona001/IHT.jl</code></pre>
+<p>For this tutorial you will also need a few registered packages. Add them by typing:</p>
 
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered">
-<div class="prompt input_prompt">
-</div>
-<div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<h3 id="Julia-version">Julia version<a class="anchor-link" href="#Julia-version">&#182;</a></h3><p>For reproducibility, the computer spec and Julia version is listed below.</p>
+<pre><code>add DataFrames, Distributions,BenchmarkTools, Random, LinearAlgebra</code></pre>
+<p>For reproducibility, the computer spec and Julia version is listed below. Current code supports Julia version 1.0.3.</p>
 
 </div>
 </div>
@@ -11798,14 +11792,14 @@ div#notebook {
 
 <div class="output_area"><div class="prompt"></div>
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>Julia Version 1.0.3
-Commit 099e826241 (2018-12-18 01:34 UTC)
+<pre>Julia Version 1.1.0
+Commit 80516ca202 (2019-01-21 21:24 UTC)
 Platform Info:
   OS: macOS (x86_64-apple-darwin14.5.0)
-  CPU: Intel(R) Core(TM) i7-3740QM CPU @ 2.70GHz
+  CPU: Intel(R) Core(TM) i7-6567U CPU @ 3.30GHz
   WORD_SIZE: 64
   LIBM: libopenlibm
-  LLVM: libLLVM-6.0.0 (ORCJIT, ivybridge)
+  LLVM: libLLVM-6.0.1 (ORCJIT, skylake)
 Environment:
   JULIA_NUM_THREADS = 8
 </pre>
@@ -11841,7 +11835,7 @@ Environment:
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h3 id="Appropriate-Datasets-and-Example-Inputs">Appropriate Datasets and Example Inputs<a class="anchor-link" href="#Appropriate-Datasets-and-Example-Inputs">&#182;</a></h3><p>All genotype data <strong>must</strong> be stored in the <a href="https://www.cog-genomics.org/plink2/formats#bed">PLINK binary genotype format</a>, where the triplets <code>.bim</code>, <code>.bed</code> and <code>.fam</code> must all be present. Additional non-genetic covariates should be stored in a separate file (e.g. comma separated file). In the first 3 examples of this tutorial, we use "gwas 1 data" (github repo: <a href="https://github.com/OpenMendel/MendelGWAS.jl/tree/master/docs">here</a>) to illustrate the basic usage and functionalities of MendelIHT. This dataset has 2200 people and a modest 10000 simulated SNPs, with 2 SNPs <code>rs1935681</code> and <code>rs2256412</code> (and an additional interaction term) contributing to the response . One can obtain this dataset from the first example input of <a href="https://openmendel.github.io/MendelGWAS.jl/">MendelGWAS.jl</a>, or via option 24a of the free application <a href="http://www.genetics.ucla.edu/software/mendel">Mendel version 16</a>. To examine the robustness and accuracy of IHT, examples 4 and 5 simulates data on the spot, and immediately calls IHT on the simulated data.</p>
+<h3 id="Appropriate-Datasets-and-Example-Inputs">Appropriate Datasets and Example Inputs<a class="anchor-link" href="#Appropriate-Datasets-and-Example-Inputs">&#182;</a></h3><p>All genotype data <strong>must</strong> be stored in the <a href="https://www.cog-genomics.org/plink2/formats#bed">PLINK binary genotype format</a>, where the triplets <code>.bim</code>, <code>.bed</code> and <code>.fam</code> must all be present. Additional non-genetic covariates should be stored in a separate file (e.g. comma separated file). In the first 3 examples of this tutorial, we use "gwas 1 data" (github repo: <a href="https://github.com/OpenMendel/MendelGWAS.jl/tree/master/docs">here</a>) to illustrate the basic usage and functionalities of MendelIHT. This dataset has 2200 people and a modest 10000 simulated SNPs, with 2 SNPs <code>rs1935681</code> and <code>rs2256412</code> (and an additional interaction term) contributing to the response . One can obtain this dataset from the first example input of <a href="https://openmendel.github.io/MendelGWAS.jl/">MendelGWAS.jl</a>, or via option 24a of the free application <a href="http://software.genetics.ucla.edu/download?package=1">Mendel version 16</a>. To examine the robustness and accuracy of IHT, examples 4 and 5 simulates data on the spot, and immediately calls IHT on the simulated data.</p>
 
 </div>
 </div>
@@ -11851,7 +11845,7 @@ Environment:
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h3 id="Missing-Data">Missing Data<a class="anchor-link" href="#Missing-Data">&#182;</a></h3><p><code>MendelIHT</code> assumes there are no missing genotypes, since it uses linear algebra functions defined in <a href="https://openmendel.github.io/SnpArrays.jl/latest/man/snparray/#linear-algebra-with-snparray">SnpArrays.jl</a>. Therefore, you must first impute missing genotypes before you use MendelIHT. SnpArrays.jl offer a naive imputation strategy, but otherwise, our own software <a href="http://www.genetics.ucla.edu/software/mendel">option 23 of Mendel</a> is a reasonable choice. Open Mendel will soon provide a separate package <code>MendelImpute</code> containing new imputation strategies such as alternating least squares.</p>
+<h3 id="Missing-Data">Missing Data<a class="anchor-link" href="#Missing-Data">&#182;</a></h3><p><code>MendelIHT</code> assumes there are no missing genotypes, since it uses linear algebra functions defined in <a href="https://openmendel.github.io/SnpArrays.jl/latest/man/snparray/#linear-algebra-with-snparray">SnpArrays.jl</a>. Therefore, you must first impute missing genotypes before you use MendelIHT. SnpArrays.jl offer a naive imputation strategy, but otherwise, our own software <a href="http://software.genetics.ucla.edu/download?package=1">option 23 of Mendel</a> is a reasonable choice. Open Mendel will soon provide a separate package <code>MendelImpute</code> containing new imputation strategies such as alternating least squares.</p>
 
 </div>
 </div>
@@ -12017,10 +12011,8 @@ predictors = 2</pre>
 
 <div class="output_area"><div class="prompt"></div>
 <div class="output_subarea output_stream output_stderr output_text">
-<pre>┌ Info: Recompiling stale cache file /Users/biona001/.julia/compiled/v1.0/IHT/eaqWB.ji for IHT [921c7187-1484-5754-b919-5d3ed9ac03c4]
-└ @ Base loading.jl:1190
-┌ Info: Loading DataFrames support into Gadfly.jl
-└ @ Gadfly /Users/biona001/.julia/packages/Gadfly/09PWZ/src/mapping.jl:228
+<pre>┌ Info: Loading DataFrames support into Gadfly.jl
+└ @ Gadfly /Users/janets/.julia/packages/Gadfly/09PWZ/src/mapping.jl:228
 </pre>
 </div>
 </div>
@@ -12035,7 +12027,7 @@ predictors = 2</pre>
  
 Reading the data.
 
-The current working directory is &#34;/Users/biona001/.julia/dev/IHT/docs/MendelIHT_tutorial&#34;.
+The current working directory is &#34;/Users/janets/Documents/lap_top_janet/janet/genetics/review_August2018/revision/OpenMendelTutorials/IHT&#34;.
 
 Keywords modified by the user:
 
@@ -12054,9 +12046,9 @@ Keywords modified by the user:
 <div class="output_area"><div class="prompt"></div>
 <div class="output_subarea output_stream output_stderr output_text">
 <pre>┌ Info: Reading in data
-└ @ IHT /Users/biona001/.julia/dev/IHT/src/MendelIHT.jl:43
+└ @ IHT /Users/janets/.julia/packages/IHT/ezs34/src/MendelIHT.jl:43
 ┌ Info: Running normal IHT for model size k = 2 and groups J = 1
-└ @ IHT /Users/biona001/.julia/dev/IHT/src/MendelIHT.jl:114
+└ @ IHT /Users/janets/.julia/packages/IHT/ezs34/src/MendelIHT.jl:114
 </pre>
 </div>
 </div>
@@ -12067,7 +12059,7 @@ Keywords modified by the user:
 <div class="output_text output_subarea output_execute_result">
 <pre>IHT results:
 
-Compute time (sec):     1.2556431293487549
+Compute time (sec):     1.1933629512786865
 Final loss:             1183.6890803570777
 Iterations:             4
 Max number of groups:   1
@@ -12238,7 +12230,7 @@ predictors = 2</pre>
  
 Reading the data.
 
-The current working directory is &#34;/Users/biona001/.julia/dev/IHT/docs/MendelIHT_tutorial&#34;.
+The current working directory is &#34;/Users/janets/Documents/lap_top_janet/janet/genetics/review_August2018/revision/OpenMendelTutorials/IHT&#34;.
 
 Keywords modified by the user:
 
@@ -12259,9 +12251,9 @@ Keywords modified by the user:
 <div class="output_area"><div class="prompt"></div>
 <div class="output_subarea output_stream output_stderr output_text">
 <pre>┌ Info: Reading in data
-└ @ IHT /Users/biona001/.julia/dev/IHT/src/MendelIHT.jl:43
+└ @ IHT /Users/janets/.julia/packages/IHT/ezs34/src/MendelIHT.jl:43
 ┌ Info: Running normal IHT for model size k = 2 and groups J = 1
-└ @ IHT /Users/biona001/.julia/dev/IHT/src/MendelIHT.jl:114
+└ @ IHT /Users/janets/.julia/packages/IHT/ezs34/src/MendelIHT.jl:114
 </pre>
 </div>
 </div>
@@ -12272,7 +12264,7 @@ Keywords modified by the user:
 <div class="output_text output_subarea output_execute_result">
 <pre>IHT results:
 
-Compute time (sec):     0.7931599617004395
+Compute time (sec):     0.7586910724639893
 Final loss:             1183.6890803570777
 Iterations:             4
 Max number of groups:   1
@@ -12355,7 +12347,7 @@ Intercept of model = 0.0
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>8</pre>
+<pre>4</pre>
 </div>
 
 </div>
@@ -12446,7 +12438,7 @@ model_sizes = &#34;1,2,3,4,5,6,7,8,9,10&#34;
  
 Reading the data.
 
-The current working directory is &#34;/Users/biona001/.julia/dev/IHT/docs/MendelIHT_tutorial&#34;.
+The current working directory is &#34;/Users/janets/Documents/lap_top_janet/janet/genetics/review_August2018/revision/OpenMendelTutorials/IHT&#34;.
 
 Keywords modified by the user:
 
@@ -12467,11 +12459,11 @@ Keywords modified by the user:
 <div class="output_area"><div class="prompt"></div>
 <div class="output_subarea output_stream output_stderr output_text">
 <pre>┌ Info: Reading in data
-└ @ IHT /Users/biona001/.julia/dev/IHT/src/MendelIHT.jl:43
+└ @ IHT /Users/janets/.julia/packages/IHT/ezs34/src/MendelIHT.jl:43
 ┌ Info: Running 5-fold cross validation on the following model sizes:
 │ 1,2,3,4,5,6,7,8,9,10.
 │ Ignoring keyword predictors.
-└ @ IHT /Users/biona001/.julia/dev/IHT/src/MendelIHT.jl:89
+└ @ IHT /Users/janets/.julia/packages/IHT/ezs34/src/MendelIHT.jl:89
 </pre>
 </div>
 </div>
@@ -12485,12 +12477,12 @@ k	MSE
 1	0.5482980579413379
 2	0.540387690843733
 3	0.5281201972176272
-4	0.5335837327042967
+4	0.5335837327042966
 5	0.5356074051685482
 6	0.5375158696185569
 7	0.5411121145103859
-8	0.5412006851572945
-9	0.5474087540872652
+8	0.5412006851572946
+9	0.5474087540872654
 10	0.5496115545514543
 
 The lowest MSE is achieved at k = 3
@@ -12516,7 +12508,7 @@ The lowest MSE is achieved at k = 3
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h3 id="Step-5:-Re-run-ordinary-IHT-on-the-best-model-size">Step 5: Re-run ordinary IHT on the best model size<a class="anchor-link" href="#Step-5:-Re-run-ordinary-IHT-on-the-best-model-size">&#182;</a></h3><p>According to our cross validation result, the best model size that minimizes out-of-sample errors (i.e. MSE on the q-th subset of samples) is attained at $k = 3$. That is, cross validation likely detected that we need 3 SNPs, one being the interaction term incorrectly captured via the intercept (since we didn't explicitly include it in the non-genetic covariate file), to achieve the best model size. Using this information, one can re-run the IHT code to obtain the estimated model.</p>
+<h3 id="Step-5:-Re-run-ordinary-IHT-on-the-best-model-size">Step 5: Re-run ordinary IHT on the best model size<a class="anchor-link" href="#Step-5:-Re-run-ordinary-IHT-on-the-best-model-size">&#182;</a></h3><p>According to our cross validation result, the best model size that minimizes out-of-sample errors (i.e. MSE on the q-th subset of samples) is attained at $k = 3$. That is, cross validation likely detected that we need 3 SNPs (one being the interaction term captured via the intercept) to achieve the best model size. Using this information, one can re-run the IHT code to obtain the estimated model.</p>
 
 </div>
 </div>
@@ -12581,7 +12573,7 @@ predictors = 3</pre>
  
 Reading the data.
 
-The current working directory is &#34;/Users/biona001/.julia/dev/IHT/docs/MendelIHT_tutorial&#34;.
+The current working directory is &#34;/Users/janets/Documents/lap_top_janet/janet/genetics/review_August2018/revision/OpenMendelTutorials/IHT&#34;.
 
 Keywords modified by the user:
 
@@ -12600,9 +12592,9 @@ Keywords modified by the user:
 <div class="output_area"><div class="prompt"></div>
 <div class="output_subarea output_stream output_stderr output_text">
 <pre>┌ Info: Reading in data
-└ @ IHT /Users/biona001/.julia/dev/IHT/src/MendelIHT.jl:43
+└ @ IHT /Users/janets/.julia/packages/IHT/ezs34/src/MendelIHT.jl:43
 ┌ Info: Running normal IHT for model size k = 3 and groups J = 1
-└ @ IHT /Users/biona001/.julia/dev/IHT/src/MendelIHT.jl:114
+└ @ IHT /Users/janets/.julia/packages/IHT/ezs34/src/MendelIHT.jl:114
 </pre>
 </div>
 </div>
@@ -12613,7 +12605,7 @@ Keywords modified by the user:
 <div class="output_text output_subarea output_execute_result">
 <pre>IHT results:
 
-Compute time (sec):     0.7756638526916504
+Compute time (sec):     0.8187448978424072
 Final loss:             1161.9511204211908
 Iterations:             4
 Max number of groups:   1
@@ -12662,7 +12654,7 @@ $$s \in \{0.1, 1, 10, 25\}.$$</p>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[12]:</div>
+<div class="prompt input_prompt">In&nbsp;[14]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-julia"><pre><span></span><span class="c">#load packages</span>
@@ -12707,6 +12699,21 @@ $$s \in \{0.1, 1, 10, 25\}.$$</p>
 </div>
 </div>
 
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stderr output_text">
+<pre>┌ Info: Precompiling BenchmarkTools [6e4b80f9-dd63-53aa-95a3-0cdb28fa8baf]
+└ @ Base loading.jl:1186
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
 </div>
 <div class="cell border-box-sizing text_cell rendered">
 <div class="prompt input_prompt">
@@ -12720,7 +12727,7 @@ $$s \in \{0.1, 1, 10, 25\}.$$</p>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[13]:</div>
+<div class="prompt input_prompt">In&nbsp;[15]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-julia"><pre><span></span><span class="p">[</span><span class="n">y</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="n">y</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="n">y</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="n">y</span><span class="p">[</span><span class="mi">4</span><span class="p">]]</span>
@@ -12734,7 +12741,7 @@ $$s \in \{0.1, 1, 10, 25\}.$$</p>
 <div class="output">
 
 
-<div class="output_area"><div class="prompt output_prompt">Out[13]:</div>
+<div class="output_area"><div class="prompt output_prompt">Out[15]:</div>
 
 
 <div class="output_text output_subarea output_execute_result">
@@ -12784,7 +12791,7 @@ $$s \in \{0.1, 1, 10, 25\}.$$</p>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[14]:</div>
+<div class="prompt input_prompt">In&nbsp;[16]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-julia"><pre><span></span><span class="c">#compute IHT result for less noisy data</span>
@@ -12813,7 +12820,7 @@ $$s \in \{0.1, 1, 10, 25\}.$$</p>
 <div class="output">
 
 
-<div class="output_area"><div class="prompt output_prompt">Out[14]:</div>
+<div class="output_area"><div class="prompt output_prompt">Out[16]:</div>
 
 <div class="output_html rendered_html output_subarea output_execute_result">
 <table class="data-frame"><thead><tr><th></th><th>correct_position</th><th>true_β</th><th>noise_level_1</th><th>noise_level_2</th><th>noise_level_3</th><th>noise_level_4</th></tr><tr><th></th><th>Int64</th><th>Float64</th><th>Float64</th><th>Float64</th><th>Float64</th><th>Float64</th></tr></thead><tbody><p>10 rows × 6 columns</p><tr><th>1</th><td>5929</td><td>0.994762</td><td>0.995545</td><td>1.00746</td><td>0.957444</td><td>0.0</td></tr><tr><th>2</th><td>10164</td><td>0.426441</td><td>0.427758</td><td>0.468934</td><td>0.0</td><td>0.0</td></tr><tr><th>3</th><td>11676</td><td>-1.32497</td><td>-1.32341</td><td>-1.33334</td><td>-1.30104</td><td>-1.22798</td></tr><tr><th>4</th><td>14082</td><td>0.38481</td><td>0.386729</td><td>0.387764</td><td>0.0</td><td>0.0</td></tr><tr><th>5</th><td>17954</td><td>-0.628232</td><td>-0.62823</td><td>-0.647939</td><td>-0.83076</td><td>0.0</td></tr><tr><th>6</th><td>18967</td><td>-1.30452</td><td>-1.30594</td><td>-1.29257</td><td>-1.41359</td><td>0.0</td></tr><tr><th>7</th><td>19304</td><td>-1.37284</td><td>-1.37107</td><td>-1.37061</td><td>-1.29244</td><td>-1.54338</td></tr><tr><th>8</th><td>20792</td><td>0.920098</td><td>0.917775</td><td>0.904498</td><td>0.855185</td><td>1.28701</td></tr><tr><th>9</th><td>26349</td><td>-0.322137</td><td>-0.32181</td><td>-0.300086</td><td>0.0</td><td>0.0</td></tr><tr><th>10</th><td>27146</td><td>2.42516</td><td>2.42472</td><td>2.42196</td><td>2.30561</td><td>1.99963</td></tr></tbody></table>
@@ -12855,7 +12862,7 @@ $$s \in \{0.1, 1, 10, 25\}.$$</p>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[15]:</div>
+<div class="prompt input_prompt">In&nbsp;[17]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-julia"><pre><span></span><span class="n">Threads</span><span class="o">.</span><span class="n">nthreads</span><span class="p">()</span> <span class="c"># check that multiple threads are running</span>
@@ -12869,11 +12876,11 @@ $$s \in \{0.1, 1, 10, 25\}.$$</p>
 <div class="output">
 
 
-<div class="output_area"><div class="prompt output_prompt">Out[15]:</div>
+<div class="output_area"><div class="prompt output_prompt">Out[17]:</div>
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>8</pre>
+<pre>4</pre>
 </div>
 
 </div>
@@ -12893,7 +12900,7 @@ $$s \in \{0.1, 1, 10, 25\}.$$</p>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[16]:</div>
+<div class="prompt input_prompt">In&nbsp;[19]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-julia"><pre><span></span><span class="c">#reset seed</span>
@@ -12925,30 +12932,30 @@ k	MSE
 1	4.087386566654006
 2	3.098966748951411
 3	2.2352870505289295
-4	1.339816635425412
-5	0.8321683842106931
+4	1.3398166354254122
+5	0.8321683842106932
 6	0.42858643657640877
-7	0.23545809092694828
+7	0.2354580909269483
 8	0.13767612774618582
 9	0.06338033243816146
-10	0.010553704942775619
-11	0.013180928910864842
-12	0.013214835251653479
-13	0.013250433615176294
-14	0.013240247230540899
-15	0.013262809546279295
-16	0.013270360131044146
-17	0.013284663944783281
-18	0.013291806113597694
-19	0.013332956278152997
-20	0.01334434967198958
+10	0.010553704942775608
+11	0.013180928910864836
+12	0.013214835251653487
+13	0.013250433615176254
+14	0.013240247230540875
+15	0.013262809546279283
+16	0.013270360131044129
+17	0.013284663944783276
+18	0.013291806113597662
+19	0.013332956278152962
+20	0.013344349671989563
 
 The lowest MSE is achieved at k = 10
 </pre>
 </div>
 </div>
 
-<div class="output_area"><div class="prompt output_prompt">Out[16]:</div>
+<div class="output_area"><div class="prompt output_prompt">Out[19]:</div>
 
 
 <div class="output_text output_subarea output_execute_result">
@@ -12963,7 +12970,7 @@ The lowest MSE is achieved at k = 10
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[17]:</div>
+<div class="prompt input_prompt">In&nbsp;[20]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-julia"><pre><span></span><span class="c">#reset seed</span>
@@ -12987,10 +12994,10 @@ The lowest MSE is achieved at k = 10
 
 Crossvalidation Results:
 k	MSE
-1	54.45327294696108
+1	54.453272946961064
 2	53.65021406820032
-3	52.773114558024716
-4	51.694369899657964
+3	52.77311455802472
+4	51.69436989965798
 5	51.3468565377382
 6	51.28393031860237
 7	50.71206265331604
@@ -12998,13 +13005,13 @@ k	MSE
 9	50.61161567365859
 10	50.75060922467423
 11	50.89347222962764
-12	51.08645292766584
-13	51.13480057134317
+12	51.08645292766583
+13	51.13480057134318
 14	51.3303189104264
 15	51.48491768878349
 16	51.54583900164887
 17	51.7943953261189
-18	51.77244184199766
+18	51.77244184199767
 19	52.117489225752514
 20	52.389099966438856
 
@@ -13013,7 +13020,7 @@ The lowest MSE is achieved at k = 8
 </div>
 </div>
 
-<div class="output_area"><div class="prompt output_prompt">Out[17]:</div>
+<div class="output_area"><div class="prompt output_prompt">Out[20]:</div>
 
 
 <div class="output_text output_subarea output_execute_result">

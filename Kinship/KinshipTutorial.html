@@ -11751,7 +11751,7 @@ div#notebook {
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h1 id="Tutorial-of-MendelKinship">Tutorial of MendelKinship<a class="anchor-link" href="#Tutorial-of-MendelKinship">&#182;</a></h1><h3 id="last-update:-2/5/2019">last update: 2/5/2019<a class="anchor-link" href="#last-update:-2/5/2019">&#182;</a></h3>
+<h1 id="Tutorial-of-MendelKinship">Tutorial of MendelKinship<a class="anchor-link" href="#Tutorial-of-MendelKinship">&#182;</a></h1><h3 id="last-update:-2/7/2019">last update: 2/7/2019<a class="anchor-link" href="#last-update:-2/7/2019">&#182;</a></h3>
 </div>
 </div>
 </div>
@@ -11760,7 +11760,16 @@ div#notebook {
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Julia-version">Julia version<a class="anchor-link" href="#Julia-version">&#182;</a></h2><p>Current code supports Julia version 1.0 and 0.7. For reproducibility, listing the machine information below:</p>
+<h2 id="Installation-instructions">Installation instructions<a class="anchor-link" href="#Installation-instructions">&#182;</a></h2><p><code>MendelKinship</code> currently supports Julia version 1.0 and 1.1, but it is currently an unregistered package. To install, press <code>]</code> to invoke the package manager mode and install these packages by typing:</p>
+
+<pre><code>add https://github.com/OpenMendel/SnpArrays.jl/
+add https://github.com/OpenMendel/MendelSearch.jl
+add https://github.com/OpenMendel/MendelBase.jl
+add https://github.com/biona001/MendelKinship.jl</code></pre>
+<p>You will also need a few registered packages. Add them by typing:</p>
+
+<pre><code>add PlotlyJS Statistics StatsBase CSV ORCA DataFrames</code></pre>
+<p>For reproducibility, listing the machine information below:</p>
 
 </div>
 </div>
@@ -11815,7 +11824,7 @@ Platform Info:
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Data-used-in-Examples">Data used in Examples<a class="anchor-link" href="#Data-used-in-Examples">&#182;</a></h2><p>The input for all examples in this tutorial can be obtained from the free application <a href="http://www.genetics.ucla.edu/software/mendel">Mendel v16</a> option 29a. These data were obtained from the 1000 genome project, containing 85 people and 253141 SNPs, half of which have $maf < 0.05$. Using these founders' genotype, we simulated 127 extra people, resulting in 27 pedigrees and 212 people. Although the 85 individuals are treated as founders, they were actually somewhat related, and this is reflected in the kinship comparison in the 2nd example below. For more information on this dataset, please see Mendel's documentation example 29.4.</p>
+<h2 id="Data-used-in-Examples">Data used in Examples<a class="anchor-link" href="#Data-used-in-Examples">&#182;</a></h2><p>The input for all examples in this tutorial can be obtained from the free application <a href="http://software.genetics.ucla.edu/download?package=1">Mendel v16</a> option 29a. These data were obtained from the 1000 genome project, containing 85 people and 253141 SNPs, half of which have maf$< 0.05$. Using these founders' genotype, we simulated 127 extra people, resulting in 27 pedigrees and 212 people. Although the 85 individuals are treated as founders, they were actually somewhat related, and this is reflected in the kinship comparison in the 2nd example below. For more information on this dataset, please see Mendel's documentation example 29.4.</p>
 
 </div>
 </div>
@@ -11827,7 +11836,7 @@ Platform Info:
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="Using-PLINK-compressed-file-as-input">Using PLINK compressed file as input<a class="anchor-link" href="#Using-PLINK-compressed-file-as-input">&#182;</a></h2><p>MendelKinship additionally accepts <a href="https://www.cog-genomics.org/plink2/formats#bed">PLINK binary format</a> as input, in which case the triplets (<code>data.bim</code>, <code>data.bed</code>, <code>data.fam</code>) must all be present. In this tutorial, there are no examples that uses these to import pedigree and SNP information. But if available, one can import the data by specifying the following in the control file:</p>
 <p><code>plink_input_basename = data</code></p>
-<p>However, sometimes the .fam file contains non-unique person id (2nd column of .fam file) across different pedigrees, which is currently <strong>not</strong> permitted. A person's id cannot be repeated in other pedigrees, even if it is contextually clear that they are different persons. This will be fixed in the near future.</p>
+<p>However, sometimes the .fam file contains non-unique person id (2nd column of .fam file) across different pedigrees, which is currently <strong>not</strong> permitted in MendelKinship. A person's id cannot be repeated in other pedigrees, even if it is contextually clear that they are different persons. This will be fixed in the near future.</p>
 
 </div>
 </div>
@@ -12033,14 +12042,6 @@ kinship_output_file = just_theoretical_output.txt</pre>
 
 
 <div class="output_area"><div class="prompt"></div>
-<div class="output_subarea output_stream output_stderr output_text">
-<pre>┌ Info: Recompiling stale cache file /Users/biona001/.julia/compiled/v1.0/MendelKinship/jENRZ.ji for MendelKinship [57586ee1-7d7e-549d-a2d8-59dc17d6b397]
-└ @ Base loading.jl:1190
-</pre>
-</div>
-</div>
-
-<div class="output_area"><div class="prompt"></div>
 
 <div class="output_html rendered_html output_subarea ">
     <script class='js-collapse-script'>
@@ -12099,7 +12100,7 @@ kinship_output_file = just_theoretical_output.txt</pre>
  
 Reading the data.
 
-The current working directory is &#34;/Users/biona001/.julia/dev/MendelKinship/test/kinship_tutorial&#34;.
+The current working directory is &#34;/Users/biona001/Benjamin_Folder/UCLA/research/open mendel related/Tutorials/Kinship&#34;.
 
 Keywords modified by the user:
 
@@ -12298,7 +12299,7 @@ z_score_plot = z_score_plot</pre>
  
 Reading the data.
 
-The current working directory is &#34;/Users/biona001/.julia/dev/MendelKinship/test/kinship_tutorial&#34;.
+The current working directory is &#34;/Users/biona001/Benjamin_Folder/UCLA/research/open mendel related/Tutorials/Kinship&#34;.
 
 Keywords modified by the user:
 
@@ -12581,6 +12582,16 @@ WebIO.mount(this.previousSibling,{&quot;props&quot;:{},&quot;nodeType&quot;:&quo
 </div>
 </div>
 
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Conclusions">Conclusions<a class="anchor-link" href="#Conclusions">&#182;</a></h2><p>MendelKinship provides a rapid way to calculate the theoretical kinship, which requires accurate pedigrees, and the empirical kinships, which requires genotypes at multiple markers. Further, it can compare these kinships when both the pedigrees and markers are available.</p>
+
+</div>
+</div>
 </div>
     </div>
   </div>
