@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head><meta charset="utf-8" />
-<title>MR_example10182018</title><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
+<title>MR_exampleFeb8</title><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
 
 <style type="text/css">
@@ -11839,6 +11839,15 @@ div#notebook {
 </div>
 </div>
 </div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Machine Info:</p>
+
+</div>
+</div>
+</div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">In&nbsp;[1]:</div>
@@ -11861,16 +11870,14 @@ div#notebook {
 
 
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>Julia Version 0.6.4
-Commit 9d11f62bcb (2018-07-09 19:09 UTC)
+<pre>Julia Version 1.0.3
+Commit 099e826241 (2018-12-18 01:34 UTC)
 Platform Info:
   OS: macOS (x86_64-apple-darwin14.5.0)
-  CPU: Intel(R) Core(TM) i7-6567U CPU @ 3.30GHz
+  CPU: Intel(R) Core(TM) i7-7700HQ CPU @ 2.80GHz
   WORD_SIZE: 64
-  BLAS: libopenblas (USE64BITINT DYNAMIC_ARCH NO_AFFINITY Haswell MAX_THREADS=16)
-  LAPACK: libopenblas64_
   LIBM: libopenlibm
-  LLVM: libLLVM-3.9.1 (ORCJIT, skylake)
+  LLVM: libLLVM-6.0.0 (ORCJIT, skylake)
 </pre>
 </div>
 </div>
@@ -11879,28 +11886,66 @@ Platform Info:
 </div>
 
 </div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Be sure to make note of your own machine information, as this is a very important check for reproducibility!</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Add-OpenMendel-Packages">Add OpenMendel Packages<a class="anchor-link" href="#Add-OpenMendel-Packages">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>If it is the first time using these two packages, run the following command using the package manager on ther terminal:
+&lt;/br&gt;</p>
+<p><code>pkg&gt; add https://github.com/OpenMendel/VarianceComponentModels.jl.git</code></p>
+<p><code>pkg&gt; add https://github.com/OpenMendel/SnpArrays.jl.git</code></p>
+
+</div>
+</div>
+</div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">In&nbsp;[2]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-julia"><pre><span></span><span class="k">module</span> <span class="n">MendelianRandomizationVCM</span>
-
-<span class="k">export</span> <span class="n">MendelianRandomization</span>
+<div class=" highlight hl-julia"><pre><span></span><span class="k">using</span> <span class="n">SnpArrays</span>
 <span class="k">using</span> <span class="n">DataFrames</span>
 <span class="k">using</span> <span class="n">StatsBase</span>
 <span class="k">using</span> <span class="n">VarianceComponentModels</span>
 <span class="k">using</span> <span class="n">GLM</span>
-<span class="k">using</span> <span class="n">SnpArrays</span>
 <span class="k">using</span> <span class="n">Distributions</span>
+<span class="k">using</span> <span class="n">LinearAlgebra</span>
+</pre></div>
 
-<span class="c">#function MR needs as input (trait, design_matrix, IV, exposure, GRM, and algorithm (MM or Fisher scoring)##</span>
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[3]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-julia"><pre><span></span><span class="c">#function MR needs as input (trait, design_matrix, IV, exposure, GRM, and algorithm (MM or Fisher scoring)##</span>
 <span class="k">function</span> <span class="n">MendelianRandomization</span><span class="p">(</span><span class="n">Y</span><span class="o">::</span><span class="kt">AbstractVecOrMat</span><span class="p">,</span>
     <span class="n">X</span><span class="o">::</span><span class="kt">AbstractVecOrMat</span><span class="p">,</span>
     <span class="c">#IV::SnpArrays.SnpArray{2},</span>
     <span class="n">IV</span><span class="o">::</span><span class="kt">AbstractVecOrMat</span><span class="p">,</span>
     <span class="n">exposure</span><span class="o">::</span><span class="kt">AbstractVecOrMat</span><span class="p">,</span>
-    <span class="n">GRM</span><span class="o">::</span><span class="kt">AbstractMatrix</span><span class="p">,</span>
+    <span class="n">ΦGRM</span><span class="o">::</span><span class="kt">AbstractMatrix</span><span class="p">,</span>
     <span class="n">algorithm</span><span class="o">::</span><span class="kt">Symbol</span> <span class="o">=</span> <span class="o">:</span><span class="n">FS</span><span class="p">)</span>
 
     <span class="n">T</span> <span class="o">=</span> <span class="n">eltype</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
@@ -11908,7 +11953,7 @@ Platform Info:
 
     <span class="c">## fit null model without IV effects ##</span>
     <span class="c">### set up the appropriate data structures and covariance matrices ### </span>
-    <span class="n">nulldata</span>    <span class="o">=</span> <span class="n">VarianceComponentVariate</span><span class="p">([</span><span class="n">Y</span> <span class="n">exposure</span><span class="p">],</span> <span class="n">X</span><span class="p">,</span> <span class="p">(</span><span class="mi">2</span><span class="n">GRM</span><span class="p">,</span> <span class="n">eye</span><span class="p">(</span><span class="n">n</span><span class="p">)))</span>
+    <span class="n">nulldata</span>    <span class="o">=</span> <span class="n">VarianceComponentVariate</span><span class="p">([</span><span class="n">Y</span> <span class="n">exposure</span><span class="p">],</span> <span class="n">X</span><span class="p">,</span> <span class="p">(</span><span class="mi">2</span><span class="n">ΦGRM</span><span class="p">,</span> <span class="kt">Matrix</span><span class="p">{</span><span class="kt">Float64</span><span class="p">}(</span><span class="nb">I</span><span class="p">,</span> <span class="n">length</span><span class="p">(</span><span class="n">Y</span><span class="p">),</span> <span class="n">length</span><span class="p">(</span><span class="n">Y</span><span class="p">))))</span>
     <span class="c">### the computational trick when there are only two variance components ###</span>
     <span class="n">nulldatarot</span> <span class="o">=</span> <span class="n">TwoVarCompVariateRotate</span><span class="p">(</span><span class="n">nulldata</span><span class="p">)</span>
     <span class="c">## set up the model ##</span>
@@ -11916,7 +11961,7 @@ Platform Info:
     <span class="n">traitdata_null</span> <span class="o">=</span> <span class="n">TwoVarCompVariateRotate</span><span class="p">(</span><span class="n">nulldatarot</span><span class="o">.</span><span class="n">Yrot</span><span class="p">[</span><span class="o">:</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">nulldatarot</span><span class="o">.</span><span class="n">Xrot</span><span class="p">,</span>
       <span class="n">nulldatarot</span><span class="o">.</span><span class="n">eigval</span><span class="p">,</span> <span class="n">nulldatarot</span><span class="o">.</span><span class="n">eigvec</span><span class="p">,</span> <span class="n">nulldatarot</span><span class="o">.</span><span class="n">logdetV2</span><span class="p">)</span>
     <span class="n">traitmodel_null</span> <span class="o">=</span> <span class="n">VarianceComponentModel</span><span class="p">(</span><span class="n">traitdata_null</span><span class="p">)</span>
-<span class="c">## Have a choice of using an MM or Scoring Algorithm to do the maximization ##</span>
+    <span class="c">## Have a choice of using an MM or Scoring Algorithm to do the maximization ##</span>
     <span class="k">if</span> <span class="n">algorithm</span> <span class="o">==</span> <span class="o">:</span><span class="n">MM</span>
         <span class="n">logl</span><span class="p">,</span> <span class="o">=</span> <span class="n">mle_mm!</span><span class="p">(</span><span class="n">traitmodel_null</span><span class="p">,</span> <span class="n">traitdata_null</span><span class="p">;</span> <span class="n">verbose</span> <span class="o">=</span> <span class="kc">false</span><span class="p">)</span>
     <span class="k">elseif</span> <span class="n">algorithm</span> <span class="o">==</span> <span class="o">:</span><span class="n">FS</span>
@@ -11925,43 +11970,48 @@ Platform Info:
 
     <span class="c">### IV as a predictor of the trait  ###</span>
     <span class="n">traitdata</span> <span class="o">=</span> <span class="n">TwoVarCompVariateRotate</span><span class="p">(</span><span class="n">nulldatarot</span><span class="o">.</span><span class="n">Yrot</span><span class="p">[</span><span class="o">:</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
-      <span class="p">[</span><span class="n">nulldatarot</span><span class="o">.</span><span class="n">Xrot</span> <span class="n">At_mul_B</span><span class="p">(</span><span class="n">nulldatarot</span><span class="o">.</span><span class="n">eigvec</span><span class="p">,</span> <span class="n">IV</span><span class="p">)],</span>
+      <span class="p">[</span><span class="n">nulldatarot</span><span class="o">.</span><span class="n">Xrot</span> <span class="n">transpose</span><span class="p">(</span><span class="n">nulldatarot</span><span class="o">.</span><span class="n">eigvec</span><span class="p">)</span> <span class="o">*</span> <span class="n">IV</span><span class="p">],</span>
       <span class="n">nulldatarot</span><span class="o">.</span><span class="n">eigval</span><span class="p">,</span> <span class="n">nulldatarot</span><span class="o">.</span><span class="n">eigvec</span><span class="p">,</span> <span class="n">nulldatarot</span><span class="o">.</span><span class="n">logdetV2</span><span class="p">)</span>
     <span class="n">traitmodel</span> <span class="o">=</span> <span class="n">VarianceComponentModel</span><span class="p">(</span><span class="n">traitdata</span><span class="p">)</span>
+    
     <span class="c">#Set the starting values for the maximum likelihood estimation</span>
     <span class="c">#Use the null model estimates as starting values for the alternative model ##</span>
     <span class="n">fill!</span><span class="p">(</span><span class="n">traitmodel</span><span class="o">.</span><span class="n">B</span><span class="p">,</span> <span class="n">zero</span><span class="p">(</span><span class="n">T</span><span class="p">))</span>
-    <span class="n">copy!</span><span class="p">(</span><span class="n">traitmodel</span><span class="o">.</span><span class="n">B</span><span class="p">,</span> <span class="n">traitmodel_null</span><span class="o">.</span><span class="n">B</span><span class="p">)</span>
+    <span class="n">copyto!</span><span class="p">(</span><span class="n">traitmodel</span><span class="o">.</span><span class="n">B</span><span class="p">,</span> <span class="n">traitmodel_null</span><span class="o">.</span><span class="n">B</span><span class="p">)</span>
+    
     <span class="c">## get standard error ##</span>
     <span class="k">if</span> <span class="n">algorithm</span> <span class="o">==</span> <span class="o">:</span><span class="n">MM</span>
         <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">traitBseMat</span><span class="p">,</span> <span class="n">_</span><span class="o">=</span> <span class="n">mle_mm!</span><span class="p">(</span><span class="n">traitmodel</span><span class="p">,</span> <span class="n">traitdata</span><span class="p">;</span> <span class="n">verbose</span> <span class="o">=</span> <span class="kc">false</span><span class="p">)</span>
     <span class="k">elseif</span> <span class="n">algorithm</span> <span class="o">==</span> <span class="o">:</span><span class="n">FS</span>
         <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">traitBseMat</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">mle_fs!</span><span class="p">(</span><span class="n">traitmodel</span><span class="p">,</span> <span class="n">traitdata</span><span class="p">;</span> <span class="n">verbose</span> <span class="o">=</span> <span class="kc">false</span><span class="p">)</span>
     <span class="k">end</span>
+    
     <span class="n">traitB</span> <span class="o">=</span> <span class="n">traitmodel</span><span class="o">.</span><span class="n">B</span><span class="p">[</span><span class="k">end</span><span class="p">]</span>
     <span class="n">traitBse</span> <span class="o">=</span> <span class="n">traitBseMat</span><span class="p">[</span><span class="k">end</span><span class="p">]</span>
 
     <span class="c">### Repeat above steps using the IV as a predictor of the exposure ##</span>
     <span class="n">expdata</span> <span class="o">=</span> <span class="n">TwoVarCompVariateRotate</span><span class="p">(</span><span class="n">nulldatarot</span><span class="o">.</span><span class="n">Yrot</span><span class="p">[</span><span class="o">:</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span>
-      <span class="p">[</span><span class="n">nulldatarot</span><span class="o">.</span><span class="n">Xrot</span> <span class="n">At_mul_B</span><span class="p">(</span><span class="n">nulldatarot</span><span class="o">.</span><span class="n">eigvec</span><span class="p">,</span> <span class="n">IV</span><span class="p">)],</span>
+      <span class="p">[</span><span class="n">nulldatarot</span><span class="o">.</span><span class="n">Xrot</span> <span class="n">transpose</span><span class="p">(</span><span class="n">nulldatarot</span><span class="o">.</span><span class="n">eigvec</span><span class="p">)</span> <span class="o">*</span> <span class="n">IV</span><span class="p">],</span>
       <span class="n">nulldatarot</span><span class="o">.</span><span class="n">eigval</span><span class="p">,</span> <span class="n">nulldatarot</span><span class="o">.</span><span class="n">eigvec</span><span class="p">,</span> <span class="n">nulldatarot</span><span class="o">.</span><span class="n">logdetV2</span><span class="p">)</span>
     <span class="n">expmodel</span> <span class="o">=</span>  <span class="n">VarianceComponentModel</span><span class="p">(</span><span class="n">expdata</span><span class="p">)</span>
 
     <span class="n">fill!</span><span class="p">(</span><span class="n">expmodel</span><span class="o">.</span><span class="n">B</span><span class="p">,</span> <span class="n">zero</span><span class="p">(</span><span class="n">T</span><span class="p">))</span>
-    <span class="n">copy!</span><span class="p">(</span><span class="n">expmodel</span><span class="o">.</span><span class="n">B</span><span class="p">,</span> <span class="n">traitmodel_null</span><span class="o">.</span><span class="n">B</span><span class="p">)</span>
-<span class="c">## extract the standard errors &quot; </span>
+    <span class="n">copyto!</span><span class="p">(</span><span class="n">expmodel</span><span class="o">.</span><span class="n">B</span><span class="p">,</span> <span class="n">traitmodel_null</span><span class="o">.</span><span class="n">B</span><span class="p">)</span>
+    <span class="c">## extract the standard errors &quot; </span>
     <span class="k">if</span> <span class="n">algorithm</span> <span class="o">==</span> <span class="o">:</span><span class="n">MM</span>
       <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">expBseMat</span><span class="p">,</span> <span class="n">_</span><span class="o">=</span> <span class="n">mle_mm!</span><span class="p">(</span><span class="n">expmodel</span><span class="p">,</span> <span class="n">expdata</span><span class="p">;</span> <span class="n">verbose</span> <span class="o">=</span> <span class="kc">false</span><span class="p">)</span>
     <span class="k">elseif</span> <span class="n">algorithm</span> <span class="o">==</span> <span class="o">:</span><span class="n">FS</span>
       <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">expBseMat</span><span class="p">,</span> <span class="n">_</span><span class="o">=</span> <span class="n">mle_fs!</span><span class="p">(</span><span class="n">expmodel</span><span class="p">,</span> <span class="n">expdata</span><span class="p">;</span> <span class="n">verbose</span> <span class="o">=</span> <span class="kc">false</span><span class="p">)</span>
     <span class="k">end</span>
+    
     <span class="n">expB</span> <span class="o">=</span> <span class="n">expmodel</span><span class="o">.</span><span class="n">B</span><span class="p">[</span><span class="k">end</span><span class="p">]</span>
     <span class="n">expBse</span> <span class="o">=</span> <span class="n">expBseMat</span><span class="p">[</span><span class="k">end</span><span class="p">]</span>
     <span class="c">## estimate the direct effect of the exposure on the trait using the ratio of effects ##</span>
     <span class="n">directbeta</span> <span class="o">=</span> <span class="n">traitB</span> <span class="o">/</span> <span class="n">expB</span>
     <span class="c">## estimate the standard error of the direct effect ##</span>
-  	<span class="n">SEbeta</span> <span class="o">=</span> <span class="n">sqrt</span><span class="p">(</span><span class="n">traitBse</span><span class="o">^</span><span class="mi">2</span><span class="o">/</span><span class="n">expB</span><span class="o">^</span><span class="mi">2</span> <span class="o">+</span> <span class="n">traitB</span><span class="o">^</span><span class="mi">2</span> <span class="o">*</span> <span class="n">expBse</span><span class="o">^</span><span class="mi">2</span><span class="o">/</span><span class="n">expB</span><span class="o">^</span><span class="mi">4</span><span class="p">)</span>
+    <span class="n">SEbeta</span> <span class="o">=</span> <span class="n">sqrt</span><span class="p">(</span><span class="n">traitBse</span><span class="o">^</span><span class="mi">2</span><span class="o">/</span><span class="n">expB</span><span class="o">^</span><span class="mi">2</span> <span class="o">+</span> <span class="n">traitB</span><span class="o">^</span><span class="mi">2</span> <span class="o">*</span> <span class="n">expBse</span><span class="o">^</span><span class="mi">2</span><span class="o">/</span><span class="n">expB</span><span class="o">^</span><span class="mi">4</span><span class="p">)</span>
     <span class="n">W</span> <span class="o">=</span> <span class="p">(</span><span class="n">directbeta</span><span class="o">/</span><span class="n">SEbeta</span><span class="p">)</span><span class="o">^</span><span class="mi">2</span>
+    
     <span class="c">#need to change the degrees of freedom if running a bivariate outcome</span>
     <span class="n">pvalue</span> <span class="o">=</span> <span class="n">ccdf</span><span class="p">(</span><span class="n">Chisq</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="n">W</span><span class="p">)</span>
     <span class="n">println</span><span class="p">(</span><span class="s">&quot;MR direct effects (SE): &quot;</span><span class="p">,</span> <span class="n">directbeta</span><span class="p">,</span> <span class="s">&quot;(&quot;</span><span class="p">,</span> <span class="n">SEbeta</span><span class="p">,</span> <span class="s">&quot;), Pvalue is &quot;</span><span class="p">,</span> <span class="n">pvalue</span><span class="p">,</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span>
@@ -11969,7 +12019,6 @@ Platform Info:
     <span class="n">println</span><span class="p">(</span><span class="s">&quot;Trait effect (SE) is: &quot;</span><span class="p">,</span> <span class="n">traitB</span><span class="p">,</span> <span class="s">&quot;(&quot;</span><span class="p">,</span><span class="n">traitBse</span><span class="p">,</span><span class="s">&quot;)&quot;</span><span class="p">,</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">directbeta</span><span class="p">,</span> <span class="n">SEbeta</span>
   <span class="k">end</span>
-<span class="k">end</span> <span class="c"># module1dd</span>
 </pre></div>
 
 </div>
@@ -11982,30 +12031,17 @@ Platform Info:
 
 <div class="output_area">
 
-<div class="prompt output_prompt">Out[2]:</div>
+<div class="prompt output_prompt">Out[3]:</div>
 
 
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>MendelianRandomizationVCM</pre>
+<pre>MendelianRandomization (generic function with 2 methods)</pre>
 </div>
 
 </div>
 
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[3]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-julia"><pre><span></span><span class="k">using</span> <span class="n">MendelianRandomizationVCM</span>
-</pre></div>
-
-</div>
 </div>
 </div>
 
@@ -12033,23 +12069,16 @@ Platform Info:
 <div class="prompt input_prompt">In&nbsp;[4]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-julia"><pre><span></span><span class="k">using</span> <span class="n">DataFrames</span>
-<span class="k">using</span> <span class="n">StatsBase</span>
-<span class="k">using</span> <span class="n">VarianceComponentModels</span>
-<span class="k">using</span> <span class="n">GLM</span>
-<span class="k">using</span> <span class="n">SnpArrays</span>
-<span class="k">using</span> <span class="n">Distributions</span>
-
-<span class="k">function</span> <span class="n">ExposureEffectVCM</span><span class="p">(</span><span class="n">Y</span><span class="o">::</span><span class="kt">AbstractVecOrMat</span><span class="p">,</span>
+<div class=" highlight hl-julia"><pre><span></span><span class="k">function</span> <span class="n">ExposureEffectVCM</span><span class="p">(</span><span class="n">Y</span><span class="o">::</span><span class="kt">AbstractVecOrMat</span><span class="p">,</span>
     <span class="n">X</span><span class="o">::</span><span class="kt">AbstractVecOrMat</span><span class="p">,</span>
     <span class="n">exposure</span><span class="o">::</span><span class="kt">AbstractVecOrMat</span><span class="p">,</span>
-    <span class="n">GRM</span><span class="o">::</span><span class="kt">AbstractMatrix</span><span class="p">,</span>
+    <span class="n">ΦGRM</span><span class="o">::</span><span class="kt">AbstractMatrix</span><span class="p">,</span>
     <span class="n">algorithm</span><span class="o">::</span><span class="kt">Symbol</span> <span class="o">=</span> <span class="o">:</span><span class="n">FS</span><span class="p">)</span>
     
     <span class="n">T</span> <span class="o">=</span> <span class="n">eltype</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
     <span class="n">n</span> <span class="o">=</span> <span class="n">length</span><span class="p">(</span><span class="n">exposure</span><span class="p">)</span>
 
-<span class="n">nulldata</span> <span class="o">=</span> <span class="n">VarianceComponentVariate</span><span class="p">(</span><span class="n">outcome</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="p">(</span><span class="n">GRM</span><span class="p">,</span> <span class="n">eye</span><span class="p">(</span><span class="n">length</span><span class="p">(</span><span class="n">outcome</span><span class="p">))))</span>
+<span class="n">nulldata</span> <span class="o">=</span> <span class="n">VarianceComponentVariate</span><span class="p">(</span><span class="n">outcome</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="p">(</span><span class="mi">2</span><span class="n">ΦGRM</span><span class="p">,</span> <span class="kt">Matrix</span><span class="p">{</span><span class="kt">Float64</span><span class="p">}(</span><span class="nb">I</span><span class="p">,</span> <span class="n">length</span><span class="p">(</span><span class="n">Y</span><span class="p">),</span> <span class="n">length</span><span class="p">(</span><span class="n">Y</span><span class="p">))))</span>
     <span class="n">nulldatarot</span> <span class="o">=</span> <span class="n">TwoVarCompVariateRotate</span><span class="p">(</span><span class="n">nulldata</span><span class="p">)</span>
     <span class="n">nullmodel</span>   <span class="o">=</span> <span class="n">VarianceComponentModel</span><span class="p">(</span><span class="n">nulldatarot</span><span class="p">)</span>
 
@@ -12066,14 +12095,14 @@ Platform Info:
 
 <span class="c">### regress trait~exposure lmm </span>
     <span class="n">traitdata</span> <span class="o">=</span> <span class="n">TwoVarCompVariateRotate</span><span class="p">(</span><span class="n">nulldatarot</span><span class="o">.</span><span class="n">Yrot</span><span class="p">[</span><span class="o">:</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
-      <span class="p">[</span><span class="n">nulldatarot</span><span class="o">.</span><span class="n">Xrot</span> <span class="n">At_mul_B</span><span class="p">(</span><span class="n">nulldatarot</span><span class="o">.</span><span class="n">eigvec</span><span class="p">,</span> <span class="n">exposure</span><span class="p">)],</span>
+      <span class="p">[</span><span class="n">nulldatarot</span><span class="o">.</span><span class="n">Xrot</span> <span class="n">transpose</span><span class="p">(</span><span class="n">nulldatarot</span><span class="o">.</span><span class="n">eigvec</span><span class="p">)</span> <span class="o">*</span> <span class="n">exposure</span><span class="p">],</span>
       <span class="n">nulldatarot</span><span class="o">.</span><span class="n">eigval</span><span class="p">,</span> <span class="n">nulldatarot</span><span class="o">.</span><span class="n">eigvec</span><span class="p">,</span> <span class="n">nulldatarot</span><span class="o">.</span><span class="n">logdetV2</span><span class="p">)</span>
     <span class="n">traitmodel</span> <span class="o">=</span> <span class="n">VarianceComponentModel</span><span class="p">(</span><span class="n">traitdata</span><span class="p">)</span>
 
 <span class="c">#Set the starting values for the maximum likelihood estimation</span>
     <span class="c">#Use the null model estimates as start values for the alternative model.</span>
     <span class="n">fill!</span><span class="p">(</span><span class="n">traitmodel</span><span class="o">.</span><span class="n">B</span><span class="p">,</span> <span class="n">zero</span><span class="p">(</span><span class="n">T</span><span class="p">))</span>
-    <span class="n">copy!</span><span class="p">(</span><span class="n">traitmodel</span><span class="o">.</span><span class="n">B</span><span class="p">,</span> <span class="n">traitmodel_null</span><span class="o">.</span><span class="n">B</span><span class="p">)</span>
+    <span class="n">copyto!</span><span class="p">(</span><span class="n">traitmodel</span><span class="o">.</span><span class="n">B</span><span class="p">,</span> <span class="n">traitmodel_null</span><span class="o">.</span><span class="n">B</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">algorithm</span> <span class="o">==</span> <span class="o">:</span><span class="n">MM</span>
         <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">traitBseMat</span><span class="p">,</span> <span class="n">_</span><span class="o">=</span> <span class="n">mle_mm!</span><span class="p">(</span><span class="n">traitmodel</span><span class="p">,</span> <span class="n">traitdata</span><span class="p">;</span> <span class="n">verbose</span> <span class="o">=</span> <span class="kc">false</span><span class="p">)</span>
     <span class="k">elseif</span> <span class="n">algorithm</span> <span class="o">==</span> <span class="o">:</span><span class="n">FS</span>
@@ -12130,7 +12159,7 @@ Platform Info:
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>In this example we use the Ped28trait1.out data file. The trait was simulated under the scenario where the genetic variant is a strong instrumental variable (IV) and there is a direct effect of the exposure on the trait and so we expect the observed, naive association between the exposure and the trait to equal the direct effect we calculate using MR.</p>
+<p>In this example we use the SNP_data28d_trait1.fam data file. The trait was simulated under the scenario where the genetic variant is a strong instrumental variable (IV) and there is a direct effect of the exposure on the trait and so we expect the observed, naive association between the exposure and the trait to equal the direct effect we calculate using MR.</p>
 
 </div>
 </div>
@@ -12158,7 +12187,8 @@ Platform Info:
 <div class="prompt input_prompt">In&nbsp;[5]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-julia"><pre><span></span><span class="n">Ped28_1</span> <span class="o">=</span> <span class="n">readcsv</span><span class="p">(</span><span class="s">&quot;Ped28trait1.out&quot;</span><span class="p">,</span> <span class="kt">Any</span><span class="p">;</span> <span class="n">header</span> <span class="o">=</span> <span class="kc">false</span><span class="p">)</span>
+<div class=" highlight hl-julia"><pre><span></span><span class="k">using</span> <span class="n">DelimitedFiles</span>
+<span class="n">Ped28_1</span> <span class="o">=</span> <span class="n">readdlm</span><span class="p">(</span><span class="s">&quot;SNP_data28d_trait1.fam&quot;</span><span class="p">,</span> <span class="sc">&#39;,&#39;</span><span class="p">;</span> <span class="n">header</span> <span class="o">=</span> <span class="kc">false</span><span class="p">)</span>
 </pre></div>
 
 </div>
@@ -12237,32 +12267,32 @@ Platform Info:
 
 <div class="output_text output_subarea output_execute_result">
 <pre>212-element Array{Float64,1}:
- 38.8938
- 47.0274
- 44.1152
- 43.0108
- 42.4626
- 40.5792
- 40.5459
- 46.5575
- 43.2133
- 45.1688
- 39.986 
- 42.3638
- 50.7288
-  ⋮     
- 44.803 
- 38.4925
- 38.9816
- 36.289 
- 39.9046
- 42.3719
- 46.6342
- 41.7128
- 44.5177
- 47.2557
- 47.1437
- 45.9784</pre>
+ 38.89381
+ 47.02736
+ 44.11519
+ 43.01079
+ 42.4626 
+ 40.57919
+ 40.54588
+ 46.5575 
+ 43.21334
+ 45.16885
+ 39.98595
+ 42.3638 
+ 50.72882
+  ⋮      
+ 44.80302
+ 38.49253
+ 38.9816 
+ 36.28899
+ 39.90458
+ 42.37186
+ 46.63421
+ 41.71284
+ 44.51775
+ 47.25572
+ 47.14371
+ 45.97838</pre>
 </div>
 
 </div>
@@ -12305,32 +12335,32 @@ Platform Info:
 
 <div class="output_text output_subarea output_execute_result">
 <pre>212-element Array{Float64,1}:
-  90.1804
- 109.327 
- 114.15  
- 109.922 
- 100.127 
-  95.7373
- 108.733 
- 121.181 
- 101.566 
- 114.688 
-  96.3424
-  99.7993
- 129.112 
-   ⋮     
- 116.241 
-  92.6177
-  91.6206
-  89.2516
- 110.54  
- 113.432 
- 115.746 
- 104.298 
- 116.291 
- 119.839 
- 114.207 
- 114.946 </pre>
+  90.18044
+ 109.32747
+ 114.15019
+ 109.92158
+ 100.12725
+  95.73733
+ 108.73254
+ 121.18095
+ 101.56554
+ 114.68795
+  96.3424 
+  99.79928
+ 129.11242
+   ⋮      
+ 116.24136
+  92.61769
+  91.62061
+  89.25164
+ 110.5402 
+ 113.43192
+ 115.74563
+ 104.29811
+ 116.29069
+ 119.83851
+ 114.20666
+ 114.94558</pre>
 </div>
 
 </div>
@@ -12353,7 +12383,7 @@ Platform Info:
 <div class="prompt input_prompt">In&nbsp;[8]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-julia"><pre><span></span><span class="n">sex_1</span> <span class="o">=</span> <span class="n">map</span><span class="p">(</span><span class="n">x</span> <span class="o">-&gt;</span> <span class="n">strip</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">==</span> <span class="s">&quot;F&quot;</span><span class="o">?</span> <span class="mf">1.0</span> <span class="o">:</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">Ped28_1</span><span class="p">[</span><span class="o">:</span><span class="p">,</span> <span class="mi">5</span><span class="p">])</span>
+<div class=" highlight hl-julia"><pre><span></span><span class="n">sex_1</span> <span class="o">=</span> <span class="n">map</span><span class="p">(</span><span class="n">x</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="n">strip</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">==</span> <span class="s">&quot;F&quot;</span><span class="p">)</span> <span class="o">?</span> <span class="mf">1.0</span> <span class="o">:</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">Ped28_1</span><span class="p">[</span><span class="o">:</span><span class="p">,</span> <span class="mi">5</span><span class="p">])</span>
 </pre></div>
 
 </div>
@@ -12421,7 +12451,7 @@ Platform Info:
 <div class="prompt input_prompt">In&nbsp;[9]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-julia"><pre><span></span><span class="p">;</span><span class="n">head</span> <span class="n">SNP_def28trait1</span><span class="o">.</span><span class="n">out</span>
+<div class=" highlight hl-julia"><pre><span></span><span class="p">;</span><span class="n">head</span> <span class="n">SNP_data28d_trait1</span><span class="o">.</span><span class="n">bim</span>
 </pre></div>
 
 </div>
@@ -12438,16 +12468,16 @@ Platform Info:
 
 
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>    3.00  = FILE FORMAT VERSION NUMBER.
- 
-rs3020701       ,19,           90974,   1,   2
-rs56343121      ,19,           91106,   1,   2
-rs143501051     ,19,           93542,   1,   2
-rs56182540      ,19,           95981,   1,   2
-rs7260412       ,19,          105021,   1,   2
-rs11669393      ,19,          107866,   1,   2
-rs181646587     ,19,          107894,   1,   2
-rs8106297       ,19,          107958,   1,   2
+<pre>19	rs3020701       	0	90974	1	2
+19	rs56343121      	0	91106	1	2
+19	rs143501051     	0	93542	1	2
+19	rs56182540      	0	95981	1	2
+19	rs7260412       	0	105021	1	2
+19	rs11669393      	0	107866	1	2
+19	rs181646587     	0	107894	1	2
+19	rs8106297       	0	107958	1	2
+19	rs8106302       	0	107962	1	2
+19	rs183568620     	0	107987	1	2
 </pre>
 </div>
 </div>
@@ -12461,7 +12491,7 @@ rs8106297       ,19,          107958,   1,   2
 <div class="prompt input_prompt">In&nbsp;[10]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-julia"><pre><span></span><span class="n">snpdef28_1</span> <span class="o">=</span> <span class="n">readcsv</span><span class="p">(</span><span class="s">&quot;SNP_def28trait1.out&quot;</span><span class="p">,</span> <span class="kt">Any</span><span class="p">;</span> <span class="n">skipstart</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span> <span class="n">header</span> <span class="o">=</span> <span class="kc">false</span><span class="p">)</span>
+<div class=" highlight hl-julia"><pre><span></span><span class="n">snpdef28_1</span> <span class="o">=</span> <span class="n">readdlm</span><span class="p">(</span><span class="s">&quot;SNP_data28d_trait1.bim&quot;</span><span class="p">,</span> <span class="sc">&#39;\t&#39;</span><span class="p">;</span> <span class="n">header</span> <span class="o">=</span> <span class="kc">false</span><span class="p">)</span>
 </pre></div>
 
 </div>
@@ -12481,32 +12511,32 @@ rs8106297       ,19,          107958,   1,   2
 
 <div class="output_text output_subarea output_execute_result">
 <pre>253141×6 Array{Any,2}:
- &#34;rs3020701       &#34;  19     90974  1  2  &#34;&#34;
- &#34;rs56343121      &#34;  19     91106  1  2  &#34;&#34;
- &#34;rs143501051     &#34;  19     93542  1  2  &#34;&#34;
- &#34;rs56182540      &#34;  19     95981  1  2  &#34;&#34;
- &#34;rs7260412       &#34;  19    105021  1  2  &#34;&#34;
- &#34;rs11669393      &#34;  19    107866  1  2  &#34;&#34;
- &#34;rs181646587     &#34;  19    107894  1  2  &#34;&#34;
- &#34;rs8106297       &#34;  19    107958  1  2  &#34;&#34;
- &#34;rs8106302       &#34;  19    107962  1  2  &#34;&#34;
- &#34;rs183568620     &#34;  19    107987  1  2  &#34;&#34;
- &#34;rs186451972     &#34;  19    108003  1  2  &#34;&#34;
- &#34;rs189699222     &#34;  19    108032  1  2  &#34;&#34;
- &#34;rs182902214     &#34;  19    108090  1  2  &#34;&#34;
- ⋮                                       ⋮ 
- &#34;rs188169422     &#34;  19  59116080  1  2  &#34;&#34;
- &#34;rs144587467     &#34;  19  59117729  1  2  &#34;&#34;
- &#34;rs139879509     &#34;  19  59117949  1  2  &#34;&#34;
- &#34;rs143250448     &#34;  19  59117982  1  2  &#34;&#34;
- &#34;rs145384750     &#34;  19  59118028  1  2  &#34;&#34;
- &#34;rs149215836     &#34;  19  59118040  1  2  &#34;&#34;
- &#34;rs139221927     &#34;  19  59118044  1  2  &#34;&#34;
- &#34;rs181848453     &#34;  19  59118114  1  2  &#34;&#34;
- &#34;rs138318162     &#34;  19  59118148  1  2  &#34;&#34;
- &#34;rs186913222     &#34;  19  59118616  1  2  &#34;&#34;
- &#34;rs141816674     &#34;  19  59118779  1  2  &#34;&#34;
- &#34;rs150801216     &#34;  19  59118783  1  2  &#34;&#34;</pre>
+ 19  &#34;rs3020701       &#34;  0     90974  1  2
+ 19  &#34;rs56343121      &#34;  0     91106  1  2
+ 19  &#34;rs143501051     &#34;  0     93542  1  2
+ 19  &#34;rs56182540      &#34;  0     95981  1  2
+ 19  &#34;rs7260412       &#34;  0    105021  1  2
+ 19  &#34;rs11669393      &#34;  0    107866  1  2
+ 19  &#34;rs181646587     &#34;  0    107894  1  2
+ 19  &#34;rs8106297       &#34;  0    107958  1  2
+ 19  &#34;rs8106302       &#34;  0    107962  1  2
+ 19  &#34;rs183568620     &#34;  0    107987  1  2
+ 19  &#34;rs186451972     &#34;  0    108003  1  2
+ 19  &#34;rs189699222     &#34;  0    108032  1  2
+ 19  &#34;rs182902214     &#34;  0    108090  1  2
+  ⋮                                      ⋮
+ 19  &#34;rs188169422     &#34;  0  59116080  1  2
+ 19  &#34;rs144587467     &#34;  0  59117729  1  2
+ 19  &#34;rs139879509     &#34;  0  59117949  1  2
+ 19  &#34;rs143250448     &#34;  0  59117982  1  2
+ 19  &#34;rs145384750     &#34;  0  59118028  1  2
+ 19  &#34;rs149215836     &#34;  0  59118040  1  2
+ 19  &#34;rs139221927     &#34;  0  59118044  1  2
+ 19  &#34;rs181848453     &#34;  0  59118114  1  2
+ 19  &#34;rs138318162     &#34;  0  59118148  1  2
+ 19  &#34;rs186913222     &#34;  0  59118616  1  2
+ 19  &#34;rs141816674     &#34;  0  59118779  1  2
+ 19  &#34;rs150801216     &#34;  0  59118783  1  2</pre>
 </div>
 
 </div>
@@ -12529,7 +12559,7 @@ rs8106297       ,19,          107958,   1,   2
 <div class="prompt input_prompt">In&nbsp;[11]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-julia"><pre><span></span><span class="n">snpid</span> <span class="o">=</span> <span class="n">map</span><span class="p">(</span><span class="n">x</span> <span class="o">-&gt;</span> <span class="n">strip</span><span class="p">(</span><span class="n">string</span><span class="p">(</span><span class="n">x</span><span class="p">)),</span> <span class="n">snpdef28_1</span><span class="p">[</span><span class="o">:</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+<div class=" highlight hl-julia"><pre><span></span><span class="n">snpid</span> <span class="o">=</span> <span class="n">map</span><span class="p">(</span><span class="n">x</span> <span class="o">-&gt;</span> <span class="n">strip</span><span class="p">(</span><span class="n">string</span><span class="p">(</span><span class="n">x</span><span class="p">)),</span> <span class="n">snpdef28_1</span><span class="p">[</span><span class="o">:</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
 </pre></div>
 
 </div>
@@ -12548,7 +12578,7 @@ rs8106297       ,19,          107958,   1,   2
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>253141-element Array{AbstractString,1}:
+<pre>253141-element Array{SubString{String},1}:
  &#34;rs3020701&#34;  
  &#34;rs56343121&#34; 
  &#34;rs143501051&#34;
@@ -12595,7 +12625,7 @@ rs8106297       ,19,          107958,   1,   2
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>Because SnpArray function requires input file name ending in .bed rather than .bin, we create a symbolic link SNP_data29a.bed to SNP_data29a.bin.  (If you have trouble with getting this command to work on your computer you can copy the file outside of julia).</p>
+<p>Because SnpArray function requires input file name ending in .bed rather than .bin, we create a symbolic link SNP_data28d_trait1.bed to SNP_data28d_trait1.bin.  (If you have trouble with getting this command to work on your computer you can copy the file outside of julia). Note that SnpArrays requires the set of PLINK files to share the same name. In this first example we use the files: SNP_data28d_trait1.bed, SNP_data28d_trait1.fam, and SNP_data28d_trait1.bim.</p>
 
 </div>
 </div>
@@ -12609,6 +12639,24 @@ rs8106297       ,19,          107958,   1,   2
 </pre></div>
 
 </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+<div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stderr output_text">
+<pre>ln: ./SNP_data28d_trait1.bed: File exists
+</pre>
+</div>
+</div>
+
 </div>
 </div>
 
@@ -12635,25 +12683,652 @@ rs8106297       ,19,          107958,   1,   2
 
 
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>034207.full.pdf
-116434.full.pdf
-160044.full.pdf
-MR_VCMnotebook10162018.ipynb
+<pre>004749570_JI.SOO_G1_20180924103006.pdf
+1 intro.pdf
+12-08-17 215_Survival_project.docx
+17W-BIOSTAT256-1-files
+17W-BIOSTAT256-1-files.zip
+2 graphics (1).pdf
+2 graphics.pdf
+2007 HLP JAIDS.doc.pdf
+200bfinalprojectmarch3plspsls5.docx
+200blastprojectthankyoudrcrespi.pdf
+2013 Warner Impact Tobacco Control AJPH.pdf
+2014 Dreibelbis School Water AJPH.pdf
+2014 Dysken JAMA Effect of Vitamin E Memantine.pdf
+2014 Heldman JAMA Transendocardial Mesenchymal Stem Cells.pdf
+2016 Midterm.pdf
+20170918131810180.pdf
+2017_w2.pdf
+20180313
+2019_004749570_132_JISOOMIN.pdf
+215_Survival_project_12_09_2017_NY.docx
+215_Survival_project_NY (1).docx
+215_hw5.Rmd
+215_hw5.doc
+215_hw5.docx
+215hw6.doc
+215hw6final.doc
+215project (1).R
+215project.R
+215project2.R
+215project4 (1).Rmd
+215project4.Rmd
+215project5.Rmd
+215project6.Rmd
+215project7.Rmd
+215project8.R
+236DAPreport.docx
+236DAPreportzzzsfdasdfasdfasf.docx
+236DAPreportzzzsfdasdfasdfasf.pdf
+236dapsarah.docx
+236homework3nayoung (1).docx
+236homework3nayoung.docx
+23tpm_binary_atleast6_jan17.csv
+250A
+250A.zip
+255A
+255A.zip
+273WRITEup.doc
+273_SupportVectorMachines.R
+273_TitanicPredictionfinal.R
+280_linuxhw1.docx
+36341-0001-Data.rda
+36341-0001-Report.pdf
+3687111.jpg
+3687113.jpg
+3687114.jpg
+3687115.jpg
+4 predictors.pdf
+402b_finalreport.docx
+402bpresentation (1).docx
+402bpresentation (2).docx
+402bpresentation.docx
+409_presentation.docx
+442756.fullWarringtonMR2018.pdf
+451_basic_set_theory.pdf
+451_basic_set_theory_part2.pdf
+5264850124_444515748e_o.jpg
+6010HW.tex
+8361_Report (1).tex
+8361_Report.aux
+8361_Report.log
+8361_Report.out
+8361_Report.pdf
+8361_Report.synctex.gz
+9780817684082-c1.pdf
+Amazon.com - Order 112-3859890-8358615.pdf
+Ament et al NEUROSURGERY 5 year CUA PAPER.pdf
+Anaconda3-5.1.0-MacOSX-x86_64.pkg
+Andrew_R_Lesson1.R
+Andy_Histopath_files
+Association_Testing_Using_VCM.ipynb
+BIOSTAT 236- HW 4 Matrices.docx
+BS406L10.Rmd
+Banerjee,_Sudipto;_Roy,_Anindya_Linear_Algebra_and_Matrix_Analysis_for_Statistics copy.pdf
+Banerjee,_Sudipto__Roy,_Anindya_Linear_Algebra_and_Matrix_Analysis_for_Statistics copy (1).pdf
+Banerjee,_Sudipto__Roy,_Anindya_Linear_Algebra_and_Matrix_Analysis_for_Statistics copy.pdf
+Bank of America _ Online Banking _ Accounts _ Account Details _ Account Activity.pdf
+Binary_logistic_coeff_jan17.csv
+Biostatsitcs 406 HW3.pdf
+Bodyfat.csv
+Bridget.YNPwolves.Rmd
+Bridget.YNPwolvesjan11edits.Rmd
+Bridget.YNPwolvesnewdoc.doc
+CASHNet.pdf
+CSW-Policy-Brief-Template.doc
+CSresultsintxn.docx
+Capillary.ppt
+CausalWorkshop.csv
+Chapter1.tex
+ComponentResid_ENSCAFT00000055053.1loc9_TPM.pdf
+Datasets
+Datasets.zip
+Description of Data Files.txt
+Description of Data.pdf
+Detels_EpidBase_PH.ppt
+Docker.dmg
+Epi 100.zip
+Expr-changes (1).ipynb
+Expr-changes.ipynb
+FDAP_complete.csv
+FDAP_financialdatanotmissingbaseline.csv
+FDAP_incomplete.csv
+FDAP_missing37INCOME.csv
+FDAP_missing8LIBERAL.csv
+FDAP_missingbothINCOMEandLIBERAL.csv
+FDAP_negemotionstrust.csv
+Figure_2.5.pdf
+FiguresCode.R
+GetIndices_variables.ipynb
+GitHub Desktop.app
+GitHubDesktop.zip
+Gregory_ReproHlthdisparities.ppt
+HERITABILITY-29A.html
+HERITABILITY-29A.ipynb
+HERITABILITY-LMM-sarah-snp29c.html
+HERITABILITY-VC-sarahJSS-snp29c1013 (1).html
+HERITABILITY-VC-sarahJSS-snp29c1013.html
+HERITABILITY-VC-sarahJSS-snp29c1014.html
+HERITABILITY-VC-sarahJSS-snp29c1018.html
+HERITABILITY-VCexample10182018.html
+HERITABILITY-VCexample10182018.ipynb
+HERITABILITY-VCexample10182018_sarahupdatejan16-Copy1.ipynb
+HERITABILITY-VCexample10182018_sarahupdatejan29.ipynb
+HERITABILITY-VCexampleFeb2_2019.html
+HERITABILITY-VCexampleFeb5 (1)-Copy1.ipynb
+HERITABILITY-VCexampleFeb5.html
+HERITABILITY-VCexampleFeb5.ipynb
+HERITABILITY-VCexampleFeb7 (1).html
+HERITABILITY-VCexampleFeb7 (1).ipynb
+HERITABILITY-VCexampleFeb7.html
+HERITABILITY-VCexampleFeb8.html
+HERITABILITY-VCexampleFeb8.ipynb
+HW 1.pdf
+HW 1.synctex.gz
+HW 1.tex
+HW1.docx
+HW1_01_29_2018.docx
+HW2.Rmd
+HW4 (1).docx
+HW4.docx
+HW5 (1).Rmd
+HW5 (2).Rmd
+HW5.Rmd
+HW5_NY.sas
+HW5__2_.doc
+HW5__2_.docx
+HW6 (1).Rmd
+HW6.Rmd
+HW6_215.Rmd
+Haak2015PublicData.tar.gz
+Heritability-SNP_29C.ipynb
+Histopath_Causal_inference_10142018A (1) (1).doc
+Histopath_Causal_inference_10142018A (1) (1).pdf
+Histopath_Causal_inference_10142018A (1).doc
+Histopath_Causal_inference_10142018A (1).pdf
+Histopath_Causal_inference_10142018A.doc
+Histopath_Causal_inference_10142018A.pdf
+Histopath_Causal_inference_jan1019.doc
+Histopath_Causal_inference_jan1119JSS.doc
+Histopath_Causal_inference_jan819.doc
+IAS_michelle_ped.csv
+IMG_1232.jpg
+IMG_1378.jpeg
+IMG_1379.jpeg
+IMG_1380.jpeg
+IMG_1795.jpg
+IMG_1819-1.jpg
+IMG_20181125_170430_011 copy.jpg
+IMG_3239.JPG
+IMG_3240.JPG
+IMG_3241.JPG
+IMG_3242.JPG
+IMG_3243.JPG
+IMG_5348.jpg
+IMG_5349.JPG
+IMG_5350.JPG
+IMG_5351.JPG
+IMG_5882.JPG
+IMG_5883.JPG
+IMG_5884.JPG
+IMG_5885.JPG
+IMG_5886.JPG
+IMG_5887.JPG
+IMG_5888.JPG
+IMG_5889.JPG
+IMG_5890.JPG
+IMG_5891.JPG
+IMG_5892.JPG
+IMG_6642.JPG
+IMG_6643.JPG
+IMG_6644.JPG
+IMG_6703.HEIC
+IMG_6704.HEIC
+IMG_6705.HEIC
+IMG_6706.HEIC
+IMG_6707.HEIC
+IMG_6708.HEIC
+IMG_6709.HEIC
+IMG_6710.HEIC
+IMG_6711.HEIC
+IMG_6735.HEIC
+IMG_6736.HEIC
+IMG_6737.HEIC
+IMG_6738.HEIC
+IMG_6739.HEIC
+IMG_6740.HEIC
+IMG_6741.HEIC
+IMG_6742.HEIC
+InvLinks.jl
+InverseLinks.jl
+JI-SOO-MIN-18W.ics
+JSMhotel2 (1) (1).pdf
+JSMhotel2 (1).pdf
+JuliaPro-0.6.0.1_build-112.pkg
+Julia_0.5_files
+July2018_6669.csv
+June2018_6669.csv
+Kens_GLM_project.ipynb
+Key_Final_Dec2016.pdf
+LAB8_403A.R
+LMM07132018cor.ipynb
+LMM_pval_emp.csv
+LMM_pval_ped.csv
+LMM_reg_coeff_emp.csv
+LMM_reg_coeff_ped.csv
+LR_pval_TPMjan11.csv
+LaTex_Template (2016).tex
+Lab 1
+Lab 1.zip
+Lab 2.zip
+Lab2
+Lesson_1_Andrew.docx
+Lesson_1_Andrew.pdf
+Levine_Histopath.pdf
+Linear-Regression-Analysis-Seber.pdf
+M215 Hw6.docx
+MATH-245A-Notes.pdf
 MR_VCMnotebook10182018_sarah.html
-MR_VCMnotebook10182018_sarah.ipynb
+MR_VCMnotebook10282018_check.html
+MR_VCMnotebookWGCAC07102018.ipynb
 MR_example10182018.ipynb
-Ped28exptrait2.out
-Ped28trait1.out
-Ped28trait3.out
-Re__Mendelian_Randomization_notebook
-Re__Mendelian_Randomization_notebook.zip
+MR_example10182018_sarahupdatejan29.ipynb
+MR_exampleFeb2_2019.html
+MR_exampleFeb5-Copy1.ipynb
+MR_exampleFeb5.html
+MR_exampleFeb7.html
+MR_exampleFeb7.ipynb
+MRcodeappendix1.jl
+MS Report Draft1.pdf
+MS Report Draft1.synctex.gz
+MS Report Draft1.tex
+Mean_formula_function.jl.ipynb
+Mean_formula_functionv7.ipynb
+Mean_formula_functionv7_oct31.ipynb
+Mendel29cnosex.out
+Mendel29cnosexped.out
+MendelKinship.jl
+MendelPreview.png
+MendelRandomWedAft09202017JSS (1).pptx
+MendelRandomWedAft09202017JSS.pptx
+MendelRandomization09102017.ipynb
+Mendel_Output.txt
+MendelianRandomization-BurgessThompson.pdf
+Mendeltrait2simgrmpedmix.out
+Midterm_2016.pdf
+ModelSpecification.jl
+Multisystems_data_for_Janet_copy.csv
+NewestMeanformula.ipynb
+OpenMendel-MendelKinship.jl-d4ae029
+OpenMendel-MendelKinship.jl-d4ae029.zip
+OpenMendel_Grant.pdf
+OpenMendel_Review_Paper.pdf
+Our_new_mean_formula.ipynb
+PALU.Rmd
+PALU.pdf
+PHD-n-MS-PreliminaryExamF13.pdf
+PHD-n-MS-PreliminaryExamF14.pdf
+PHD-n-MS-PreliminaryExamF15.pdf
+PHD-n-MS-PreliminaryExamF16.pdf
+Ped08142018.fam
+Ped29a.in
+Problem Set 6.tex
+Python Algorithms- Hetland.pdf.zip
+Queing_systems (1).R
+RESUME_GOOGLE.pdf
+RandomDeviates.jl
+Report.tex
+Research Strategy_Resub_FINAL.pdf
+ResidualAnalysis_ENSCAFT00000055053.1loc9_TPM.pdf
+ResponseDist.jl
+Resume 2018 (Winter).docx
+SERtalks_Rimplementation_2018.pdf
+SERtalks_Setup_Instructions_2018.pdf
+SNP_29a.fam
+SNP_29a.filtered.bed
+SNP_29a.filtered.bim
+SNP_29a.filtered.fam
+SNP_bin02272018.bed
+SNP_bin02272018.bin
 SNP_data28d_trait1.bed
+SNP_data28d_trait1.bim
 SNP_data28d_trait1.bin
-SNP_data28d_trait3.bin
+SNP_data28d_trait1.fam
+SNP_data28d_trait1.out
+SNP_data28d_trait3.bed
+SNP_data28d_trait3.bim
+SNP_data28d_trait3.fam
+SNP_data28d_trait3.out
+SNP_data28exptrait2.bed
+SNP_data28exptrait2.bim
 SNP_data28exptrait2.bin
-SNP_def28exptrait2.out
-SNP_def28trait1.out
-SNP_def28trait3.out
+SNP_data28exptrait2.fam
+SNP_data29a.bed
+SNP_names08142018.in
+SNPdeffile
+SVM_tutorial.doc
+Sarah LushGiftCardUSA.pdf
+SarahJi08222017JSS (1).doc
+SarahJi08222017JSS.doc
+SarahJi_2018.pdf
+SarahJi_2018resume.pdf
+Sarah_Graduation.jpg
+Sarah_TraitSim1.0.2version6.ipynb
+Sarah_TraitSim1.0.3version7.ipynb
+Sarah_gradsmall.jpg
+SearchDocumentation.pdf
+SimulateData.jl
+Sqrt_LinearRegression_RNAseq_locus_coeff.csv
+Sqrt_LinearRegression_RNAseq_locus_pval.csv
+StatsModels.jl-0.0.2
+Sublime Text Build 3143.dmg
+Summary29nosex (1).out
+Summary29nosex.out
+Summary29nosexped (1).out
+Summary29nosexped.out
+Summarytrait2simgrmpedmix.out
+Sundin_NIHBiosketch.docx
+Survival analysis.pdf
+TCRSForm1098t.pdf
+THE GÜT BOOK.pdf
+Terminal_ErrorOutput_feb14sad.txt
+TheorKIN_GRM.out
+Theorkin.txt
+Titanic_train.csv
+Titantic_test.csv
+Trait_Simulation.jl
+Trait_Simulation_ShortcourseMarch112018JSS.ipynb
+Trait_Simulation_Shortcourse_06192018.ipynb
+Trait_Simulation_Shortcourse_May21SarahJSS (1).ipynb
+Trait_Simulation_Shortcourse_May21SarahJSS.ipynb
+Untitled.Rmd
+VirtualBox-5.2.6-120293-OSX (1).dmg
+WBS_functional_manuscript_tables_figures_GBE_formatted.docx
+WBS_functional_manuscript_v3.docx
+Web.pdf
+YNP_Pedigree_MASTER.xlsx
+abstract.pdf
+anteresultsintxndocx.docx
+appendixA-metric and topological spaces (1).pdf
+appendixA-metric and topological spaces.pdf
+appendixB -analysis and algebra.pdf
+association_wolves.Rmd
+autoSim (1).R
+autoSim.R
+biosketch-blankformat.docx
+borelset.pdf
+breastcancer215.csv
+breastcancer215.txt
+calendar.ics
+cert.pdf
+ch05_notes.pdf
+ch1-set theory (1).pdf
+ch1-set theory.pdf
+ch2-probability and measure (1) (1).pdf
+ch2-probability and measure (1).pdf
+ch2-probability and measure.pdf
+ch3-measurable functions, random varriables (1) (1).pdf
+ch3-measurable functions, random varriables (1).pdf
+ch3-measurable functions, random varriables.pdf
+ch4-integration.pdf
+ch4.pdf
+ch5-radon-nikodym theorem.pdf
+ch6-finite product spaces (1).pdf
+ch6-finite product spaces.pdf
+chicago-nmmaps.csv
+citiCompletionReport7572766 (1).pdf
+citiCompletionReport7572766.pdf
+constructionofprobability.pdf
+contents.pdf
+control_just_theoretical_29a.txt
+currentTransaction_6669.csv
+currentTransaction_sarahji.xls
+daplsoa_2018 (1).pdf
+daplsoa_2018 (2).pdf
+daplsoa_2018.pdf
+data-transformation.pdf
+data-visualization-2.1.pdf
+data-wrangling-cheatsheet.pdf
+defferment.pdf
+demo_LmmGWASJSS10172018.ipynb
+demo_exactVC.html
+demo_exactVC.ipynb
+deviates (1).jl
+deviates (2).jl
+deviates (3).jl
+deviates.jl
+digits_train.csv
+discussion6.pdf
+draft406me.pdf
+ecorrespondence358784124.pdf
+ecorrespondence427337049.pdf
+environ.RData
+epih-39-e20170352.pdf
+everythings_goodbuterrorVCM.txt
+exam.pdf
+exam3.pdf
+exam3.tex
+example_7.2-kidney-dialysis_1.4.pdf
+example_health_data.csv
+example_pt_data.xlsx
+excerptPlotfile.out
+fall_2018.png
+fall_colorful.jpg
+fat.html
+fdap.R
+fhr_v5hst_folio16578907.pdf
+fielding.png
+final (1).pdf
+final.pdf
+final_map_syp_geno.pdf
+for_Janet (1).xlsx
+for_Janet.xlsx
+formula (1).jl
+formula.jl
+function calc_trait(μ::Vector{Float64}, resp_dist:
+function_birthday
+function_birthday.jl
+general_utilities (1).jl
+general_utilities.jl
+gradms.jpg
+gradms2.jpg
+gradms3.jpg
+grm08162018A.csv
+grm_function_subset_test.ipynb
+grm_function_subset_test_Hua (1).html
+grm_function_subset_test_Hua.html
+headertogether2 (1).xls
+headertogether2.xls
+helpers.R
+heritability.bed
+heritability.bim
+heritability.fam
+heritability.filtered.bed
+heritability.filtered.bim
+heritability.filtered.fam
+hm2.pdf
+hm5.pdf
+house_addWolf08162018A.html
+house_addWolf08162018A.ipynb
+house_addWolf08162018A.pdf
+huwenbos_missing_Ken.jl
+hw
+hw02.ipynb
+hw03sol.html
+hw04sol.html
+hw1 (1).pdf
+hw1 (2).pdf
+hw1.pdf
+hw2.ipynb
+hw2.pdf
+hw2_236finalnayoung.docx
+hw4
+hw4.ipynb
+hw4.zip
+hw5
+hw5.ipynb
+hw5.zip
+hwfdap.pdf
+installGitKraken.dmg
+intro2018 (1).pdf
+intro2018 (2).pdf
+intro2018 (3).pdf
+intro2018.pdf
+jan11bridgett.Rmd
+janet_vcmfctn.jl
+jsm_hotel1 (1).pdf
+jsm_registration.png
+julia-0.5.2
+julia-0.5.2-full.tar.gz
+julia-0.5.2-osx10.7+.dmg
+julia-0.6.0-osx10.7+.dmg
+julia-0.6.2-mac64.dmg
+julia-0.6.3-mac64.dmg
+julia-0.6.4-mac64.dmg
+julia-0.7.0-mac64.dmg
+julia-1.0.0-mac64.dmg
+julia-1.0.3-mac64.dmg
+julia1packagedevelopment.docx
+jupyternotebook.png
+kinped08072017full.csv
+lab1.doc
+lab2_236.docx
+lab5.doc
+linear algebra and matrices review for Biostat 250A.pdf
+logistic_tpm_wolvesjan17.R
+lucescholarsapplication.doc
+lungcancer.csv
+mapsypcgloblcr.Rmd
+maternalfetalgenotype
+maternalfetalgenotype.jl
+mendel29c_assocsingletrait (2).ipynb
+mendel29c_assocsingletrait.ipynb
+methodsresultsmedicationanalysisJSS10082018.doc
+methodsresultsmedicationanalysisJSS10092018.doc
+methodsresultsmedicationanalysisJSS10142018.doc
+midterm250_1.jpg
+midterm250_2.jpg
+midterm250_3.jpg
+midterm250_4.jpg
+midterm250_5.jpg
+midterm250_6.jpg
+midtermsolution.pdf
+mm.html
+msReport.aux
+msReport.log
+msReport.out
+msReport.pdf
+msReport.synctex.gz
+msReportdraft.aux
+msReportdraft.log
+msReportdraft.out
+msReportdraft.pdf
+msReportdraft.synctex.gz
+msReportdraft_final.pdf
+msReportdraft_final.synctex.gz
+msReportdraft_final.tex
+new_ped.txt
+newdeffewl
+newdeffile
+newreportfdap2.docx
+non-travel-reimbursement-form.pdf
+non-travel-reimbursement-form_conference_hotel.pdf
+non-travel-reimbursement-form_dobsonbook.pdf
+non-travel-reimbursement-form_food copy.pdf
+note-LRCI-quantile.pdf
+note-LRCI.pdf
+onetable_sarah.docx
+optdigits.tes
+optdigits.tra
+orderedfulltpm_jan17.csv
+our_new_formula.jl
+personid.csv
+petitionji.pdf
+ph150finalreview.docx
+plan.docx
+plot kinship theoretical vs empiric.ipynb
+posh_label_5b7c589d7ee9e2121d85aa27.pdf
+posh_label_5c46a96b2bd2f6e2636426be (1).pdf
+posh_label_5c46a96b2bd2f6e2636426be.pdf
+posh_label_5c4a30a2fb3803bdb8b8e24d.pdf
+posh_label_5c53d246b9f675bb6cf4a00a.pdf
+predictionprob_SVM.csv
+predictions_RF.csv
+princess.html
+proposal_ny_es.docx
+q1_5sarah.pdf
+rand_dat.RData
+read.seer.research.nov16.sas
+rerunthiskinshipcodeforme
+response_to_review01062019A.docx
+responsetype.jl
+resume_sarah2018.pdf
+resumecv2018.doc
+resumecv2018.pdf
+rmarkdown-2.0.pdf
+rmarkdown-reference.pdf
+rnaseq_metadata.xlsx
+rstudio-ide.pdf
+runSim.R
+sarah (1).jl
+sarah.jl
+sarahchrisben.jl
+sarahgrad.jpg
+sarahjiproject236.docx
+sarahtries
+sarahtries.jl
+sarawrahFDAPRESULTSbaseline.docx
+sarawrahFDAPRESULTSbaseline33.docx
+sarawrahFDAPRESULTSbaseline6969.docx
+sarawrahFDAPRESULTSbaseline6969777.docx
+scaredsarah.jl
+sdf
+seerdic.pdf
+shiny (1).pdf
+shiny.pdf
+simfunction.jl
+slides-metric and topological spaces (1).pdf
+slides-metric and topological spaces.pdf
+spliffin-bb8a3a409e9.ics
+sub4.Rdata
+sub6.Rdata
+syllabus.pdf
+syllabus.tex
+terminal.txt
+terminalalfonso.jl
+theokinshipmatrix_29c.R
+titanic_273.R
+titanicpowerpoint273.ppt
+tpmjan17.csv
+trait-simulation-notes.jl
+traitsimcategorical.jl
+traitsimulation_feb1
+traitsimulation_feb1.jl
+tws-stable-macosx-x64.dmg
+uclath17.clo
+uclathes.bst
+uclathes.cls
+uclathma.clo
+uclathti.clo
+unofficial_UCLA_MS_SarahJi.pdf
+unofficial_UCSD_BS_SarahJi.pdf
+unofficial_transcript_SarahJi.pdf
+unofficialtrans.pdf
+using DataFrames, Distributions, SnpArrays, TraitS
+v76i11.pdf
+vc1 (1).ipynb
+vc1.ipynb
+vonHoldt_GBE_maintext_revision_tracked_changes.docx
+xsede_training_events.ics
+~$3finalproject.docx
+~$6homework3nayoung.docx
+~$W-Policy-Brief-Template.doc
+~$etable_sarah.docx
+~$lab5.doc
+~$lia1packagedevelopment.docx
+~$thodsresultsmedicationanalysisJSS10082018.doc
+퀸카로 살아남는법1 Mean Girls
 </pre>
 </div>
 </div>
@@ -12662,13 +13337,22 @@ SNP_def28trait3.out
 </div>
 
 </div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Read in the binary .bed file of genetic variants using the 'SnpArrays' package.</p>
+
+</div>
+</div>
+</div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">In&nbsp;[14]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-julia"><pre><span></span><span class="k">using</span> <span class="n">SnpArrays</span>
-<span class="n">snpbin28_1</span> <span class="o">=</span> <span class="n">SnpArray</span><span class="p">(</span><span class="s">&quot;SNP_data28d_trait1&quot;</span><span class="p">;</span> <span class="n">people</span> <span class="o">=</span> <span class="n">size</span><span class="p">(</span><span class="n">Ped28_1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">snps</span> <span class="o">=</span> <span class="n">size</span><span class="p">(</span><span class="n">snpdef28_1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+<span class="n">snpbin28_1</span> <span class="o">=</span> <span class="n">SnpArray</span><span class="p">(</span><span class="s">&quot;SNP_data28d_trait1.bed&quot;</span><span class="p">)</span>
 </pre></div>
 
 </div>
@@ -12681,50 +13365,39 @@ SNP_def28trait3.out
 
 <div class="output_area">
 
-<div class="prompt"></div>
-
-
-<div class="output_subarea output_stream output_stderr output_text">
-<pre><span class="ansi-cyan-intense-fg ansi-bold">INFO: </span><span class="ansi-cyan-fg">v1.0 BED file detected
-</span></pre>
-</div>
-</div>
-
-<div class="output_area">
-
 <div class="prompt output_prompt">Out[14]:</div>
 
 
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>212×253141 SnpArrays.SnpArray{2}:
- (true, true)  (true, true)   …  (true, true)    (false, false)
- (true, true)  (true, true)      (true, true)    (false, false)
- (true, true)  (true, true)      (true, true)    (false, false)
- (true, true)  (true, true)      (true, true)    (false, false)
- (true, true)  (true, true)      (true, true)    (false, false)
- (true, true)  (true, true)   …  (false, false)  (true, true)  
- (true, true)  (false, true)     (false, false)  (true, true)  
- (true, true)  (true, true)      (false, false)  (true, true)  
- (true, true)  (false, true)     (false, false)  (true, true)  
- (true, true)  (true, true)      (false, false)  (true, true)  
- (true, true)  (false, true)  …  (false, false)  (true, true)  
- (true, true)  (false, true)     (false, false)  (true, true)  
- (true, true)  (false, true)     (false, false)  (true, true)  
- ⋮                            ⋱                  ⋮             
- (true, true)  (false, true)  …  (true, true)    (false, false)
- (true, true)  (true, true)      (false, true)   (false, true) 
- (true, true)  (true, true)      (true, true)    (false, false)
- (true, true)  (true, true)      (true, true)    (false, false)
- (true, true)  (true, true)      (true, true)    (false, false)
- (true, true)  (true, true)   …  (false, true)   (false, false)
- (true, true)  (true, true)      (false, true)   (false, true) 
- (true, true)  (true, true)      (true, true)    (false, false)
- (true, true)  (false, true)     (false, true)   (false, true) 
- (true, true)  (true, true)      (true, true)    (false, false)
- (true, true)  (true, true)   …  (true, true)    (false, false)
- (true, true)  (true, true)      (false, true)   (false, true) </pre>
+<pre>212×253141 SnpArray:
+ 0x03  0x03  0x00  0x03  0x03  0x03  …  0x02  0x02  0x00  0x00  0x03  0x00
+ 0x03  0x03  0x00  0x02  0x02  0x03     0x00  0x03  0x00  0x00  0x03  0x00
+ 0x03  0x03  0x00  0x03  0x03  0x03     0x03  0x02  0x00  0x00  0x03  0x00
+ 0x03  0x03  0x00  0x03  0x03  0x03     0x02  0x03  0x00  0x00  0x03  0x00
+ 0x03  0x03  0x00  0x03  0x03  0x03     0x00  0x03  0x00  0x00  0x03  0x00
+ 0x03  0x03  0x00  0x03  0x03  0x03  …  0x00  0x00  0x00  0x00  0x00  0x03
+ 0x03  0x02  0x00  0x03  0x03  0x03     0x02  0x03  0x00  0x03  0x00  0x03
+ 0x03  0x03  0x00  0x03  0x03  0x03     0x02  0x03  0x00  0x03  0x00  0x03
+ 0x03  0x02  0x00  0x03  0x03  0x03     0x02  0x02  0x00  0x02  0x00  0x03
+ 0x03  0x03  0x00  0x03  0x03  0x03     0x00  0x02  0x00  0x02  0x00  0x03
+ 0x03  0x02  0x00  0x03  0x03  0x03  …  0x00  0x02  0x00  0x02  0x00  0x03
+ 0x03  0x02  0x00  0x03  0x03  0x03     0x02  0x02  0x00  0x02  0x00  0x03
+ 0x03  0x02  0x00  0x03  0x03  0x03     0x03  0x03  0x00  0x03  0x00  0x03
+    ⋮                             ⋮  ⋱     ⋮                             ⋮
+ 0x03  0x02  0x00  0x02  0x02  0x03  …  0x02  0x03  0x00  0x00  0x03  0x00
+ 0x03  0x03  0x00  0x03  0x03  0x03     0x00  0x03  0x00  0x02  0x02  0x02
+ 0x03  0x03  0x00  0x03  0x03  0x03     0x02  0x03  0x00  0x00  0x03  0x00
+ 0x03  0x03  0x00  0x03  0x03  0x03     0x02  0x03  0x00  0x00  0x03  0x00
+ 0x03  0x03  0x00  0x02  0x02  0x03     0x02  0x03  0x00  0x00  0x03  0x00
+ 0x03  0x03  0x00  0x03  0x03  0x03  …  0x02  0x03  0x00  0x02  0x02  0x00
+ 0x03  0x03  0x00  0x02  0x02  0x03     0x02  0x03  0x00  0x00  0x02  0x02
+ 0x03  0x03  0x00  0x03  0x03  0x03     0x00  0x03  0x00  0x00  0x03  0x00
+ 0x03  0x02  0x00  0x03  0x03  0x03     0x02  0x03  0x00  0x00  0x02  0x02
+ 0x03  0x03  0x00  0x03  0x03  0x03     0x00  0x03  0x00  0x00  0x03  0x00
+ 0x03  0x03  0x00  0x03  0x03  0x03  …  0x02  0x03  0x00  0x00  0x03  0x00
+ 0x03  0x03  0x00  0x03  0x03  0x03     0x00  0x03  0x00  0x02  0x02  0x02</pre>
 </div>
 
 </div>
@@ -12749,7 +13422,7 @@ where $k$ ranges over the selected $S$ SNPs, $p_k$ is the minor allele frequency
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Calculate-the-GRM-matrix">Calculate the GRM matrix<a class="anchor-link" href="#Calculate-the-GRM-matrix">&#182;</a></h2><p>By default, <code>grm</code> excludes SNPs with maf &lt; 0.01.</p>
+<h2 id="Calculate-the-GRM-matrix">Calculate the GRM matrix<a class="anchor-link" href="#Calculate-the-GRM-matrix">&#182;</a></h2><p>Use the grm function in the SnpArrays.jl package to create the genetic relationship matrix from the genetic variants in the .bed file for example 1. By default, <code>grm</code> excludes SNPs with maf &lt; 0.01.</p>
 
 </div>
 </div>
@@ -12849,32 +13522,32 @@ where $k$ ranges over the selected $S$ SNPs, $p_k$ is the minor allele frequency
 
 <div class="output_text output_subarea output_execute_result">
 <pre>212-element Array{Float64,1}:
-  90.1804
- 109.327 
- 114.15  
- 109.922 
- 100.127 
-  95.7373
- 108.733 
- 121.181 
- 101.566 
- 114.688 
-  96.3424
-  99.7993
- 129.112 
-   ⋮     
- 116.241 
-  92.6177
-  91.6206
-  89.2516
- 110.54  
- 113.432 
- 115.746 
- 104.298 
- 116.291 
- 119.839 
- 114.207 
- 114.946 </pre>
+  90.18044
+ 109.32747
+ 114.15019
+ 109.92158
+ 100.12725
+  95.73733
+ 108.73254
+ 121.18095
+ 101.56554
+ 114.68795
+  96.3424 
+  99.79928
+ 129.11242
+   ⋮      
+ 116.24136
+  92.61769
+  91.62061
+  89.25164
+ 110.5402 
+ 113.43192
+ 115.74563
+ 104.29811
+ 116.29069
+ 119.83851
+ 114.20666
+ 114.94558</pre>
 </div>
 
 </div>
@@ -12888,7 +13561,7 @@ where $k$ ranges over the selected $S$ SNPs, $p_k$ is the minor allele frequency
 <div class="prompt input_prompt">In&nbsp;[17]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-julia"><pre><span></span><span class="c">#Calculate </span>
+<div class=" highlight hl-julia"><pre><span></span><span class="c">#Calculate the exposure effect</span>
 <span class="n">ExposureEffectVCM</span><span class="p">(</span><span class="n">outcome</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">exposure</span><span class="p">,</span> <span class="n">ΦGRM1</span><span class="p">,</span> <span class="o">:</span><span class="n">FS</span><span class="p">)</span>
 </pre></div>
 
@@ -12925,7 +13598,7 @@ This program contains Ipopt, a library for large-scale nonlinear optimization.
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>(1.9471633422988726, 0.05984880649578539)</pre>
+<pre>(1.9471633423548604, 0.059848806492927765)</pre>
 </div>
 
 </div>
@@ -12955,7 +13628,7 @@ This program contains Ipopt, a library for large-scale nonlinear optimization.
 <div class="prompt input_prompt">In&nbsp;[18]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-julia"><pre><span></span><span class="n">ind_rs11672206</span> <span class="o">=</span> <span class="n">find</span><span class="p">(</span><span class="n">x</span> <span class="o">-&gt;</span> <span class="n">x</span> <span class="o">==</span> <span class="s">&quot;rs11672206&quot;</span><span class="p">,</span> <span class="n">snpid</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+<div class=" highlight hl-julia"><pre><span></span><span class="n">ind_rs11672206</span> <span class="o">=</span> <span class="n">findall</span><span class="p">(</span><span class="n">x</span> <span class="o">-&gt;</span> <span class="n">x</span> <span class="o">==</span> <span class="s">&quot;rs11672206&quot;</span><span class="p">,</span> <span class="n">snpid</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
 </pre></div>
 
 </div>
@@ -12988,7 +13661,7 @@ This program contains Ipopt, a library for large-scale nonlinear optimization.
 <div class="prompt input_prompt">In&nbsp;[19]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-julia"><pre><span></span><span class="n">snp_rs11672206</span> <span class="o">=</span> <span class="n">convert</span><span class="p">(</span><span class="kt">Array</span><span class="p">{</span><span class="kt">Float64</span><span class="p">,</span><span class="mi">1</span><span class="p">},</span> <span class="n">snpbin28_1</span><span class="p">[</span><span class="o">:</span><span class="p">,</span> <span class="n">ind_rs11672206</span><span class="p">])</span>
+<div class=" highlight hl-julia"><pre><span></span><span class="n">snpbin28_1</span><span class="p">[</span><span class="o">:</span><span class="p">,</span> <span class="n">ind_rs11672206</span><span class="p">]</span>
 </pre></div>
 
 </div>
@@ -13002,6 +13675,65 @@ This program contains Ipopt, a library for large-scale nonlinear optimization.
 <div class="output_area">
 
 <div class="prompt output_prompt">Out[19]:</div>
+
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>212-element Array{UInt8,1}:
+ 0x00
+ 0x03
+ 0x00
+ 0x00
+ 0x02
+ 0x02
+ 0x00
+ 0x00
+ 0x02
+ 0x02
+ 0x02
+ 0x02
+ 0x02
+    ⋮
+ 0x02
+ 0x02
+ 0x02
+ 0x02
+ 0x00
+ 0x02
+ 0x02
+ 0x02
+ 0x00
+ 0x02
+ 0x00
+ 0x02</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[20]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-julia"><pre><span></span><span class="n">snp_rs11672206</span> <span class="o">=</span> <span class="n">convert</span><span class="p">(</span><span class="kt">Array</span><span class="p">{</span><span class="kt">Float64</span><span class="p">,</span><span class="mi">1</span><span class="p">},</span> <span class="nd">@view</span><span class="p">(</span><span class="n">snpbin28_1</span><span class="p">[</span><span class="o">:</span><span class="p">,</span> <span class="n">ind_rs11672206</span><span class="p">]))</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+<div class="prompt output_prompt">Out[20]:</div>
 
 
 
@@ -13052,7 +13784,7 @@ This program contains Ipopt, a library for large-scale nonlinear optimization.
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[20]:</div>
+<div class="prompt input_prompt">In&nbsp;[21]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-julia"><pre><span></span><span class="c">###### First Example MR####</span>
@@ -13073,11 +13805,11 @@ This program contains Ipopt, a library for large-scale nonlinear optimization.
 
 
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>MR direct effects (SE): 1.9758665680824732(0.4044688655852495), Pvalue is 1.0338193452439175e-6
+<pre>MR direct effects (SE): 1.9758504087435436(0.40446735551800067), Pvalue is 1.0339332851609442e-6
 
-Exposure effect (SE) is: 2.521490140074795(0.32694954311678354)
+Exposure effect (SE) is: 2.5214901400746736(0.3269495431167816)
 
-Trait effect (SE) is: 4.982128069523379(0.7891741872771625)
+Trait effect (SE) is: 4.982087323909359(0.7891735914492959)
 
 </pre>
 </div>
@@ -13085,13 +13817,13 @@ Trait effect (SE) is: 4.982128069523379(0.7891741872771625)
 
 <div class="output_area">
 
-<div class="prompt output_prompt">Out[20]:</div>
+<div class="prompt output_prompt">Out[21]:</div>
 
 
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>(1.9758665680824732, 0.4044688655852495)</pre>
+<pre>(1.9758504087435436, 0.40446735551800067)</pre>
 </div>
 
 </div>
@@ -13122,7 +13854,7 @@ $\beta_{DE} = \beta_{TE} /\beta_{EE}$.   Note that in this case, our direct effe
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>In this example we use the Ped28exptrait2.out data file, simulated under the scenario where there is still a strong IV but any association between the trait and the environmental predictor is due to confounding.</p>
+<p>In this example we use the the files: SNP_data28exptrait2.bed, SNP_data28exptrait2.fam, and SNP_data28exptrait2.bim, simulated under the scenario where there is still a strong IV but any association between the trait and the environmental predictor is due to confounding.</p>
 
 </div>
 </div>
@@ -13148,11 +13880,11 @@ columns are: :famid, :id, :moid, :faid, :sex, :twin, :simtrait1, :simtrait2</p>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[21]:</div>
+<div class="prompt input_prompt">In&nbsp;[22]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-julia"><pre><span></span><span class="c"># columns are: :famid, :id, :moid, :faid, :sex, :twin, :simtrait1, :simtrait2</span>
-<span class="n">ped28_2</span> <span class="o">=</span> <span class="n">readcsv</span><span class="p">(</span><span class="s">&quot;Ped28exptrait2.out&quot;</span><span class="p">,</span> <span class="kt">Any</span><span class="p">;</span> <span class="n">header</span> <span class="o">=</span> <span class="kc">false</span><span class="p">)</span>
+<span class="n">ped28_2</span> <span class="o">=</span> <span class="n">readdlm</span><span class="p">(</span><span class="s">&quot;SNP_data28exptrait2.fam&quot;</span><span class="p">,</span> <span class="sc">&#39;,&#39;</span><span class="p">;</span> <span class="n">header</span> <span class="o">=</span> <span class="kc">false</span><span class="p">)</span>
 </pre></div>
 
 </div>
@@ -13165,7 +13897,7 @@ columns are: :famid, :id, :moid, :faid, :sex, :twin, :simtrait1, :simtrait2</p>
 
 <div class="output_area">
 
-<div class="prompt output_prompt">Out[21]:</div>
+<div class="prompt output_prompt">Out[22]:</div>
 
 
 
@@ -13217,7 +13949,7 @@ columns are: :famid, :id, :moid, :faid, :sex, :twin, :simtrait1, :simtrait2</p>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[22]:</div>
+<div class="prompt input_prompt">In&nbsp;[23]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-julia"><pre><span></span><span class="n">exp_2</span> <span class="o">=</span> <span class="n">convert</span><span class="p">(</span><span class="kt">Vector</span><span class="p">{</span><span class="kt">Float64</span><span class="p">},</span> <span class="n">ped28_2</span><span class="p">[</span><span class="o">:</span><span class="p">,</span> <span class="mi">7</span><span class="p">])</span>
@@ -13235,7 +13967,7 @@ columns are: :famid, :id, :moid, :faid, :sex, :twin, :simtrait1, :simtrait2</p>
 
 <div class="output_area">
 
-<div class="prompt output_prompt">Out[22]:</div>
+<div class="prompt output_prompt">Out[23]:</div>
 
 
 
@@ -13287,10 +14019,10 @@ columns are: :famid, :id, :moid, :faid, :sex, :twin, :simtrait1, :simtrait2</p>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[23]:</div>
+<div class="prompt input_prompt">In&nbsp;[24]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-julia"><pre><span></span><span class="n">sex_2</span> <span class="o">=</span> <span class="n">map</span><span class="p">(</span><span class="n">x</span> <span class="o">-&gt;</span> <span class="n">strip</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">==</span> <span class="s">&quot;F&quot;</span><span class="o">?</span> <span class="mf">1.0</span> <span class="o">:</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">ped28_2</span><span class="p">[</span><span class="o">:</span><span class="p">,</span> <span class="mi">5</span><span class="p">])</span>
+<div class=" highlight hl-julia"><pre><span></span><span class="n">sex_2</span> <span class="o">=</span> <span class="n">map</span><span class="p">(</span><span class="n">x</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="n">strip</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">==</span> <span class="s">&quot;F&quot;</span><span class="p">)</span> <span class="o">?</span> <span class="mf">1.0</span> <span class="o">:</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">ped28_2</span><span class="p">[</span><span class="o">:</span><span class="p">,</span> <span class="mi">5</span><span class="p">])</span>
 </pre></div>
 
 </div>
@@ -13303,7 +14035,7 @@ columns are: :famid, :id, :moid, :faid, :sex, :twin, :simtrait1, :simtrait2</p>
 
 <div class="output_area">
 
-<div class="prompt output_prompt">Out[23]:</div>
+<div class="prompt output_prompt">Out[24]:</div>
 
 
 
@@ -13348,18 +14080,18 @@ columns are: :famid, :id, :moid, :faid, :sex, :twin, :simtrait1, :simtrait2</p>
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>Read in the SNP definition file, skipping the first 2 lines.</p>
+<p>Read in the SNP definition file.</p>
 
 </div>
 </div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[24]:</div>
+<div class="prompt input_prompt">In&nbsp;[25]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-julia"><pre><span></span><span class="c"># columns are: :snpid, :chrom, :pos, :allele1, :allele2, :groupname</span>
-<span class="n">snpdef28_2</span> <span class="o">=</span> <span class="n">readcsv</span><span class="p">(</span><span class="s">&quot;SNP_def28exptrait2.out&quot;</span><span class="p">,</span> <span class="kt">Any</span><span class="p">;</span> <span class="n">skipstart</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span> <span class="n">header</span> <span class="o">=</span> <span class="kc">false</span><span class="p">)</span>
+<span class="n">snpdef28_2</span> <span class="o">=</span> <span class="n">readdlm</span><span class="p">(</span><span class="s">&quot;SNP_data28exptrait2.bim&quot;</span><span class="p">,</span> <span class="sc">&#39;\t&#39;</span><span class="p">;</span> <span class="n">header</span> <span class="o">=</span> <span class="kc">false</span><span class="p">)</span>
 </pre></div>
 
 </div>
@@ -13372,39 +14104,39 @@ columns are: :famid, :id, :moid, :faid, :sex, :twin, :simtrait1, :simtrait2</p>
 
 <div class="output_area">
 
-<div class="prompt output_prompt">Out[24]:</div>
+<div class="prompt output_prompt">Out[25]:</div>
 
 
 
 
 <div class="output_text output_subarea output_execute_result">
 <pre>253141×6 Array{Any,2}:
- &#34;rs3020701       &#34;  19     90974  1  2  &#34;&#34;
- &#34;rs56343121      &#34;  19     91106  1  2  &#34;&#34;
- &#34;rs143501051     &#34;  19     93542  1  2  &#34;&#34;
- &#34;rs56182540      &#34;  19     95981  1  2  &#34;&#34;
- &#34;rs7260412       &#34;  19    105021  1  2  &#34;&#34;
- &#34;rs11669393      &#34;  19    107866  1  2  &#34;&#34;
- &#34;rs181646587     &#34;  19    107894  1  2  &#34;&#34;
- &#34;rs8106297       &#34;  19    107958  1  2  &#34;&#34;
- &#34;rs8106302       &#34;  19    107962  1  2  &#34;&#34;
- &#34;rs183568620     &#34;  19    107987  1  2  &#34;&#34;
- &#34;rs186451972     &#34;  19    108003  1  2  &#34;&#34;
- &#34;rs189699222     &#34;  19    108032  1  2  &#34;&#34;
- &#34;rs182902214     &#34;  19    108090  1  2  &#34;&#34;
- ⋮                                       ⋮ 
- &#34;rs188169422     &#34;  19  59116080  1  2  &#34;&#34;
- &#34;rs144587467     &#34;  19  59117729  1  2  &#34;&#34;
- &#34;rs139879509     &#34;  19  59117949  1  2  &#34;&#34;
- &#34;rs143250448     &#34;  19  59117982  1  2  &#34;&#34;
- &#34;rs145384750     &#34;  19  59118028  1  2  &#34;&#34;
- &#34;rs149215836     &#34;  19  59118040  1  2  &#34;&#34;
- &#34;rs139221927     &#34;  19  59118044  1  2  &#34;&#34;
- &#34;rs181848453     &#34;  19  59118114  1  2  &#34;&#34;
- &#34;rs138318162     &#34;  19  59118148  1  2  &#34;&#34;
- &#34;rs186913222     &#34;  19  59118616  1  2  &#34;&#34;
- &#34;rs141816674     &#34;  19  59118779  1  2  &#34;&#34;
- &#34;rs150801216     &#34;  19  59118783  1  2  &#34;&#34;</pre>
+ 19  &#34; rs3020701       &#34;  0     90974  1  2
+ 19  &#34; rs56343121      &#34;  0     91106  1  2
+ 19  &#34; rs143501051     &#34;  0     93542  1  2
+ 19  &#34; rs56182540      &#34;  0     95981  1  2
+ 19  &#34; rs7260412       &#34;  0    105021  1  2
+ 19  &#34; rs11669393      &#34;  0    107866  1  2
+ 19  &#34; rs181646587     &#34;  0    107894  1  2
+ 19  &#34; rs8106297       &#34;  0    107958  1  2
+ 19  &#34; rs8106302       &#34;  0    107962  1  2
+ 19  &#34; rs183568620     &#34;  0    107987  1  2
+ 19  &#34; rs186451972     &#34;  0    108003  1  2
+ 19  &#34; rs189699222     &#34;  0    108032  1  2
+ 19  &#34; rs182902214     &#34;  0    108090  1  2
+  ⋮                                       ⋮
+ 19  &#34; rs188169422     &#34;  0  59116080  1  2
+ 19  &#34; rs144587467     &#34;  0  59117729  1  2
+ 19  &#34; rs139879509     &#34;  0  59117949  1  2
+ 19  &#34; rs143250448     &#34;  0  59117982  1  2
+ 19  &#34; rs145384750     &#34;  0  59118028  1  2
+ 19  &#34; rs149215836     &#34;  0  59118040  1  2
+ 19  &#34; rs139221927     &#34;  0  59118044  1  2
+ 19  &#34; rs181848453     &#34;  0  59118114  1  2
+ 19  &#34; rs138318162     &#34;  0  59118148  1  2
+ 19  &#34; rs186913222     &#34;  0  59118616  1  2
+ 19  &#34; rs141816674     &#34;  0  59118779  1  2
+ 19  &#34; rs150801216     &#34;  0  59118783  1  2</pre>
 </div>
 
 </div>
@@ -13424,10 +14156,10 @@ columns are: :famid, :id, :moid, :faid, :sex, :twin, :simtrait1, :simtrait2</p>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[25]:</div>
+<div class="prompt input_prompt">In&nbsp;[26]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-julia"><pre><span></span><span class="n">snpid_2</span> <span class="o">=</span> <span class="n">map</span><span class="p">(</span><span class="n">x</span> <span class="o">-&gt;</span> <span class="n">strip</span><span class="p">(</span><span class="n">string</span><span class="p">(</span><span class="n">x</span><span class="p">)),</span> <span class="n">snpdef28_2</span><span class="p">[</span><span class="o">:</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+<div class=" highlight hl-julia"><pre><span></span><span class="n">snpid_2</span> <span class="o">=</span> <span class="n">map</span><span class="p">(</span><span class="n">x</span> <span class="o">-&gt;</span> <span class="n">strip</span><span class="p">(</span><span class="n">string</span><span class="p">(</span><span class="n">x</span><span class="p">)),</span> <span class="n">snpdef28_2</span><span class="p">[</span><span class="o">:</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
 </pre></div>
 
 </div>
@@ -13440,13 +14172,13 @@ columns are: :famid, :id, :moid, :faid, :sex, :twin, :simtrait1, :simtrait2</p>
 
 <div class="output_area">
 
-<div class="prompt output_prompt">Out[25]:</div>
+<div class="prompt output_prompt">Out[26]:</div>
 
 
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>253141-element Array{AbstractString,1}:
+<pre>253141-element Array{SubString{String},1}:
  &#34;rs3020701&#34;  
  &#34;rs56343121&#34; 
  &#34;rs143501051&#34;
@@ -13492,23 +14224,10 @@ columns are: :famid, :id, :moid, :faid, :sex, :twin, :simtrait1, :simtrait2</p>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[26]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-julia"><pre><span></span><span class="p">;</span><span class="n">ln</span> <span class="o">-</span><span class="n">s</span> <span class="o">./</span><span class="n">SNP_data28exptrait2</span><span class="o">.</span><span class="n">bin</span> <span class="o">./</span><span class="n">SNP_data28exptrait2</span><span class="o">.</span><span class="n">bed</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
 <div class="prompt input_prompt">In&nbsp;[27]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-julia"><pre><span></span><span class="n">snpbin28_2</span> <span class="o">=</span> <span class="n">SnpArray</span><span class="p">(</span><span class="s">&quot;SNP_data28exptrait2.bed&quot;</span><span class="p">;</span> <span class="n">people</span> <span class="o">=</span> <span class="n">size</span><span class="p">(</span><span class="n">ped28_2</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">snps</span> <span class="o">=</span> <span class="n">size</span><span class="p">(</span><span class="n">snpdef28_2</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+<div class=" highlight hl-julia"><pre><span></span><span class="p">;</span><span class="n">ln</span> <span class="o">-</span><span class="n">s</span> <span class="o">./</span><span class="n">SNP_data28exptrait2</span><span class="o">.</span><span class="n">bin</span> <span class="o">./</span><span class="n">SNP_data28exptrait2</span><span class="o">.</span><span class="n">bed</span>
 </pre></div>
 
 </div>
@@ -13525,46 +14244,75 @@ columns are: :famid, :id, :moid, :faid, :sex, :twin, :simtrait1, :simtrait2</p>
 
 
 <div class="output_subarea output_stream output_stderr output_text">
-<pre><span class="ansi-cyan-intense-fg ansi-bold">INFO: </span><span class="ansi-cyan-fg">v1.0 BED file detected
-</span></pre>
+<pre>ln: ./SNP_data28exptrait2.bed: File exists
+</pre>
 </div>
 </div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Read in the binary .bed file of genetic variants using the 'SnpArrays' package.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[28]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-julia"><pre><span></span><span class="n">snpbin28_2</span> <span class="o">=</span> <span class="n">SnpArray</span><span class="p">(</span><span class="s">&quot;SNP_data28exptrait2.bed&quot;</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
 
 <div class="output_area">
 
-<div class="prompt output_prompt">Out[27]:</div>
+<div class="prompt output_prompt">Out[28]:</div>
 
 
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>212×253141 SnpArrays.SnpArray{2}:
- (true, true)  (true, true)   …  (true, true)    (false, false)
- (true, true)  (true, true)      (true, true)    (false, false)
- (true, true)  (true, true)      (true, true)    (false, false)
- (true, true)  (true, true)      (true, true)    (false, false)
- (true, true)  (true, true)      (true, true)    (false, false)
- (true, true)  (true, true)   …  (false, false)  (true, true)  
- (true, true)  (false, true)     (false, false)  (true, true)  
- (true, true)  (true, true)      (false, false)  (true, true)  
- (true, true)  (false, true)     (false, false)  (true, true)  
- (true, true)  (false, true)     (false, false)  (true, true)  
- (true, true)  (false, true)  …  (false, false)  (true, true)  
- (true, true)  (true, true)      (false, false)  (true, true)  
- (true, true)  (false, true)     (false, false)  (true, true)  
- ⋮                            ⋱                  ⋮             
- (true, true)  (true, true)   …  (true, true)    (false, false)
- (true, true)  (true, true)      (false, true)   (false, true) 
- (true, true)  (true, true)      (true, true)    (false, false)
- (true, true)  (false, true)     (false, false)  (true, true)  
- (true, true)  (true, true)      (true, true)    (false, false)
- (true, true)  (true, true)   …  (false, true)   (false, false)
- (true, true)  (true, true)      (false, true)   (false, true) 
- (true, true)  (true, true)      (true, true)    (false, false)
- (true, true)  (false, true)     (false, true)   (false, true) 
- (true, true)  (true, true)      (true, true)    (false, false)
- (true, true)  (true, true)   …  (true, true)    (false, false)
- (true, true)  (true, true)      (false, true)   (false, true) </pre>
+<pre>212×253141 SnpArray:
+ 0x03  0x03  0x00  0x03  0x03  0x03  …  0x02  0x02  0x00  0x00  0x03  0x00
+ 0x03  0x03  0x00  0x02  0x02  0x03     0x00  0x03  0x00  0x00  0x03  0x00
+ 0x03  0x03  0x00  0x03  0x03  0x03     0x03  0x02  0x00  0x00  0x03  0x00
+ 0x03  0x03  0x00  0x03  0x03  0x03     0x02  0x03  0x00  0x00  0x03  0x00
+ 0x03  0x03  0x00  0x03  0x03  0x03     0x00  0x03  0x00  0x00  0x03  0x00
+ 0x03  0x03  0x00  0x03  0x03  0x03  …  0x00  0x00  0x00  0x00  0x00  0x03
+ 0x03  0x02  0x00  0x03  0x03  0x03     0x02  0x03  0x00  0x03  0x00  0x03
+ 0x03  0x03  0x00  0x03  0x03  0x03     0x02  0x03  0x00  0x03  0x00  0x03
+ 0x03  0x02  0x00  0x03  0x03  0x03     0x02  0x02  0x00  0x02  0x00  0x03
+ 0x03  0x02  0x00  0x03  0x03  0x03     0x03  0x03  0x00  0x03  0x00  0x03
+ 0x03  0x02  0x00  0x03  0x03  0x03  …  0x00  0x02  0x00  0x02  0x00  0x03
+ 0x03  0x03  0x00  0x03  0x03  0x03     0x00  0x02  0x00  0x02  0x00  0x03
+ 0x03  0x02  0x00  0x03  0x03  0x03     0x02  0x02  0x00  0x02  0x00  0x03
+    ⋮                             ⋮  ⋱     ⋮                             ⋮
+ 0x03  0x03  0x00  0x03  0x03  0x03  …  0x00  0x03  0x00  0x00  0x03  0x00
+ 0x03  0x03  0x00  0x03  0x03  0x03     0x00  0x03  0x00  0x02  0x02  0x02
+ 0x03  0x03  0x00  0x03  0x03  0x03     0x00  0x02  0x00  0x00  0x03  0x00
+ 0x03  0x02  0x00  0x02  0x02  0x03     0x02  0x03  0x00  0x03  0x00  0x03
+ 0x03  0x03  0x00  0x02  0x02  0x03     0x02  0x03  0x00  0x00  0x03  0x00
+ 0x03  0x03  0x00  0x03  0x03  0x03  …  0x02  0x03  0x00  0x02  0x02  0x00
+ 0x03  0x03  0x00  0x02  0x02  0x03     0x02  0x03  0x00  0x00  0x02  0x02
+ 0x03  0x03  0x00  0x03  0x03  0x03     0x00  0x03  0x00  0x00  0x03  0x00
+ 0x03  0x02  0x00  0x03  0x03  0x03     0x02  0x03  0x00  0x00  0x02  0x02
+ 0x03  0x03  0x00  0x03  0x03  0x03     0x00  0x03  0x00  0x00  0x03  0x00
+ 0x03  0x03  0x00  0x03  0x03  0x03  …  0x02  0x03  0x00  0x00  0x03  0x00
+ 0x03  0x03  0x00  0x03  0x03  0x03     0x00  0x03  0x00  0x02  0x02  0x02</pre>
 </div>
 
 </div>
@@ -13572,10 +14320,19 @@ columns are: :famid, :id, :moid, :faid, :sex, :twin, :simtrait1, :simtrait2</p>
 </div>
 </div>
 
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Use the grm function in the SnpArrays.jl package to create the genetic relationship matrix from the genetic variants in the .bed file for example 2. By default, <code>grm</code> excludes SNPs with maf &lt; 0.01.</p>
+
+</div>
+</div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[28]:</div>
+<div class="prompt input_prompt">In&nbsp;[29]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-julia"><pre><span></span><span class="n">ΦGRM2</span> <span class="o">=</span> <span class="n">grm</span><span class="p">(</span><span class="n">snpbin28_2</span><span class="p">)</span>
@@ -13591,7 +14348,7 @@ columns are: :famid, :id, :moid, :faid, :sex, :twin, :simtrait1, :simtrait2</p>
 
 <div class="output_area">
 
-<div class="prompt output_prompt">Out[28]:</div>
+<div class="prompt output_prompt">Out[29]:</div>
 
 
 
@@ -13642,7 +14399,7 @@ columns are: :famid, :id, :moid, :faid, :sex, :twin, :simtrait1, :simtrait2</p>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[29]:</div>
+<div class="prompt input_prompt">In&nbsp;[30]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-julia"><pre><span></span><span class="c">###### Second Example Exposure Effect on Trait using VCM ####</span>
@@ -13662,13 +14419,13 @@ columns are: :famid, :id, :moid, :faid, :sex, :twin, :simtrait1, :simtrait2</p>
 
 <div class="output_area">
 
-<div class="prompt output_prompt">Out[29]:</div>
+<div class="prompt output_prompt">Out[30]:</div>
 
 
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>(0.499475178073287, 0.05399663242268534)</pre>
+<pre>(0.49947517803154445, 0.05399663242445667)</pre>
 </div>
 
 </div>
@@ -13679,10 +14436,10 @@ columns are: :famid, :id, :moid, :faid, :sex, :twin, :simtrait1, :simtrait2</p>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[30]:</div>
+<div class="prompt input_prompt">In&nbsp;[31]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-julia"><pre><span></span><span class="n">ind_rs11672206_2</span> <span class="o">=</span> <span class="n">find</span><span class="p">(</span><span class="n">x</span> <span class="o">-&gt;</span> <span class="n">x</span> <span class="o">==</span> <span class="s">&quot;rs11672206&quot;</span><span class="p">,</span> <span class="n">snpid_2</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+<div class=" highlight hl-julia"><pre><span></span><span class="n">ind_rs11672206_2</span> <span class="o">=</span> <span class="n">findall</span><span class="p">(</span><span class="n">x</span> <span class="o">-&gt;</span> <span class="n">x</span> <span class="o">==</span> <span class="s">&quot;rs11672206&quot;</span><span class="p">,</span> <span class="n">snpid_2</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
 </pre></div>
 
 </div>
@@ -13695,7 +14452,7 @@ columns are: :famid, :id, :moid, :faid, :sex, :twin, :simtrait1, :simtrait2</p>
 
 <div class="output_area">
 
-<div class="prompt output_prompt">Out[30]:</div>
+<div class="prompt output_prompt">Out[31]:</div>
 
 
 
@@ -13712,10 +14469,10 @@ columns are: :famid, :id, :moid, :faid, :sex, :twin, :simtrait1, :simtrait2</p>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[31]:</div>
+<div class="prompt input_prompt">In&nbsp;[32]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-julia"><pre><span></span><span class="n">snp_rs11672206_2</span> <span class="o">=</span> <span class="n">convert</span><span class="p">(</span><span class="kt">Array</span><span class="p">{</span><span class="kt">Float64</span><span class="p">,</span><span class="mi">1</span><span class="p">},</span> <span class="n">snpbin28_2</span><span class="p">[</span><span class="o">:</span><span class="p">,</span> <span class="n">ind_rs11672206_2</span><span class="p">])</span>
+<div class=" highlight hl-julia"><pre><span></span><span class="n">snp_rs11672206_2</span> <span class="o">=</span> <span class="n">convert</span><span class="p">(</span><span class="kt">Array</span><span class="p">{</span><span class="kt">Float64</span><span class="p">,</span><span class="mi">1</span><span class="p">},</span> <span class="nd">@view</span><span class="p">(</span><span class="n">snpbin28_2</span><span class="p">[</span><span class="o">:</span><span class="p">,</span> <span class="n">ind_rs11672206_2</span><span class="p">]))</span>
 </pre></div>
 
 </div>
@@ -13728,7 +14485,7 @@ columns are: :famid, :id, :moid, :faid, :sex, :twin, :simtrait1, :simtrait2</p>
 
 <div class="output_area">
 
-<div class="prompt output_prompt">Out[31]:</div>
+<div class="prompt output_prompt">Out[32]:</div>
 
 
 
@@ -13779,7 +14536,7 @@ columns are: :famid, :id, :moid, :faid, :sex, :twin, :simtrait1, :simtrait2</p>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[32]:</div>
+<div class="prompt input_prompt">In&nbsp;[33]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-julia"><pre><span></span><span class="c">#Example 2</span>
@@ -13800,11 +14557,11 @@ columns are: :famid, :id, :moid, :faid, :sex, :twin, :simtrait1, :simtrait2</p>
 
 
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>MR direct effects (SE): 0.24374813445594745(0.15233855361360296), Pvalue is 0.10958919289247242
+<pre>MR direct effects (SE): 0.2437481344559426(0.15233855361360252), Pvalue is 0.10958919289247747
 
-Exposure effect (SE) is: -1.8980279594308684(0.25670960108586255)
+Exposure effect (SE) is: -1.8980279594308787(0.25670960108586316)
 
-Trait effect (SE) is: -0.4626407742565029(0.2822910952147571)
+Trait effect (SE) is: -0.4626407742564962(0.2822910952147581)
 
 </pre>
 </div>
@@ -13812,13 +14569,13 @@ Trait effect (SE) is: -0.4626407742565029(0.2822910952147571)
 
 <div class="output_area">
 
-<div class="prompt output_prompt">Out[32]:</div>
+<div class="prompt output_prompt">Out[33]:</div>
 
 
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>(0.24374813445594745, 0.15233855361360296)</pre>
+<pre>(0.2437481344559426, 0.15233855361360252)</pre>
 </div>
 
 </div>
@@ -13848,7 +14605,7 @@ Trait effect (SE) is: -0.4626407742565029(0.2822910952147571)
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>In this example we use the Ped28trait3.out data file, simulated under the scenario where the genetic marker is a weak IV to demonstrate one of the essential assumptions of MR.  In this example we use the same genotype data and pedigree structure as example 1 so we can use the GRM matrix from example 1.</p>
+<p>In this example we use the the files: SNP_data28d_trait3.bed, SNP_data28d_trait3.fam, and SNP_data28d_trait3.bim, simulated under the scenario where the genetic marker is a weak IV to demonstrate one of the essential assumptions of MR.  In this example we use the same genotype data and pedigree structure as example 1 so we can use the GRM matrix from example 1.</p>
 
 </div>
 </div>
@@ -13863,10 +14620,10 @@ Trait effect (SE) is: -0.4626407742565029(0.2822910952147571)
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[33]:</div>
+<div class="prompt input_prompt">In&nbsp;[34]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-julia"><pre><span></span><span class="n">ped28_3</span> <span class="o">=</span> <span class="n">readcsv</span><span class="p">(</span><span class="s">&quot;Ped28trait3.out&quot;</span><span class="p">,</span> <span class="kt">Any</span><span class="p">;</span> <span class="n">header</span> <span class="o">=</span> <span class="kc">false</span><span class="p">)</span>
+<div class=" highlight hl-julia"><pre><span></span><span class="n">ped28_3</span> <span class="o">=</span> <span class="n">readdlm</span><span class="p">(</span><span class="s">&quot;SNP_data28d_trait3.fam&quot;</span><span class="p">,</span> <span class="sc">&#39;,&#39;</span><span class="p">;</span> <span class="n">header</span> <span class="o">=</span> <span class="kc">false</span><span class="p">)</span>
 </pre></div>
 
 </div>
@@ -13879,7 +14636,7 @@ Trait effect (SE) is: -0.4626407742565029(0.2822910952147571)
 
 <div class="output_area">
 
-<div class="prompt output_prompt">Out[33]:</div>
+<div class="prompt output_prompt">Out[34]:</div>
 
 
 
@@ -13922,69 +14679,10 @@ Trait effect (SE) is: -0.4626407742565029(0.2822910952147571)
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[34]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-julia"><pre><span></span><span class="n">exp_3</span> <span class="o">=</span> <span class="n">convert</span><span class="p">(</span><span class="kt">Array</span><span class="p">{</span><span class="kt">Float64</span><span class="p">,</span><span class="mi">1</span><span class="p">},</span> <span class="n">ped28_3</span><span class="p">[</span><span class="o">:</span><span class="p">,</span> <span class="mi">7</span><span class="p">])</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-<div class="prompt output_prompt">Out[34]:</div>
-
-
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>212-element Array{Float64,1}:
- 40.1878
- 47.0623
- 44.8772
- 41.4107
- 40.3835
- 39.6165
- 38.8691
- 48.9882
- 45.129 
- 43.2185
- 38.846 
- 43.9826
- 50.7849
-  ⋮     
- 41.1275
- 38.5637
- 35.6761
- 32.7235
- 37.7896
- 38.5346
- 45.7092
- 37.4253
- 45.5548
- 46.7553
- 49.9749
- 44.6052</pre>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
 <div class="prompt input_prompt">In&nbsp;[35]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-julia"><pre><span></span><span class="n">Y_3</span> <span class="o">=</span> <span class="n">convert</span><span class="p">(</span><span class="kt">Array</span><span class="p">{</span><span class="kt">Float64</span><span class="p">,</span><span class="mi">1</span><span class="p">},</span> <span class="n">ped28_3</span><span class="p">[</span><span class="o">:</span><span class="p">,</span> <span class="mi">8</span><span class="p">])</span>
+<div class=" highlight hl-julia"><pre><span></span><span class="n">exp_3</span> <span class="o">=</span> <span class="n">convert</span><span class="p">(</span><span class="kt">Array</span><span class="p">{</span><span class="kt">Float64</span><span class="p">,</span><span class="mi">1</span><span class="p">},</span> <span class="n">ped28_3</span><span class="p">[</span><span class="o">:</span><span class="p">,</span> <span class="mi">7</span><span class="p">])</span>
 </pre></div>
 
 </div>
@@ -14004,32 +14702,32 @@ Trait effect (SE) is: -0.4626407742565029(0.2822910952147571)
 
 <div class="output_text output_subarea output_execute_result">
 <pre>212-element Array{Float64,1}:
- 214.434
- 250.469
- 249.917
- 231.419
- 217.034
- 212.84 
- 220.87 
- 271.711
- 240.725
- 240.717
- 210.021
- 234.954
- 280.457
-   ⋮    
- 231.582
- 208.184
- 192.605
- 179.584
- 217.257
- 219.802
- 252.089
- 209.743
- 254.076
- 258.965
- 271.941
- 246.865</pre>
+ 40.18776
+ 47.06231
+ 44.87715
+ 41.41074
+ 40.38347
+ 39.61654
+ 38.8691 
+ 48.98817
+ 45.12903
+ 43.21847
+ 38.84599
+ 43.98256
+ 50.78492
+  ⋮      
+ 41.12748
+ 38.56373
+ 35.6761 
+ 32.72347
+ 37.78963
+ 38.53456
+ 45.70917
+ 37.42526
+ 45.55476
+ 46.75532
+ 49.9749 
+ 44.60524</pre>
 </div>
 
 </div>
@@ -14043,7 +14741,7 @@ Trait effect (SE) is: -0.4626407742565029(0.2822910952147571)
 <div class="prompt input_prompt">In&nbsp;[36]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-julia"><pre><span></span><span class="n">sex_3</span> <span class="o">=</span> <span class="n">map</span><span class="p">(</span><span class="n">x</span> <span class="o">-&gt;</span> <span class="n">strip</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">==</span> <span class="s">&quot;F&quot;</span><span class="o">?</span> <span class="mf">1.0</span> <span class="o">:</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">ped28_3</span><span class="p">[</span><span class="o">:</span><span class="p">,</span> <span class="mi">5</span><span class="p">])</span>
+<div class=" highlight hl-julia"><pre><span></span><span class="n">Y_3</span> <span class="o">=</span> <span class="n">convert</span><span class="p">(</span><span class="kt">Array</span><span class="p">{</span><span class="kt">Float64</span><span class="p">,</span><span class="mi">1</span><span class="p">},</span> <span class="n">ped28_3</span><span class="p">[</span><span class="o">:</span><span class="p">,</span> <span class="mi">8</span><span class="p">])</span>
 </pre></div>
 
 </div>
@@ -14057,6 +14755,65 @@ Trait effect (SE) is: -0.4626407742565029(0.2822910952147571)
 <div class="output_area">
 
 <div class="prompt output_prompt">Out[36]:</div>
+
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>212-element Array{Float64,1}:
+ 214.43354
+ 250.46902
+ 249.9168 
+ 231.41861
+ 217.03401
+ 212.8396 
+ 220.87015
+ 271.71098
+ 240.72532
+ 240.71722
+ 210.02121
+ 234.95418
+ 280.45734
+   ⋮      
+ 231.58155
+ 208.1839 
+ 192.60535
+ 179.58364
+ 217.25697
+ 219.80218
+ 252.08932
+ 209.74325
+ 254.07583
+ 258.96543
+ 271.94112
+ 246.86504</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[37]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-julia"><pre><span></span><span class="n">sex_3</span> <span class="o">=</span> <span class="n">map</span><span class="p">(</span><span class="n">x</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="n">strip</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">==</span> <span class="s">&quot;F&quot;</span><span class="p">)</span> <span class="o">?</span> <span class="mf">1.0</span> <span class="o">:</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">ped28_3</span><span class="p">[</span><span class="o">:</span><span class="p">,</span> <span class="mi">5</span><span class="p">])</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+<div class="prompt output_prompt">Out[37]:</div>
 
 
 
@@ -14099,10 +14856,10 @@ Trait effect (SE) is: -0.4626407742565029(0.2822910952147571)
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[37]:</div>
+<div class="prompt input_prompt">In&nbsp;[38]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-julia"><pre><span></span><span class="n">snpid</span> <span class="o">=</span> <span class="n">map</span><span class="p">(</span><span class="n">x</span> <span class="o">-&gt;</span> <span class="n">strip</span><span class="p">(</span><span class="n">string</span><span class="p">(</span><span class="n">x</span><span class="p">)),</span> <span class="n">snpdef28_1</span><span class="p">[</span><span class="o">:</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+<div class=" highlight hl-julia"><pre><span></span><span class="n">snpid</span> <span class="o">=</span> <span class="n">map</span><span class="p">(</span><span class="n">x</span> <span class="o">-&gt;</span> <span class="n">strip</span><span class="p">(</span><span class="n">string</span><span class="p">(</span><span class="n">x</span><span class="p">)),</span> <span class="n">snpdef28_1</span><span class="p">[</span><span class="o">:</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
 </pre></div>
 
 </div>
@@ -14115,13 +14872,13 @@ Trait effect (SE) is: -0.4626407742565029(0.2822910952147571)
 
 <div class="output_area">
 
-<div class="prompt output_prompt">Out[37]:</div>
+<div class="prompt output_prompt">Out[38]:</div>
 
 
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>253141-element Array{AbstractString,1}:
+<pre>253141-element Array{SubString{String},1}:
  &#34;rs3020701&#34;  
  &#34;rs56343121&#34; 
  &#34;rs143501051&#34;
@@ -14175,7 +14932,7 @@ Trait effect (SE) is: -0.4626407742565029(0.2822910952147571)
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[38]:</div>
+<div class="prompt input_prompt">In&nbsp;[39]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-julia"><pre><span></span><span class="c">###### Third Example Exposure Effect on Trait using VCM ####</span>
@@ -14195,13 +14952,13 @@ Trait effect (SE) is: -0.4626407742565029(0.2822910952147571)
 
 <div class="output_area">
 
-<div class="prompt output_prompt">Out[38]:</div>
+<div class="prompt output_prompt">Out[39]:</div>
 
 
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>(4.976393615287749, 0.021010620094882818)</pre>
+<pre>(4.976393615289701, 0.02101062009606309)</pre>
 </div>
 
 </div>
@@ -14212,10 +14969,10 @@ Trait effect (SE) is: -0.4626407742565029(0.2822910952147571)
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[39]:</div>
+<div class="prompt input_prompt">In&nbsp;[40]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-julia"><pre><span></span><span class="n">ind_rs11672206</span> <span class="o">=</span> <span class="n">find</span><span class="p">(</span><span class="n">x</span> <span class="o">-&gt;</span> <span class="n">x</span> <span class="o">==</span> <span class="s">&quot;rs11672206&quot;</span><span class="p">,</span> <span class="n">snpid</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+<div class=" highlight hl-julia"><pre><span></span><span class="n">ind_rs11672206</span> <span class="o">=</span> <span class="n">findall</span><span class="p">(</span><span class="n">x</span> <span class="o">-&gt;</span> <span class="n">x</span> <span class="o">==</span> <span class="s">&quot;rs11672206&quot;</span><span class="p">,</span> <span class="n">snpid</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
 </pre></div>
 
 </div>
@@ -14228,7 +14985,7 @@ Trait effect (SE) is: -0.4626407742565029(0.2822910952147571)
 
 <div class="output_area">
 
-<div class="prompt output_prompt">Out[39]:</div>
+<div class="prompt output_prompt">Out[40]:</div>
 
 
 
@@ -14245,10 +15002,10 @@ Trait effect (SE) is: -0.4626407742565029(0.2822910952147571)
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[40]:</div>
+<div class="prompt input_prompt">In&nbsp;[41]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-julia"><pre><span></span><span class="n">snp_rs11672206_3</span> <span class="o">=</span> <span class="n">convert</span><span class="p">(</span><span class="kt">Array</span><span class="p">{</span><span class="kt">Float64</span><span class="p">,</span><span class="mi">1</span><span class="p">},</span> <span class="n">snpbin28_1</span><span class="p">[</span><span class="o">:</span><span class="p">,</span> <span class="n">ind_rs11672206</span><span class="p">])</span>
+<div class=" highlight hl-julia"><pre><span></span><span class="n">snp_rs11672206_3</span> <span class="o">=</span> <span class="n">convert</span><span class="p">(</span><span class="kt">Array</span><span class="p">{</span><span class="kt">Float64</span><span class="p">,</span><span class="mi">1</span><span class="p">},</span> <span class="nd">@view</span><span class="p">(</span><span class="n">snpbin28_1</span><span class="p">[</span><span class="o">:</span><span class="p">,</span> <span class="n">ind_rs11672206</span><span class="p">]))</span>
 </pre></div>
 
 </div>
@@ -14261,7 +15018,7 @@ Trait effect (SE) is: -0.4626407742565029(0.2822910952147571)
 
 <div class="output_area">
 
-<div class="prompt output_prompt">Out[40]:</div>
+<div class="prompt output_prompt">Out[41]:</div>
 
 
 
@@ -14312,7 +15069,7 @@ Trait effect (SE) is: -0.4626407742565029(0.2822910952147571)
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[41]:</div>
+<div class="prompt input_prompt">In&nbsp;[42]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-julia"><pre><span></span><span class="n">MendelianRandomization</span><span class="p">(</span><span class="n">Y_3</span><span class="p">,[</span><span class="n">ones</span><span class="p">(</span><span class="n">length</span><span class="p">(</span><span class="n">Y_3</span><span class="p">),</span><span class="mi">1</span><span class="p">)</span> <span class="n">sex_3</span><span class="p">],</span> <span class="n">snp_rs11672206_3</span><span class="p">,</span> <span class="n">exp_3</span><span class="p">,</span> <span class="n">ΦGRM1</span><span class="p">)</span>
@@ -14332,11 +15089,11 @@ Trait effect (SE) is: -0.4626407742565029(0.2822910952147571)
 
 
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>MR direct effects (SE): 5.653306721587436(6.18301013752387), Pvalue is 0.3605438909407901
+<pre>MR direct effects (SE): 5.653306721587125(6.183010137523407), Pvalue is 0.3605438909407806
 
-Exposure effect (SE) is: 0.5704605759599022(0.4670817955931832)
+Exposure effect (SE) is: 0.5704605759599244(0.4670817955931797)
 
-Trait effect (SE) is: 3.2249886084747548(2.3384488620967288)
+Trait effect (SE) is: 3.2249886084747033(2.3384488620967234)
 
 </pre>
 </div>
@@ -14344,13 +15101,13 @@ Trait effect (SE) is: 3.2249886084747548(2.3384488620967288)
 
 <div class="output_area">
 
-<div class="prompt output_prompt">Out[41]:</div>
+<div class="prompt output_prompt">Out[42]:</div>
 
 
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>(5.653306721587436, 6.18301013752387)</pre>
+<pre>(5.653306721587125, 6.183010137523407)</pre>
 </div>
 
 </div>
