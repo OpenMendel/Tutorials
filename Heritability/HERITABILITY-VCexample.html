@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head><meta charset="utf-8" />
-<title>HERITABILITY-VCexample10182018</title><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
+<title>HERITABILITY-VCexampleFeb8</title><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
 
 <style type="text/css">
@@ -11792,7 +11792,11 @@ div#notebook {
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>We will use a variance component model to estimate heritability of a trait and then test for association to specified markers. This example is equivalent to a replication or a candidate SNP approach.  Normally if we had no prior hypothesis regarding particular loci (candidate gene approach), we would be first be testing markers genomewide using a GWAS approach that can handle pedigree data appropriately.  In that case, we would probably be using a fast score test approach rather than by maximum likelihood. However, maximum likelihood provides more accurate inference and parameters estimates and can be used to refine interference after screening. As an extension of the univariate case, at the end of the notebook we also demonstrate how to how to run a bivariate trait. We will also use the variance component frame work with maximum likelihood tests when conducting Mendelian Randomization with families so it's useful for us to understand how the Julia package, VarianceComponentModels.jl, works and how to load in large data sets into Julia using the package, SnpArrays.jl.</p>
+<p>We will use a variance component model to estimate heritability of a trait and then test for association to specified markers. This example is equivalent to a replication or a candidate SNP approach.  Normally if we had no prior hypothesis regarding particular loci (candidate gene approach), we would be first be testing markers genomewide using a GWAS approach that can handle pedigree data appropriately.  In that case, we would probably be using a fast score test approach rather than by maximum likelihood. However, maximum likelihood provides more accurate inference and parameters estimates and can be used to refine interference after screening. As an extension of the univariate case, at the end of the notebook we also demonstrate how to how to run a bivariate trait. We will also use the variance component frame work with maximum likelihood tests when conducting Mendelian Randomization with families so it's useful for us to understand how the Julia package, <code>VarianceComponentModels.jl</code>, works and how to load in large data sets into Julia using the package, <code>SnpArrays.jl</code>. You will need the package Distributions as well.</p>
+<p>If it is the first time using these three packages, run the following commands using the package manager on their terminal:
+&lt;/br&gt;</p>
+<p><code>pkg&gt; add https://github.com/OpenMendel/VarianceComponentModels.jl.git</code></p>
+<p><code>pkg&gt; add https://github.com/OpenMendel/SnpArrays.jl.git</code></p>
 
 </div>
 </div>
@@ -11808,7 +11812,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[1]:</div>
+<div class="prompt input_prompt">In&nbsp;[2]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-julia"><pre><span></span><span class="n">versioninfo</span><span class="p">()</span>
@@ -11828,16 +11832,14 @@ div#notebook {
 
 
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>Julia Version 0.6.4
-Commit 9d11f62bcb (2018-07-09 19:09 UTC)
+<pre>Julia Version 1.0.3
+Commit 099e826241 (2018-12-18 01:34 UTC)
 Platform Info:
   OS: macOS (x86_64-apple-darwin14.5.0)
-  CPU: Intel(R) Core(TM) i7-6567U CPU @ 3.30GHz
+  CPU: Intel(R) Core(TM) i7-7700HQ CPU @ 2.80GHz
   WORD_SIZE: 64
-  BLAS: libopenblas (USE64BITINT DYNAMIC_ARCH NO_AFFINITY Haswell MAX_THREADS=16)
-  LAPACK: libopenblas64_
   LIBM: libopenlibm
-  LLVM: libLLVM-3.9.1 (ORCJIT, skylake)
+  LLVM: libLLVM-6.0.0 (ORCJIT, skylake)
 </pre>
 </div>
 </div>
@@ -11850,12 +11852,24 @@ Platform Info:
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Data-files">Data files<a class="anchor-link" href="#Data-files">&#182;</a></h2><p>As an application of the variance component model, this notebook demonstrates the workflow for heritability analysis in genetics, using a sample data set, <code>SNP_29C</code>, of <strong>212</strong> individuals and <strong>253,141</strong> SNPs from the Mendel version 16.0 sample input files.</p>
-<p><code>SNP_29C.bed</code>, <code>SNP_29C.bim</code>, and <code>SNP_29C.fam</code> is a set of Plink files in binary format. The datafiles and software packages associated with Mendel can be downloaded for free on the UCLA genetics page. <a href="http://www.genetics.ucla.edu/software/mendel">http://www.genetics.ucla.edu/software/mendel</a></p>
-<p>For more information on Mendel version 16.0 see: Lange K, Papp JC, Sinsheimer JS, Sripracha R, Zhou H, Sobel EM (2013) Mendel: The Swiss army knife of genetic analysis programs. Bioinformatics 29:1568-1570. <a href="http://www.genetics.ucla.edu/software/Mendel_current_doc.pdf">http://www.genetics.ucla.edu/software/Mendel_current_doc.pdf</a></p>
-<blockquote><p>SNP29C Dataset was simulated with a realistic linkage disequilibrium (LD) structure and constructed from phased sequence data from chromosome 19 on 85 individuals of northern and western European ancestry. After removing mono-allelic markers this set of individuals, 253,141 SNPs remained. Almost half of the SNPs have minor allele frequencies (MAF) below 5%. The haplotype pairs attributed to the 85 CEPH members were reassigned to the 85 founders of 27 pedigree structures selected from the Framingham Heart Study (FHS, <a href="https://urldefense.proofpoint.com/v2/url?u=http-3A__www.framinghamheartstudy.org&amp;d=DwIGaQ&amp;c=UXmaowRpu5bLSLEQRunJ2z-YIUZuUoa9Rw_x449Hd_Y&amp;r=wHxKeA_lx9mDDcQzMuXnw0mnB8LqTwv284d9wI2rbj8&amp;m=n_5BED1Bi6R2LnYLvkHz5CsSDwtGyOxoRCauLhk2aS8&amp;s=sFXWg1BPiQozvyRFoPhFmvRzGTeR8xgkbMeUgHHRRmU&amp;e=">https://urldefense.proofpoint.com/v2/url?u=http-3A__www.framinghamheartstudy.org&amp;d=DwIGaQ&amp;c=UXmaowRpu5bLSLEQRunJ2z-YIUZuUoa9Rw_x449Hd_Y&amp;r=wHxKeA_lx9mDDcQzMuXnw0mnB8LqTwv284d9wI2rbj8&amp;m=n_5BED1Bi6R2LnYLvkHz5CsSDwtGyOxoRCauLhk2aS8&amp;s=sFXWg1BPiQozvyRFoPhFmvRzGTeR8xgkbMeUgHHRRmU&amp;e=</a>). The selected Framingham pedigrees were chosen to reflect the kind of pedigrees commonly collected in family-based genetic studies. The 27 pedigrees encompass 212 people, range in size from 1 to 36 peo- ple and from 1 to 5 generations, and contain sibships of 1 to 5 children. The genotypes of non-founders were simulated, using Option 17, conditional on the haplotypes imposed on the founders. All genotypes were recorded as unordered for subsequent analyses.</p>
+<p>Be sure to make note of your own machine information, as this is a very important check for reproducibility!</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Data-files">Data files<a class="anchor-link" href="#Data-files">&#182;</a></h2><p>As an application of the variance component model, this notebook demonstrates the workflow for heritability analysis in genetics, using a sample data set of <strong>212</strong> individuals and <strong>253,141</strong> SNPs from the Mendel version 16.0 sample input files.</p>
+<p><code>heritability.bed</code>, <code>heritability.bim</code>, and <code>heritability.fam</code> is the set of Plink files in binary format used in this notebook. The datafiles and software packages associated with Mendel can be downloaded for free on the UCLA genetics page. 
+<a href="http://software.genetics.ucla.edu/download?package=1">http://software.genetics.ucla.edu/download?package=1</a></p>
+<p>For more information on Mendel version 16.0 see: Lange K, Papp JC, Sinsheimer JS, Sripracha R, Zhou H, Sobel EM (2013) Mendel: The Swiss army knife of genetic analysis programs. Bioinformatics 29:1568-1570. 
+<a href="https://www.ncbi.nlm.nih.gov/pubmed/23610370">https://www.ncbi.nlm.nih.gov/pubmed/23610370</a> or the documentation
+<a href="http://software.genetics.ucla.edu/download?file=202">http://software.genetics.ucla.edu/download?file=202</a></p>
+<blockquote><p>This dataset was simulated with a realistic linkage disequilibrium (LD) structure and constructed from phased sequence data from chromosome 19 on 85 individuals of northern and western European ancestry. After removing mono-allelic markers this set of individuals, 253,141 SNPs remained. Almost half of the SNPs have minor allele frequencies (MAF) below 5%. The haplotype pairs attributed to the 85 CEPH members were reassigned to the 85 founders of 27 pedigree structures selected from the Framingham Heart Study (FHS, <a href="https://urldefense.proofpoint.com/v2/url?u=http-3A__www.framinghamheartstudy.org&amp;d=DwIGaQ&amp;c=UXmaowRpu5bLSLEQRunJ2z-YIUZuUoa9Rw_x449Hd_Y&amp;r=wHxKeA_lx9mDDcQzMuXnw0mnB8LqTwv284d9wI2rbj8&amp;m=n_5BED1Bi6R2LnYLvkHz5CsSDwtGyOxoRCauLhk2aS8&amp;s=sFXWg1BPiQozvyRFoPhFmvRzGTeR8xgkbMeUgHHRRmU&amp;e=">https://urldefense.proofpoint.com/v2/url?u=http-3A__www.framinghamheartstudy.org&amp;d=DwIGaQ&amp;c=UXmaowRpu5bLSLEQRunJ2z-YIUZuUoa9Rw_x449Hd_Y&amp;r=wHxKeA_lx9mDDcQzMuXnw0mnB8LqTwv284d9wI2rbj8&amp;m=n_5BED1Bi6R2LnYLvkHz5CsSDwtGyOxoRCauLhk2aS8&amp;s=sFXWg1BPiQozvyRFoPhFmvRzGTeR8xgkbMeUgHHRRmU&amp;e=</a>). The selected Framingham pedigrees were chosen to reflect the kind of pedigrees commonly collected in family-based genetic studies. The 27 pedigrees encompass 212 people, range in size from 1 to 36 people and from 1 to 5 generations, and contain sibships of 1 to 5 children. The genotypes of non-founders were simulated, using Option 17, conditional on the haplotypes imposed on the founders. All genotypes were recorded as unordered for subsequent analyses.</p>
 </blockquote>
-<p>Genome-wide QTL and eQTL analyses using Mendel, Hua Zhou, Jin Zhou, Tao Hu, Eric M. Sobel, Kenneth Lange <a href="https://urldefense.proofpoint.com/v2/url?u=https-3A__www.ncbi.nlm.nih.gov_pmc_articles_PMC5133530_&amp;d=DwIGaQ&amp;c=UXmaowRpu5bLSLEQRunJ2z-YIUZuUoa9Rw_x449Hd_Y&amp;r=wHxKeA_lx9mDDcQzMuXnw0mnB8LqTwv284d9wI2rbj8&amp;m=n_5BED1Bi6R2LnYLvkHz5CsSDwtGyOxoRCauLhk2aS8&amp;s=mmcAomV-h34hb3uYWxJWkUEN_XRGZ0ZmHAZyNakRb3s&amp;e=">https://urldefense.proofpoint.com/v2/url?u=https-3A__www.ncbi.nlm.nih.gov_pmc_articles_PMC5133530_&amp;d=DwIGaQ&amp;c=UXmaowRpu5bLSLEQRunJ2z-YIUZuUoa9Rw_x449Hd_Y&amp;r=wHxKeA_lx9mDDcQzMuXnw0mnB8LqTwv284d9wI2rbj8&amp;m=n_5BED1Bi6R2LnYLvkHz5CsSDwtGyOxoRCauLhk2aS8&amp;s=mmcAomV-h34hb3uYWxJWkUEN_XRGZ0ZmHAZyNakRb3s&amp;e=</a></p>
+<p>Genome-wide QTL and eQTL analyses using Mendel are covered in an article by Hua Zhou, Jin Zhou, Tao Hu, Eric M. Sobel, Kenneth Lange <a href="https://urldefense.proofpoint.com/v2/url?u=https-3A__www.ncbi.nlm.nih.gov_pmc_articles_PMC5133530_&amp;d=DwIGaQ&amp;c=UXmaowRpu5bLSLEQRunJ2z-YIUZuUoa9Rw_x449Hd_Y&amp;r=wHxKeA_lx9mDDcQzMuXnw0mnB8LqTwv284d9wI2rbj8&amp;m=n_5BED1Bi6R2LnYLvkHz5CsSDwtGyOxoRCauLhk2aS8&amp;s=mmcAomV-h34hb3uYWxJWkUEN_XRGZ0ZmHAZyNakRb3s&amp;e=">https://urldefense.proofpoint.com/v2/url?u=https-3A__www.ncbi.nlm.nih.gov_pmc_articles_PMC5133530_&amp;d=DwIGaQ&amp;c=UXmaowRpu5bLSLEQRunJ2z-YIUZuUoa9Rw_x449Hd_Y&amp;r=wHxKeA_lx9mDDcQzMuXnw0mnB8LqTwv284d9wI2rbj8&amp;m=n_5BED1Bi6R2LnYLvkHz5CsSDwtGyOxoRCauLhk2aS8&amp;s=mmcAomV-h34hb3uYWxJWkUEN_XRGZ0ZmHAZyNakRb3s&amp;e=</a></p>
 
 </div>
 </div>
@@ -11874,10 +11888,10 @@ The covariances between the traits are $\sigma_{a1, a2}$ = 1 and $\sigma_{e1, e2
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[2]:</div>
+<div class="prompt input_prompt">In&nbsp;[3]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-julia"><pre><span></span><span class="p">;</span><span class="n">head</span> <span class="n">SNP_29C</span><span class="o">.</span><span class="n">fam</span>
+<div class=" highlight hl-julia"><pre><span></span><span class="p">;</span><span class="n">head</span> <span class="n">heritability</span><span class="o">.</span><span class="n">fam</span>
 </pre></div>
 
 </div>
@@ -11923,11 +11937,12 @@ The covariances between the traits are $\sigma_{a1, a2}$ = 1 and $\sigma_{e1, e2
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[3]:</div>
+<div class="prompt input_prompt">In&nbsp;[4]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-julia"><pre><span></span><span class="c"># columns are: :famid, :id, :moid, :faid, :sex, :twin, :Trait1,:Trait2</span>
-<span class="n">pedLMM</span> <span class="o">=</span> <span class="n">readcsv</span><span class="p">(</span><span class="s">&quot;SNP_29C.fam&quot;</span><span class="p">,</span> <span class="kt">Any</span><span class="p">;</span> <span class="n">header</span> <span class="o">=</span> <span class="kc">false</span><span class="p">)</span>
+<div class=" highlight hl-julia"><pre><span></span><span class="k">using</span> <span class="n">DelimitedFiles</span>
+<span class="c"># columns are: :famid, :id, :moid, :faid, :sex, :twin, :Trait1,:Trait2</span>
+<span class="n">pedLMM</span> <span class="o">=</span> <span class="n">readdlm</span><span class="p">(</span><span class="s">&quot;heritability.fam&quot;</span><span class="p">,</span> <span class="sc">&#39;,&#39;</span><span class="p">;</span> <span class="n">header</span> <span class="o">=</span> <span class="kc">false</span><span class="p">)</span>
 </pre></div>
 
 </div>
@@ -11940,7 +11955,7 @@ The covariances between the traits are $\sigma_{a1, a2}$ = 1 and $\sigma_{e1, e2
 
 <div class="output_area">
 
-<div class="prompt output_prompt">Out[3]:</div>
+<div class="prompt output_prompt">Out[4]:</div>
 
 
 
@@ -11992,7 +12007,7 @@ The covariances between the traits are $\sigma_{a1, a2}$ = 1 and $\sigma_{e1, e2
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[4]:</div>
+<div class="prompt input_prompt">In&nbsp;[5]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-julia"><pre><span></span><span class="n">Trait1</span> <span class="o">=</span> <span class="n">convert</span><span class="p">(</span><span class="kt">Vector</span><span class="p">{</span><span class="kt">Float64</span><span class="p">},</span> <span class="n">pedLMM</span><span class="p">[</span><span class="o">:</span><span class="p">,</span> <span class="mi">7</span><span class="p">])</span>
@@ -12010,7 +12025,7 @@ The covariances between the traits are $\sigma_{a1, a2}$ = 1 and $\sigma_{e1, e2
 
 <div class="output_area">
 
-<div class="prompt output_prompt">Out[4]:</div>
+<div class="prompt output_prompt">Out[5]:</div>
 
 
 
@@ -12063,10 +12078,10 @@ code to sex = map(x -&gt; strip(x) == "M"? 1.0 : 0.0,  pedLMM[:, 5]) if you want
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[5]:</div>
+<div class="prompt input_prompt">In&nbsp;[6]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-julia"><pre><span></span><span class="n">sex</span> <span class="o">=</span> <span class="n">map</span><span class="p">(</span><span class="n">x</span> <span class="o">-&gt;</span> <span class="n">strip</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">==</span> <span class="s">&quot;F&quot;</span><span class="o">?</span> <span class="mf">1.0</span> <span class="o">:</span> <span class="mf">0.0</span><span class="p">,</span>  <span class="n">pedLMM</span><span class="p">[</span><span class="o">:</span><span class="p">,</span> <span class="mi">5</span><span class="p">])</span>
+<div class=" highlight hl-julia"><pre><span></span><span class="n">sex</span> <span class="o">=</span> <span class="n">map</span><span class="p">(</span><span class="n">x</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="n">strip</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">==</span> <span class="s">&quot;F&quot;</span><span class="p">)</span> <span class="o">?</span> <span class="mf">1.0</span> <span class="o">:</span> <span class="mf">0.0</span><span class="p">,</span>  <span class="n">pedLMM</span><span class="p">[</span><span class="o">:</span><span class="p">,</span> <span class="mi">5</span><span class="p">])</span>
 </pre></div>
 
 </div>
@@ -12079,7 +12094,7 @@ code to sex = map(x -&gt; strip(x) == "M"? 1.0 : 0.0,  pedLMM[:, 5]) if you want
 
 <div class="output_area">
 
-<div class="prompt output_prompt">Out[5]:</div>
+<div class="prompt output_prompt">Out[6]:</div>
 
 
 
@@ -12134,7 +12149,7 @@ code to sex = map(x -&gt; strip(x) == "M"? 1.0 : 0.0,  pedLMM[:, 5]) if you want
 <div class="prompt input_prompt">In&nbsp;[7]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-julia"><pre><span></span><span class="p">;</span><span class="n">head</span> <span class="n">SNP_29a</span><span class="o">.</span><span class="n">bim</span>
+<div class=" highlight hl-julia"><pre><span></span><span class="p">;</span><span class="n">head</span> <span class="n">heritability</span><span class="o">.</span><span class="n">bim</span>
 </pre></div>
 
 </div>
@@ -12184,7 +12199,7 @@ code to sex = map(x -&gt; strip(x) == "M"? 1.0 : 0.0,  pedLMM[:, 5]) if you want
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-julia"><pre><span></span><span class="c"># columns are: :chrom, :snpid, :?, :pos, :allele1, :allele2</span>
-<span class="n">snpLMM</span> <span class="o">=</span> <span class="n">readdlm</span><span class="p">(</span><span class="s">&quot;SNP_29a.bim&quot;</span><span class="p">;</span> <span class="n">header</span> <span class="o">=</span> <span class="kc">false</span><span class="p">)</span>
+<span class="n">snpLMM</span> <span class="o">=</span> <span class="n">readdlm</span><span class="p">(</span><span class="s">&quot;heritability.bim&quot;</span><span class="p">;</span> <span class="n">header</span> <span class="o">=</span> <span class="kc">false</span><span class="p">)</span>
 </pre></div>
 
 </div>
@@ -12271,7 +12286,7 @@ code to sex = map(x -&gt; strip(x) == "M"? 1.0 : 0.0,  pedLMM[:, 5]) if you want
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>253141-element Array{AbstractString,1}:
+<pre>253141-element Array{SubString{String},1}:
  &#34;rs3020701&#34;  
  &#34;rs56343121&#34; 
  &#34;rs143501051&#34;
@@ -12321,7 +12336,8 @@ code to sex = map(x -&gt; strip(x) == "M"? 1.0 : 0.0,  pedLMM[:, 5]) if you want
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-julia"><pre><span></span><span class="k">using</span> <span class="n">SnpArrays</span>
-<span class="n">snpbinLMM</span> <span class="o">=</span> <span class="n">SnpArray</span><span class="p">(</span><span class="s">&quot;SNP_29a&quot;</span><span class="p">)</span>
+<span class="k">using</span> <span class="n">LinearAlgebra</span>
+<span class="n">snpbinLMM</span> <span class="o">=</span> <span class="n">SnpArray</span><span class="p">(</span><span class="s">&quot;heritability.bed&quot;</span><span class="p">)</span>
 </pre></div>
 
 </div>
@@ -12334,50 +12350,39 @@ code to sex = map(x -&gt; strip(x) == "M"? 1.0 : 0.0,  pedLMM[:, 5]) if you want
 
 <div class="output_area">
 
-<div class="prompt"></div>
-
-
-<div class="output_subarea output_stream output_stderr output_text">
-<pre><span class="ansi-cyan-intense-fg ansi-bold">INFO: </span><span class="ansi-cyan-fg">v1.0 BED file detected
-</span></pre>
-</div>
-</div>
-
-<div class="output_area">
-
 <div class="prompt output_prompt">Out[10]:</div>
 
 
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>212×253141 SnpArrays.SnpArray{2}:
- (true, true)  (true, true)   …  (true, true)    (false, false)
- (true, true)  (true, true)      (true, true)    (false, false)
- (true, true)  (true, true)      (true, true)    (false, false)
- (true, true)  (true, true)      (true, true)    (false, false)
- (true, true)  (true, true)      (true, true)    (false, false)
- (true, true)  (true, true)   …  (false, false)  (true, true)  
- (true, true)  (false, true)     (false, false)  (true, true)  
- (true, true)  (true, true)      (false, false)  (true, true)  
- (true, true)  (false, true)     (false, false)  (true, true)  
- (true, true)  (false, true)     (false, false)  (true, true)  
- (true, true)  (false, true)  …  (false, false)  (true, true)  
- (true, true)  (true, true)      (false, false)  (true, true)  
- (true, true)  (false, true)     (false, false)  (true, true)  
- ⋮                            ⋱                  ⋮             
- (true, true)  (true, true)   …  (true, true)    (false, false)
- (true, true)  (true, true)      (false, true)   (false, true) 
- (true, true)  (true, true)      (true, true)    (false, false)
- (true, true)  (false, true)     (false, false)  (true, true)  
- (true, true)  (true, true)      (true, true)    (false, false)
- (true, true)  (true, true)   …  (false, true)   (false, false)
- (true, true)  (true, true)      (false, true)   (false, true) 
- (true, true)  (true, true)      (true, true)    (false, false)
- (true, true)  (false, true)     (false, true)   (false, true) 
- (true, true)  (true, true)      (true, true)    (false, false)
- (true, true)  (true, true)   …  (true, true)    (false, false)
- (true, true)  (true, true)      (false, true)   (false, true) </pre>
+<pre>212×253141 SnpArray:
+ 0x03  0x03  0x00  0x03  0x03  0x03  …  0x02  0x02  0x00  0x00  0x03  0x00
+ 0x03  0x03  0x00  0x02  0x02  0x03     0x00  0x03  0x00  0x00  0x03  0x00
+ 0x03  0x03  0x00  0x03  0x03  0x03     0x03  0x02  0x00  0x00  0x03  0x00
+ 0x03  0x03  0x00  0x03  0x03  0x03     0x02  0x03  0x00  0x00  0x03  0x00
+ 0x03  0x03  0x00  0x03  0x03  0x03     0x00  0x03  0x00  0x00  0x03  0x00
+ 0x03  0x03  0x00  0x03  0x03  0x03  …  0x00  0x00  0x00  0x00  0x00  0x03
+ 0x03  0x02  0x00  0x03  0x03  0x03     0x02  0x03  0x00  0x03  0x00  0x03
+ 0x03  0x03  0x00  0x03  0x03  0x03     0x02  0x03  0x00  0x03  0x00  0x03
+ 0x03  0x02  0x00  0x03  0x03  0x03     0x02  0x02  0x00  0x02  0x00  0x03
+ 0x03  0x02  0x00  0x03  0x03  0x03     0x03  0x03  0x00  0x03  0x00  0x03
+ 0x03  0x02  0x00  0x03  0x03  0x03  …  0x00  0x02  0x00  0x02  0x00  0x03
+ 0x03  0x03  0x00  0x03  0x03  0x03     0x00  0x02  0x00  0x02  0x00  0x03
+ 0x03  0x02  0x00  0x03  0x03  0x03     0x02  0x02  0x00  0x02  0x00  0x03
+    ⋮                             ⋮  ⋱     ⋮                             ⋮
+ 0x03  0x03  0x00  0x03  0x03  0x03  …  0x00  0x03  0x00  0x00  0x03  0x00
+ 0x03  0x03  0x00  0x03  0x03  0x03     0x00  0x03  0x00  0x02  0x02  0x02
+ 0x03  0x03  0x00  0x03  0x03  0x03     0x00  0x02  0x00  0x00  0x03  0x00
+ 0x03  0x02  0x00  0x02  0x02  0x03     0x02  0x03  0x00  0x03  0x00  0x03
+ 0x03  0x03  0x00  0x02  0x02  0x03     0x02  0x03  0x00  0x00  0x03  0x00
+ 0x03  0x03  0x00  0x03  0x03  0x03  …  0x02  0x03  0x00  0x02  0x02  0x00
+ 0x03  0x03  0x00  0x02  0x02  0x03     0x02  0x03  0x00  0x00  0x02  0x02
+ 0x03  0x03  0x00  0x03  0x03  0x03     0x00  0x03  0x00  0x00  0x03  0x00
+ 0x03  0x02  0x00  0x03  0x03  0x03     0x02  0x03  0x00  0x00  0x02  0x02
+ 0x03  0x03  0x00  0x03  0x03  0x03     0x00  0x03  0x00  0x00  0x03  0x00
+ 0x03  0x03  0x00  0x03  0x03  0x03  …  0x02  0x03  0x00  0x00  0x03  0x00
+ 0x03  0x03  0x00  0x03  0x03  0x03     0x00  0x03  0x00  0x02  0x02  0x02</pre>
 </div>
 
 </div>
@@ -12403,12 +12408,21 @@ code to sex = map(x -&gt; strip(x) == "M"? 1.0 : 0.0,  pedLMM[:, 5]) if you want
 </div>
 </div>
 </div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Take a look at the vector of minor allele frequencies, 'minor_allele_frequency', for each snp.</p>
+
+</div>
+</div>
+</div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">In&nbsp;[11]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-julia"><pre><span></span><span class="n">maf</span><span class="p">,</span> <span class="n">minor_allele</span><span class="p">,</span> <span class="n">missings_by_snp</span><span class="p">,</span> <span class="n">missings_by_person</span> <span class="o">=</span> <span class="n">summarize</span><span class="p">(</span><span class="n">snpbinLMM</span><span class="p">)</span>
+<div class=" highlight hl-julia"><pre><span></span><span class="n">minor_allele_frequency</span> <span class="o">=</span> <span class="n">maf</span><span class="p">(</span><span class="n">snpbinLMM</span><span class="p">)</span>
 </pre></div>
 
 </div>
@@ -12427,7 +12441,33 @@ code to sex = map(x -&gt; strip(x) == "M"? 1.0 : 0.0,  pedLMM[:, 5]) if you want
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>([0.0165094, 0.0825472, 0.00943396, 0.0872642, 0.0849057, 0.0259434, 0.0141509, 0.0589623, 0.0589623, 0.0188679  …  0.313679, 0.28066, 0.287736, 0.370283, 0.306604, 0.0707547, 0.0448113, 0.216981, 0.28066, 0.278302], Bool[true, true, false, true, true, true, false, true, true, false  …  true, true, true, false, false, true, false, false, true, false], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0  …  0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0  …  0, 0, 0, 0, 0, 0, 0, 0, 0, 0])</pre>
+<pre>253141-element Array{Float64,1}:
+ 0.01650943396226412 
+ 0.08254716981132071 
+ 0.009433962264150943
+ 0.08726415094339623 
+ 0.08490566037735847 
+ 0.02594339622641506 
+ 0.014150943396226415
+ 0.05896226415094341 
+ 0.05896226415094341 
+ 0.018867924528301886
+ 0.08490566037735847 
+ 0.025943396226415096
+ 0.009433962264150941
+ ⋮                   
+ 0.08254716981132071 
+ 0.01179245283018868 
+ 0.3136792452830188  
+ 0.2806603773584906  
+ 0.28773584905660377 
+ 0.37028301886792453 
+ 0.30660377358490565 
+ 0.07075471698113212 
+ 0.04481132075471698 
+ 0.2169811320754717  
+ 0.2806603773584906  
+ 0.2783018867924528  </pre>
 </div>
 
 </div>
@@ -12435,13 +12475,23 @@ code to sex = map(x -&gt; strip(x) == "M"? 1.0 : 0.0,  pedLMM[:, 5]) if you want
 </div>
 </div>
 
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We can take a look at the spread of the minor allele frequency in this dataset.</p>
+
+</div>
+</div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">In&nbsp;[12]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-julia"><pre><span></span><span class="n">quantile</span><span class="p">(</span><span class="n">maf</span><span class="p">,</span> <span class="p">[</span><span class="mf">0.0</span> <span class="o">.</span><span class="mi">25</span> <span class="o">.</span><span class="mi">5</span> <span class="o">.</span><span class="mi">75</span> <span class="mf">1.0</span><span class="p">])</span>
+<div class=" highlight hl-julia"><pre><span></span><span class="k">using</span> <span class="n">Statistics</span>
+<span class="n">quantile</span><span class="p">(</span><span class="n">minor_allele_frequency</span><span class="p">,</span> <span class="p">[</span><span class="mf">0.0</span> <span class="o">.</span><span class="mi">25</span> <span class="o">.</span><span class="mi">5</span> <span class="o">.</span><span class="mi">75</span> <span class="mf">1.0</span><span class="p">])</span>
 </pre></div>
 
 </div>
@@ -12470,13 +12520,24 @@ code to sex = map(x -&gt; strip(x) == "M"? 1.0 : 0.0,  pedLMM[:, 5]) if you want
 </div>
 
 </div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>First we filter out rows and columns such that: each snp and individual will have genotype success rates &gt; 0.98.
+Notice from the counts that in this dataset was simulated such that every snp and every individual will have genotype success rates &gt; 0.98, but this may not be the case for every dataset.</p>
+
+</div>
+</div>
+</div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">In&nbsp;[13]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-julia"><pre><span></span><span class="c">#first we filter out snps with genotype success rates &lt; 98% and get the snp id&#39;s of snps with MAF&gt;0.98</span>
-<span class="n">snp_idx</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">filter</span><span class="p">(</span><span class="n">snpbinLMM</span><span class="p">,</span> <span class="mf">0.98</span><span class="p">)</span>
+<div class=" highlight hl-julia"><pre><span></span><span class="n">rowmask</span><span class="p">,</span> <span class="n">colmask</span> <span class="o">=</span> <span class="n">SnpArrays</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">snpbinLMM</span><span class="p">,</span> <span class="mf">0.98</span><span class="p">,</span> <span class="mf">0.98</span><span class="p">)</span>
+
+<span class="n">count</span><span class="p">(</span><span class="n">rowmask</span><span class="p">),</span> <span class="n">count</span><span class="p">(</span><span class="n">colmask</span><span class="p">)</span>
 </pre></div>
 
 </div>
@@ -12495,7 +12556,7 @@ code to sex = map(x -&gt; strip(x) == "M"? 1.0 : 0.0,  pedLMM[:, 5]) if you want
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>(Bool[true, true, true, true, true, true, true, true, true, true  …  true, true, true, true, true, true, true, true, true, true], Bool[true, true, true, true, true, true, true, true, true, true  …  true, true, true, true, true, true, true, true, true, true])</pre>
+<pre>(212, 253141)</pre>
 </div>
 
 </div>
@@ -12503,17 +12564,71 @@ code to sex = map(x -&gt; strip(x) == "M"? 1.0 : 0.0,  pedLMM[:, 5]) if you want
 </div>
 </div>
 
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Display the potentially filtered matrix of genetic variants (ours is the same matrix in this example).</p>
+
+</div>
+</div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">In&nbsp;[14]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-julia"><pre><span></span><span class="c">#now we find the index of the common snps (MAF greater than or equal to 0.05) with success rates &gt;0.98</span>
-<span class="n">common_index</span> <span class="o">=</span> <span class="n">snp_idx</span> <span class="o">.&amp;</span> <span class="p">(</span><span class="mf">0.05</span> <span class="o">.≤</span> <span class="n">maf</span><span class="p">);</span>
+<div class=" highlight hl-julia"><pre><span></span><span class="n">filteredsnparray</span> <span class="o">=</span> <span class="n">SnpArrays</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="s">&quot;heritability&quot;</span><span class="p">,</span> <span class="n">rowmask</span><span class="p">,</span> <span class="n">colmask</span><span class="p">)</span>
 </pre></div>
 
 </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+<div class="prompt output_prompt">Out[14]:</div>
+
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>212×253141 SnpArray:
+ 0x03  0x03  0x00  0x03  0x03  0x03  …  0x02  0x02  0x00  0x00  0x03  0x00
+ 0x03  0x03  0x00  0x02  0x02  0x03     0x00  0x03  0x00  0x00  0x03  0x00
+ 0x03  0x03  0x00  0x03  0x03  0x03     0x03  0x02  0x00  0x00  0x03  0x00
+ 0x03  0x03  0x00  0x03  0x03  0x03     0x02  0x03  0x00  0x00  0x03  0x00
+ 0x03  0x03  0x00  0x03  0x03  0x03     0x00  0x03  0x00  0x00  0x03  0x00
+ 0x03  0x03  0x00  0x03  0x03  0x03  …  0x00  0x00  0x00  0x00  0x00  0x03
+ 0x03  0x02  0x00  0x03  0x03  0x03     0x02  0x03  0x00  0x03  0x00  0x03
+ 0x03  0x03  0x00  0x03  0x03  0x03     0x02  0x03  0x00  0x03  0x00  0x03
+ 0x03  0x02  0x00  0x03  0x03  0x03     0x02  0x02  0x00  0x02  0x00  0x03
+ 0x03  0x02  0x00  0x03  0x03  0x03     0x03  0x03  0x00  0x03  0x00  0x03
+ 0x03  0x02  0x00  0x03  0x03  0x03  …  0x00  0x02  0x00  0x02  0x00  0x03
+ 0x03  0x03  0x00  0x03  0x03  0x03     0x00  0x02  0x00  0x02  0x00  0x03
+ 0x03  0x02  0x00  0x03  0x03  0x03     0x02  0x02  0x00  0x02  0x00  0x03
+    ⋮                             ⋮  ⋱     ⋮                             ⋮
+ 0x03  0x03  0x00  0x03  0x03  0x03  …  0x00  0x03  0x00  0x00  0x03  0x00
+ 0x03  0x03  0x00  0x03  0x03  0x03     0x00  0x03  0x00  0x02  0x02  0x02
+ 0x03  0x03  0x00  0x03  0x03  0x03     0x00  0x02  0x00  0x00  0x03  0x00
+ 0x03  0x02  0x00  0x02  0x02  0x03     0x02  0x03  0x00  0x03  0x00  0x03
+ 0x03  0x03  0x00  0x02  0x02  0x03     0x02  0x03  0x00  0x00  0x03  0x00
+ 0x03  0x03  0x00  0x03  0x03  0x03  …  0x02  0x03  0x00  0x02  0x02  0x00
+ 0x03  0x03  0x00  0x02  0x02  0x03     0x02  0x03  0x00  0x00  0x02  0x02
+ 0x03  0x03  0x00  0x03  0x03  0x03     0x00  0x03  0x00  0x00  0x03  0x00
+ 0x03  0x02  0x00  0x03  0x03  0x03     0x02  0x03  0x00  0x00  0x02  0x02
+ 0x03  0x03  0x00  0x03  0x03  0x03     0x00  0x03  0x00  0x00  0x03  0x00
+ 0x03  0x03  0x00  0x03  0x03  0x03  …  0x02  0x03  0x00  0x00  0x03  0x00
+ 0x03  0x03  0x00  0x03  0x03  0x03     0x00  0x03  0x00  0x02  0x02  0x02</pre>
+</div>
+
+</div>
+
 </div>
 </div>
 
@@ -12523,8 +12638,8 @@ code to sex = map(x -&gt; strip(x) == "M"? 1.0 : 0.0,  pedLMM[:, 5]) if you want
 <div class="prompt input_prompt">In&nbsp;[15]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-julia"><pre><span></span><span class="c"># now we put these snps into an array for use with the GRM function. </span>
-<span class="n">data_common</span> <span class="o">=</span> <span class="n">snpbinLMM</span><span class="p">[</span> <span class="o">:</span> <span class="p">,</span> <span class="n">common_index</span><span class="p">]</span>
+<div class=" highlight hl-julia"><pre><span></span><span class="c">#now we find the index of the common snps (MAF greater than or equal to 0.05) with success rates &gt;0.98</span>
+<span class="n">common_snps_index</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.05</span> <span class="o">.≤</span> <span class="n">minor_allele_frequency</span><span class="p">)</span>
 </pre></div>
 
 </div>
@@ -12543,33 +12658,102 @@ code to sex = map(x -&gt; strip(x) == "M"? 1.0 : 0.0,  pedLMM[:, 5]) if you want
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>212×137741 SnpArrays.SnpArray{2}:
- (true, true)   (true, true)   …  (true, true)    (false, false)
- (true, true)   (false, true)     (true, true)    (false, false)
- (true, true)   (true, true)      (true, true)    (false, false)
- (true, true)   (true, true)      (true, true)    (false, false)
- (true, true)   (true, true)      (true, true)    (false, false)
- (true, true)   (true, true)   …  (false, false)  (true, true)  
- (false, true)  (true, true)      (false, false)  (true, true)  
- (true, true)   (true, true)      (false, false)  (true, true)  
- (false, true)  (true, true)      (false, false)  (true, true)  
- (false, true)  (true, true)      (false, false)  (true, true)  
- (false, true)  (true, true)   …  (false, false)  (true, true)  
- (true, true)   (true, true)      (false, false)  (true, true)  
- (false, true)  (true, true)      (false, false)  (true, true)  
- ⋮                             ⋱                  ⋮             
- (true, true)   (true, true)   …  (true, true)    (false, false)
- (true, true)   (true, true)      (false, true)   (false, true) 
- (true, true)   (true, true)      (true, true)    (false, false)
- (false, true)  (false, true)     (false, false)  (true, true)  
- (true, true)   (false, true)     (true, true)    (false, false)
- (true, true)   (true, true)   …  (false, true)   (false, false)
- (true, true)   (false, true)     (false, true)   (false, true) 
- (true, true)   (true, true)      (true, true)    (false, false)
- (false, true)  (true, true)      (false, true)   (false, true) 
- (true, true)   (true, true)      (true, true)    (false, false)
- (true, true)   (true, true)   …  (true, true)    (false, false)
- (true, true)   (true, true)      (false, true)   (false, true) </pre>
+<pre>253141-element BitArray{1}:
+ false
+  true
+ false
+  true
+  true
+ false
+ false
+  true
+  true
+ false
+  true
+ false
+ false
+     ⋮
+  true
+ false
+  true
+  true
+  true
+  true
+  true
+  true
+ false
+  true
+  true
+  true</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="How-to-change-this-data-structure-to-a-type-SnpArrays">How to change this data structure to a type SnpArrays<a class="anchor-link" href="#How-to-change-this-data-structure-to-a-type-SnpArrays">&#182;</a></h1>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[16]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-julia"><pre><span></span><span class="c"># now we put these snps into an array for use with the GRM function. </span>
+<span class="n">common_snps</span> <span class="o">=</span> <span class="n">SnpArrays</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="s">&quot;heritability&quot;</span><span class="p">,</span> <span class="n">trues</span><span class="p">(</span><span class="mi">212</span><span class="p">),</span> <span class="n">common_snps_index</span><span class="p">)</span>
+<span class="c">#data_common = snpbinLMM[ : , common_index]</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+<div class="prompt output_prompt">Out[16]:</div>
+
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>212×137741 SnpArray:
+ 0x03  0x03  0x03  0x03  0x03  0x02  …  0x02  0x02  0x02  0x00  0x03  0x00
+ 0x03  0x02  0x02  0x03  0x03  0x03     0x00  0x00  0x03  0x00  0x03  0x00
+ 0x03  0x03  0x03  0x03  0x03  0x03     0x03  0x03  0x02  0x00  0x03  0x00
+ 0x03  0x03  0x03  0x03  0x03  0x03     0x02  0x02  0x03  0x00  0x03  0x00
+ 0x03  0x03  0x03  0x03  0x03  0x03     0x00  0x00  0x03  0x00  0x03  0x00
+ 0x03  0x03  0x03  0x03  0x03  0x02  …  0x02  0x00  0x00  0x00  0x00  0x03
+ 0x02  0x03  0x03  0x03  0x03  0x03     0x02  0x02  0x03  0x03  0x00  0x03
+ 0x03  0x03  0x03  0x03  0x03  0x03     0x02  0x02  0x03  0x03  0x00  0x03
+ 0x02  0x03  0x03  0x03  0x03  0x03     0x02  0x02  0x02  0x02  0x00  0x03
+ 0x02  0x03  0x03  0x03  0x03  0x03     0x03  0x03  0x03  0x03  0x00  0x03
+ 0x02  0x03  0x03  0x03  0x03  0x02  …  0x00  0x00  0x02  0x02  0x00  0x03
+ 0x03  0x03  0x03  0x03  0x03  0x02     0x02  0x00  0x02  0x02  0x00  0x03
+ 0x02  0x03  0x03  0x03  0x03  0x02     0x02  0x02  0x02  0x02  0x00  0x03
+    ⋮                             ⋮  ⋱     ⋮                             ⋮
+ 0x03  0x03  0x03  0x03  0x03  0x03  …  0x00  0x00  0x03  0x00  0x03  0x00
+ 0x03  0x03  0x03  0x03  0x03  0x03     0x00  0x00  0x03  0x02  0x02  0x02
+ 0x03  0x03  0x03  0x03  0x03  0x03     0x00  0x00  0x02  0x00  0x03  0x00
+ 0x02  0x02  0x02  0x02  0x02  0x02     0x02  0x02  0x03  0x03  0x00  0x03
+ 0x03  0x02  0x02  0x03  0x03  0x03     0x02  0x02  0x03  0x00  0x03  0x00
+ 0x03  0x03  0x03  0x03  0x03  0x03  …  0x02  0x02  0x03  0x02  0x02  0x00
+ 0x03  0x02  0x02  0x03  0x03  0x03     0x03  0x02  0x03  0x00  0x02  0x02
+ 0x03  0x03  0x03  0x02  0x02  0x02     0x02  0x00  0x03  0x00  0x03  0x00
+ 0x02  0x03  0x03  0x03  0x03  0x02     0x02  0x02  0x03  0x00  0x02  0x02
+ 0x03  0x03  0x03  0x03  0x02  0x02     0x00  0x00  0x03  0x00  0x03  0x00
+ 0x03  0x03  0x03  0x03  0x03  0x03  …  0x02  0x02  0x03  0x00  0x03  0x00
+ 0x03  0x03  0x03  0x03  0x03  0x03     0x00  0x00  0x03  0x02  0x02  0x02</pre>
 </div>
 
 </div>
@@ -12593,17 +12777,17 @@ where $k$ ranges over the selected $S$ SNPs, $p_k$ is the minor allele frequency
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Calculate-the-GRM-matrix">Calculate the GRM matrix<a class="anchor-link" href="#Calculate-the-GRM-matrix">&#182;</a></h2><p>As mentioned above, by default, <code>grm</code> excludes SNPs with maf &lt; 0.01 but we will use only the common snps (&gt;0.05) with good success rates (&gt;0.98).</p>
+<h2 id="Calculate-the-GRM-matrix">Calculate the GRM matrix<a class="anchor-link" href="#Calculate-the-GRM-matrix">&#182;</a></h2><p>As mentioned above, by default, <code>grm</code> excludes SNPs with maf &lt; 0.01. We will use only the common snps (&gt;0.05) with good success rates (&gt;0.98) to avoid potential biases.</p>
 
 </div>
 </div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[16]:</div>
+<div class="prompt input_prompt">In&nbsp;[17]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-julia"><pre><span></span><span class="n">Φgrm</span> <span class="o">=</span> <span class="n">grm</span><span class="p">(</span><span class="n">data_common</span><span class="p">)</span>
+<div class=" highlight hl-julia"><pre><span></span><span class="n">Φgrm</span> <span class="o">=</span> <span class="n">grm</span><span class="p">(</span><span class="n">common_snps</span><span class="p">,</span> <span class="n">method</span> <span class="o">=</span> <span class="o">:</span><span class="n">GRM</span><span class="p">)</span>
 </pre></div>
 
 </div>
@@ -12616,7 +12800,7 @@ where $k$ ranges over the selected $S$ SNPs, $p_k$ is the minor allele frequency
 
 <div class="output_area">
 
-<div class="prompt output_prompt">Out[16]:</div>
+<div class="prompt output_prompt">Out[17]:</div>
 
 
 
@@ -12671,7 +12855,7 @@ where $k$ ranges over the selected $S$ SNPs, $p_k$ is the minor allele frequency
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[17]:</div>
+<div class="prompt input_prompt">In&nbsp;[18]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-julia"><pre><span></span><span class="k">using</span> <span class="n">VarianceComponentModels</span>
@@ -12679,40 +12863,7 @@ where $k$ ranges over the selected $S$ SNPs, $p_k$ is the minor allele frequency
 <span class="c"># form data as VarianceComponentVariate matrix </span>
 <span class="c"># change the next two commands if you want to run trait 2 or both traits (Y)</span>
 <span class="n">X</span> <span class="o">=</span> <span class="p">[</span><span class="n">ones</span><span class="p">(</span><span class="n">length</span><span class="p">(</span><span class="n">Trait1</span><span class="p">))</span> <span class="n">sex</span><span class="p">]</span>
-<span class="n">nulldata</span> <span class="o">=</span> <span class="n">VarianceComponentVariate</span><span class="p">(</span><span class="n">Y</span><span class="p">[</span><span class="o">:</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> <span class="n">X</span><span class="p">,</span> <span class="p">(</span><span class="mi">2</span><span class="n">Φgrm</span><span class="p">,</span> <span class="n">eye</span><span class="p">(</span><span class="n">length</span><span class="p">(</span><span class="n">Trait1</span><span class="p">))))</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-<div class="prompt output_prompt">Out[17]:</div>
-
-
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>VarianceComponentModels.VarianceComponentVariate{Float64,2,Array{Float64,1},Array{Float64,2},Array{Float64,2}}([30.2056, 35.8214, 36.053, 38.9635, 33.7391, 34.8884, 37.7011, 45.1317, 35.156, 42.4514  …  41.7913, 36.3301, 42.9442, 39.8927, 42.5795, 47.8619, 41.0531, 39.9502, 35.4778, 44.3932], [1.0 1.0; 1.0 1.0; … ; 1.0 0.0; 1.0 0.0], ([0.996528 0.0161756 … 0.049365 0.00363711; 0.0161756 0.996108 … -0.0571855 -0.0453049; … ; 0.049365 -0.0571855 … 1.188 0.0994167; 0.00363711 -0.0453049 … 0.0994167 0.983485], [1.0 0.0 … 0.0 0.0; 0.0 1.0 … 0.0 0.0; … ; 0.0 0.0 … 1.0 0.0; 0.0 0.0 … 0.0 1.0]))</pre>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[18]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-julia"><pre><span></span><span class="n">nullmodel</span> <span class="o">=</span> <span class="n">VarianceComponentModel</span><span class="p">(</span><span class="n">nulldata</span><span class="p">)</span>
+<span class="n">nulldata</span> <span class="o">=</span> <span class="n">VarianceComponentVariate</span><span class="p">(</span><span class="n">Y</span><span class="p">[</span><span class="o">:</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> <span class="n">X</span><span class="p">,</span> <span class="p">(</span><span class="mi">2</span><span class="n">Φgrm</span><span class="p">,</span> <span class="kt">Matrix</span><span class="p">{</span><span class="kt">Float64</span><span class="p">}(</span><span class="nb">I</span><span class="p">,</span> <span class="n">length</span><span class="p">(</span><span class="n">Trait1</span><span class="p">),</span> <span class="n">length</span><span class="p">(</span><span class="n">Trait1</span><span class="p">))))</span>
 </pre></div>
 
 </div>
@@ -12731,7 +12882,7 @@ where $k$ ranges over the selected $S$ SNPs, $p_k$ is the minor allele frequency
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>VarianceComponentModels.VarianceComponentModel{Float64,2,Array{Float64,2},Array{Float64,2}}([0.0; 0.0], ([1.0], [1.0]), Array{Float64}(0,2), Char[], Float64[], -Inf, Inf)</pre>
+<pre>VarianceComponentVariate{Float64,2,Array{Float64,1},Array{Float64,2},Array{Float64,2}}([30.2056, 35.8214, 36.053, 38.9635, 33.7391, 34.8884, 37.7011, 45.1317, 35.156, 42.4514  …  41.7913, 36.3301, 42.9442, 39.8927, 42.5795, 47.8619, 41.0531, 39.9502, 35.4778, 44.3932], [1.0 1.0; 1.0 1.0; … ; 1.0 0.0; 1.0 0.0], ([0.996528 0.0161756 … 0.049365 0.00363711; 0.0161756 0.996108 … -0.0571855 -0.0453049; … ; 0.049365 -0.0571855 … 1.188 0.0994167; 0.00363711 -0.0453049 … 0.0994167 0.983485], [1.0 0.0 … 0.0 0.0; 0.0 1.0 … 0.0 0.0; … ; 0.0 0.0 … 1.0 0.0; 0.0 0.0 … 0.0 1.0]))</pre>
 </div>
 
 </div>
@@ -12743,6 +12894,39 @@ where $k$ ranges over the selected $S$ SNPs, $p_k$ is the minor allele frequency
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">In&nbsp;[19]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-julia"><pre><span></span><span class="n">nullmodel</span> <span class="o">=</span> <span class="n">VarianceComponentModel</span><span class="p">(</span><span class="n">nulldata</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+<div class="prompt output_prompt">Out[19]:</div>
+
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>VarianceComponentModel{Float64,2,Array{Float64,2},Array{Float64,2}}([0.0; 0.0], ([1.0], [1.0]), Array{Float64}(0,2), Char[], Float64[], -Inf, Inf)</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[20]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-julia"><pre><span></span><span class="nd">@time</span> <span class="n">nulllogl</span><span class="p">,</span> <span class="n">nullmodel</span><span class="p">,</span> <span class="o">=</span> <span class="n">fit_mle!</span><span class="p">(</span><span class="n">nullmodel</span><span class="p">,</span> <span class="n">nulldata</span><span class="p">;</span> <span class="n">algo</span> <span class="o">=</span> <span class="o">:</span><span class="n">FS</span><span class="p">)</span>
@@ -12769,7 +12953,7 @@ This program contains Ipopt, a library for large-scale nonlinear optimization.
          For more information visit http://projects.coin-or.org/Ipopt
 ******************************************************************************
 
-This is Ipopt version 3.12.8, running with linear solver mumps.
+This is Ipopt version 3.12.10, running with linear solver mumps.
 NOTE: Other linear solvers might be more efficient (see Ipopt documentation).
 
 Number of nonzeros in equality constraint Jacobian...:        0
@@ -12794,11 +12978,11 @@ iter    objective    inf_pr   inf_du lg(mu)  ||d||  lg(rg) alpha_du alpha_pr  ls
 Number of Iterations....: 10
 
                                    (scaled)                 (unscaled)
-Objective...............:   2.0960187441038576e+02    4.7521651097110305e+02
-Dual infeasibility......:   3.5821383450550896e-09    8.1215461023020907e-09
+Objective...............:   2.0960187441038690e+02    4.7521651097110293e+02
+Dual infeasibility......:   3.5820862727489972e-09    8.1214280421955265e-09
 Constraint violation....:   0.0000000000000000e+00    0.0000000000000000e+00
 Complementarity.........:   0.0000000000000000e+00    0.0000000000000000e+00
-Overall NLP error.......:   3.5821383450550896e-09    8.1215461023020907e-09
+Overall NLP error.......:   3.5820862727489972e-09    8.1214280421955265e-09
 
 
 Number of objective function evaluations             = 11
@@ -12808,48 +12992,14 @@ Number of inequality constraint evaluations          = 0
 Number of equality constraint Jacobian evaluations   = 0
 Number of inequality constraint Jacobian evaluations = 0
 Number of Lagrangian Hessian evaluations             = 10
-Total CPU secs in IPOPT (w/o function evaluations)   =      2.149
-Total CPU secs in NLP function evaluations           =      0.268
+Total CPU secs in IPOPT (w/o function evaluations)   =      2.109
+Total CPU secs in NLP function evaluations           =      0.063
 
 EXIT: Optimal Solution Found.
-  6.048931 seconds (3.89 M allocations: 183.101 MiB, 1.35% gc time)
+  6.437095 seconds (15.99 M allocations: 769.948 MiB, 8.70% gc time)
 </pre>
 </div>
 </div>
-
-<div class="output_area">
-
-<div class="prompt output_prompt">Out[19]:</div>
-
-
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>(-475.21651097110305, VarianceComponentModels.VarianceComponentModel{Float64,2,Array{Float64,2},Array{Float64,2}}([40.8917; -6.6255], ([4.06929], [2.15102]), Array{Float64}(0,2), Char[], Float64[], -Inf, Inf), ([0.963035], [0.558179]), [0.927437 -0.371979; -0.371979 0.311564], [0.173131; 0.307754], [0.0299744 -0.0433355; -0.0433355 0.0947127])</pre>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[20]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-julia"><pre><span></span><span class="c"># null model log-likelihood for no SNP effects</span>
-<span class="n">nulllogl</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
 
 <div class="output_area">
 
@@ -12859,7 +13009,7 @@ EXIT: Optimal Solution Found.
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>-475.21651097110305</pre>
+<pre>(-475.21651097110293, VarianceComponentModel{Float64,2,Array{Float64,2},Array{Float64,2}}([40.8917; -6.6255], ([4.06929], [2.15102]), Array{Float64}(0,2), Char[], Float64[], -Inf, Inf), ([0.963035], [0.558179]), [0.927437 -0.371979; -0.371979 0.311564], [0.173131; 0.307754], [0.0299744 -0.0433355; -0.0433355 0.0947127])</pre>
 </div>
 
 </div>
@@ -12867,14 +13017,22 @@ EXIT: Optimal Solution Found.
 </div>
 </div>
 
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Below is the null model log-likelihood (for no SNP effects).</p>
+
+</div>
+</div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">In&nbsp;[21]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-julia"><pre><span></span><span class="c"># null model mean effects - in this case a grand mean and a sex effect</span>
-<span class="n">nullmodel</span><span class="o">.</span><span class="n">B</span>
+<div class=" highlight hl-julia"><pre><span></span><span class="n">nulllogl</span>
 </pre></div>
 
 </div>
@@ -12893,9 +13051,7 @@ EXIT: Optimal Solution Found.
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>2×1 Array{Float64,2}:
- 40.8917
- -6.6255</pre>
+<pre>-475.21651097110293</pre>
 </div>
 
 </div>
@@ -12903,14 +13059,22 @@ EXIT: Optimal Solution Found.
 </div>
 </div>
 
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Below we look at the null model mean effects - in this case a grand mean and a sex effect.</p>
+
+</div>
+</div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">In&nbsp;[22]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-julia"><pre><span></span><span class="c"># null model additive genetic variance</span>
-<span class="n">nullmodel</span><span class="o">.</span><span class="n">Σ</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+<div class=" highlight hl-julia"><pre><span></span><span class="n">nullmodel</span><span class="o">.</span><span class="n">B</span>
 </pre></div>
 
 </div>
@@ -12929,8 +13093,9 @@ EXIT: Optimal Solution Found.
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>1×1 Array{Float64,2}:
- 4.06929</pre>
+<pre>2×1 Array{Float64,2}:
+ 40.89165372660057  
+ -6.6254981447353645</pre>
 </div>
 
 </div>
@@ -12938,14 +13103,22 @@ EXIT: Optimal Solution Found.
 </div>
 </div>
 
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We can take a look at the null model additive genetic variance</p>
+
+</div>
+</div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">In&nbsp;[23]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-julia"><pre><span></span><span class="c"># null model environmental variance</span>
-<span class="n">nullmodel</span><span class="o">.</span><span class="n">Σ</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+<div class=" highlight hl-julia"><pre><span></span><span class="n">nullmodel</span><span class="o">.</span><span class="n">Σ</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
 </pre></div>
 
 </div>
@@ -12965,7 +13138,7 @@ EXIT: Optimal Solution Found.
 
 <div class="output_text output_subarea output_execute_result">
 <pre>1×1 Array{Float64,2}:
- 2.15102</pre>
+ 4.069288773867489</pre>
 </div>
 
 </div>
@@ -12978,7 +13151,7 @@ EXIT: Optimal Solution Found.
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h3 id="Heritability">Heritability<a class="anchor-link" href="#Heritability">&#182;</a></h3><p>Calculate the proportion of the variance that can be attributed to additive genetic effects, the narrow sense heritability.  We calculate it here without any SNPs included.</p>
+<p>Along with the null model environmental variance</p>
 
 </div>
 </div>
@@ -12988,7 +13161,7 @@ EXIT: Optimal Solution Found.
 <div class="prompt input_prompt">In&nbsp;[24]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-julia"><pre><span></span><span class="n">her_null</span> <span class="o">=</span> <span class="n">nullmodel</span><span class="o">.</span><span class="n">Σ</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">/</span><span class="p">(</span><span class="n">nullmodel</span><span class="o">.</span><span class="n">Σ</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">nullmodel</span><span class="o">.</span><span class="n">Σ</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+<div class=" highlight hl-julia"><pre><span></span><span class="n">nullmodel</span><span class="o">.</span><span class="n">Σ</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
 </pre></div>
 
 </div>
@@ -13008,7 +13181,50 @@ EXIT: Optimal Solution Found.
 
 <div class="output_text output_subarea output_execute_result">
 <pre>1×1 Array{Float64,2}:
- 0.654194</pre>
+ 2.1510182537797373</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Heritability">Heritability<a class="anchor-link" href="#Heritability">&#182;</a></h3><p>Calculate the proportion of the variance that can be attributed to additive genetic effects, the narrow sense heritability.  We calculate it here without any SNPs included.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[25]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-julia"><pre><span></span><span class="n">her_null</span> <span class="o">=</span> <span class="n">nullmodel</span><span class="o">.</span><span class="n">Σ</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">/</span><span class="p">(</span><span class="n">nullmodel</span><span class="o">.</span><span class="n">Σ</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">nullmodel</span><span class="o">.</span><span class="n">Σ</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+<div class="prompt output_prompt">Out[25]:</div>
+
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>1×1 Array{Float64,2}:
+ 0.6541941990613701</pre>
 </div>
 
 </div>
@@ -13028,11 +13244,11 @@ EXIT: Optimal Solution Found.
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[25]:</div>
+<div class="prompt input_prompt">In&nbsp;[26]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-julia"><pre><span></span><span class="n">ind_rs10412915</span> <span class="o">=</span> <span class="n">find</span><span class="p">(</span><span class="n">x</span> <span class="o">-&gt;</span> <span class="n">x</span> <span class="o">==</span> <span class="s">&quot;rs10412915&quot;</span><span class="p">,</span> <span class="n">snpid</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
-<span class="n">ind_rs1036231</span> <span class="o">=</span> <span class="n">find</span><span class="p">(</span><span class="n">x</span> <span class="o">-&gt;</span> <span class="n">x</span> <span class="o">==</span> <span class="s">&quot;rs1036231&quot;</span><span class="p">,</span> <span class="n">snpid</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+<div class=" highlight hl-julia"><pre><span></span><span class="n">ind_rs10412915</span> <span class="o">=</span> <span class="n">findall</span><span class="p">(</span><span class="n">x</span> <span class="o">-&gt;</span> <span class="n">x</span> <span class="o">==</span> <span class="s">&quot;rs10412915&quot;</span><span class="p">,</span> <span class="n">snpid</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">ind_rs1036231</span> <span class="o">=</span> <span class="n">findall</span><span class="p">(</span><span class="n">x</span> <span class="o">-&gt;</span> <span class="n">x</span> <span class="o">==</span> <span class="s">&quot;rs1036231&quot;</span><span class="p">,</span> <span class="n">snpid</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
 </pre></div>
 
 </div>
@@ -13045,7 +13261,7 @@ EXIT: Optimal Solution Found.
 
 <div class="output_area">
 
-<div class="prompt output_prompt">Out[25]:</div>
+<div class="prompt output_prompt">Out[26]:</div>
 
 
 
@@ -13071,82 +13287,12 @@ EXIT: Optimal Solution Found.
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[26]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-julia"><pre><span></span><span class="n">snp_rs10412915</span> <span class="o">=</span> <span class="n">convert</span><span class="p">(</span><span class="kt">Vector</span><span class="p">{</span><span class="kt">Float64</span><span class="p">},</span> <span class="n">snpbinLMM</span><span class="p">[</span><span class="o">:</span><span class="p">,</span> <span class="n">ind_rs10412915</span><span class="p">])</span>
-<span class="n">snp_rs1036231</span> <span class="o">=</span> <span class="n">convert</span><span class="p">(</span><span class="kt">Vector</span><span class="p">{</span><span class="kt">Float64</span><span class="p">},</span> <span class="n">snpbinLMM</span><span class="p">[</span><span class="o">:</span><span class="p">,</span> <span class="n">ind_rs1036231</span><span class="p">])</span>
-<span class="n">interaction</span> <span class="o">=</span> <span class="n">snp_rs10412915</span> <span class="o">.*</span> <span class="n">snp_rs1036231</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-<div class="prompt output_prompt">Out[26]:</div>
-
-
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>212-element Array{Float64,1}:
- 0.0
- 4.0
- 0.0
- 0.0
- 1.0
- 1.0
- 1.0
- 0.0
- 1.0
- 1.0
- 4.0
- 4.0
- 4.0
- ⋮  
- 0.0
- 1.0
- 0.0
- 1.0
- 0.0
- 1.0
- 1.0
- 1.0
- 0.0
- 1.0
- 0.0
- 4.0</pre>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div>
-<div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Look-at-the-effect-of-a-single-SNP-snp_rs10412915">Look at the effect of a single SNP snp_rs10412915<a class="anchor-link" href="#Look-at-the-effect-of-a-single-SNP-snp_rs10412915">&#182;</a></h2><p>We first test whether snp_rs10412915 has a significant effect. We form the correct design matrix Xalt with an ntercept, sex, and the snp of interest snp_rs10412915. Then we form the Variance Component Model by calling the VarainceComponents.jl package.</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
 <div class="prompt input_prompt">In&nbsp;[27]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-julia"><pre><span></span><span class="c"># form data as VarianceComponentVariate - put the data in a form that VarianceComponentModels can use</span>
-<span class="n">Xalt</span> <span class="o">=</span> <span class="p">[</span><span class="n">ones</span><span class="p">(</span><span class="n">length</span><span class="p">(</span><span class="n">Trait1</span><span class="p">))</span> <span class="n">sex</span> <span class="n">snp_rs10412915</span><span class="p">]</span>
-<span class="n">altdata</span> <span class="o">=</span> <span class="n">VarianceComponentVariate</span><span class="p">(</span><span class="n">Y</span><span class="p">[</span><span class="o">:</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">Xalt</span><span class="p">,</span> <span class="p">(</span><span class="mi">2</span><span class="n">Φgrm</span><span class="p">,</span> <span class="n">eye</span><span class="p">(</span><span class="n">length</span><span class="p">(</span><span class="n">Trait1</span><span class="p">))))</span>
+<div class=" highlight hl-julia"><pre><span></span><span class="n">snp_rs10412915</span> <span class="o">=</span> <span class="n">convert</span><span class="p">(</span><span class="kt">Vector</span><span class="p">{</span><span class="kt">Float64</span><span class="p">},</span> <span class="nd">@view</span><span class="p">(</span><span class="n">snpbinLMM</span><span class="p">[</span><span class="o">:</span><span class="p">,</span> <span class="n">ind_rs10412915</span><span class="p">]))</span>
+<span class="n">snp_rs1036231</span> <span class="o">=</span> <span class="n">convert</span><span class="p">(</span><span class="kt">Vector</span><span class="p">{</span><span class="kt">Float64</span><span class="p">},</span> <span class="nd">@view</span><span class="p">(</span><span class="n">snpbinLMM</span><span class="p">[</span><span class="o">:</span><span class="p">,</span> <span class="n">ind_rs1036231</span><span class="p">]))</span>
+<span class="n">interaction</span> <span class="o">=</span> <span class="n">snp_rs10412915</span> <span class="o">.*</span> <span class="n">snp_rs1036231</span>
 </pre></div>
 
 </div>
@@ -13165,7 +13311,33 @@ EXIT: Optimal Solution Found.
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>VarianceComponentModels.VarianceComponentVariate{Float64,2,Array{Float64,1},Array{Float64,2},Array{Float64,2}}([30.2056, 35.8214, 36.053, 38.9635, 33.7391, 34.8884, 37.7011, 45.1317, 35.156, 42.4514  …  41.7913, 36.3301, 42.9442, 39.8927, 42.5795, 47.8619, 41.0531, 39.9502, 35.4778, 44.3932], [1.0 1.0 0.0; 1.0 1.0 2.0; … ; 1.0 0.0 0.0; 1.0 0.0 2.0], ([0.996528 0.0161756 … 0.049365 0.00363711; 0.0161756 0.996108 … -0.0571855 -0.0453049; … ; 0.049365 -0.0571855 … 1.188 0.0994167; 0.00363711 -0.0453049 … 0.0994167 0.983485], [1.0 0.0 … 0.0 0.0; 0.0 1.0 … 0.0 0.0; … ; 0.0 0.0 … 1.0 0.0; 0.0 0.0 … 0.0 1.0]))</pre>
+<pre>212-element Array{Float64,1}:
+ 4.0
+ 0.0
+ 4.0
+ 4.0
+ 1.0
+ 1.0
+ 1.0
+ 4.0
+ 1.0
+ 1.0
+ 0.0
+ 0.0
+ 0.0
+ ⋮  
+ 4.0
+ 1.0
+ 4.0
+ 1.0
+ 4.0
+ 1.0
+ 1.0
+ 1.0
+ 2.0
+ 1.0
+ 4.0
+ 0.0</pre>
 </div>
 
 </div>
@@ -13173,13 +13345,24 @@ EXIT: Optimal Solution Found.
 </div>
 </div>
 
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Look-at-the-effect-of-a-single-SNP-snp_rs10412915">Look at the effect of a single SNP snp_rs10412915<a class="anchor-link" href="#Look-at-the-effect-of-a-single-SNP-snp_rs10412915">&#182;</a></h2><p>We first test whether snp_rs10412915 has a significant effect. We form the correct design matrix Xalt with an ntercept, sex, and the snp of interest snp_rs10412915. Then we form the Variance Component Model by calling the VarianceComponentModels.jl package.</p>
+
+</div>
+</div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">In&nbsp;[28]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-julia"><pre><span></span><span class="n">altmodel</span> <span class="o">=</span> <span class="n">VarianceComponentModel</span><span class="p">(</span><span class="n">altdata</span><span class="p">)</span>
+<div class=" highlight hl-julia"><pre><span></span><span class="c"># form data as VarianceComponentVariate - put the data in a form that VarianceComponentModels can use</span>
+<span class="n">Xalt</span> <span class="o">=</span> <span class="p">[</span><span class="n">ones</span><span class="p">(</span><span class="n">length</span><span class="p">(</span><span class="n">Trait1</span><span class="p">))</span> <span class="n">sex</span> <span class="n">snp_rs10412915</span><span class="p">]</span>
+<span class="n">altdata</span> <span class="o">=</span> <span class="n">VarianceComponentVariate</span><span class="p">(</span><span class="n">Y</span><span class="p">[</span><span class="o">:</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">Xalt</span><span class="p">,</span> <span class="p">(</span><span class="mi">2</span><span class="n">Φgrm</span><span class="p">,</span> <span class="kt">Matrix</span><span class="p">{</span><span class="kt">Float64</span><span class="p">}(</span><span class="nb">I</span><span class="p">,</span> <span class="n">length</span><span class="p">(</span><span class="n">Trait1</span><span class="p">),</span> <span class="n">length</span><span class="p">(</span><span class="n">Trait1</span><span class="p">))))</span>
 </pre></div>
 
 </div>
@@ -13198,7 +13381,40 @@ EXIT: Optimal Solution Found.
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>VarianceComponentModels.VarianceComponentModel{Float64,2,Array{Float64,2},Array{Float64,2}}([0.0; 0.0; 0.0], ([1.0], [1.0]), Array{Float64}(0,3), Char[], Float64[], -Inf, Inf)</pre>
+<pre>VarianceComponentVariate{Float64,2,Array{Float64,1},Array{Float64,2},Array{Float64,2}}([30.2056, 35.8214, 36.053, 38.9635, 33.7391, 34.8884, 37.7011, 45.1317, 35.156, 42.4514  …  41.7913, 36.3301, 42.9442, 39.8927, 42.5795, 47.8619, 41.0531, 39.9502, 35.4778, 44.3932], [1.0 1.0 2.0; 1.0 1.0 0.0; … ; 1.0 0.0 2.0; 1.0 0.0 0.0], ([0.996528 0.0161756 … 0.049365 0.00363711; 0.0161756 0.996108 … -0.0571855 -0.0453049; … ; 0.049365 -0.0571855 … 1.188 0.0994167; 0.00363711 -0.0453049 … 0.0994167 0.983485], [1.0 0.0 … 0.0 0.0; 0.0 1.0 … 0.0 0.0; … ; 0.0 0.0 … 1.0 0.0; 0.0 0.0 … 0.0 1.0]))</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[29]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-julia"><pre><span></span><span class="n">altmodel</span> <span class="o">=</span> <span class="n">VarianceComponentModel</span><span class="p">(</span><span class="n">altdata</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+<div class="prompt output_prompt">Out[29]:</div>
+
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>VarianceComponentModel{Float64,2,Array{Float64,2},Array{Float64,2}}([0.0; 0.0; 0.0], ([1.0], [1.0]), Array{Float64}(0,3), Char[], Float64[], -Inf, Inf)</pre>
 </div>
 
 </div>
@@ -13218,49 +13434,11 @@ EXIT: Optimal Solution Found.
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[29]:</div>
+<div class="prompt input_prompt">In&nbsp;[30]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-julia"><pre><span></span><span class="n">altmodel</span><span class="o">.</span><span class="n">B</span><span class="p">[</span><span class="mi">1</span><span class="o">:</span><span class="mi">2</span><span class="p">,</span> <span class="o">:</span><span class="p">]</span> <span class="o">=</span> <span class="n">nullmodel</span><span class="o">.</span><span class="n">B</span>
 <span class="n">altmodel</span><span class="o">.</span><span class="n">B</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-<div class="prompt output_prompt">Out[29]:</div>
-
-
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>3×1 Array{Float64,2}:
- 40.8917
- -6.6255
-  0.0   </pre>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[30]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-julia"><pre><span></span><span class="n">copy!</span><span class="p">(</span><span class="n">altmodel</span><span class="o">.</span><span class="n">Σ</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">nullmodel</span><span class="o">.</span><span class="n">Σ</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
-<span class="n">copy!</span><span class="p">(</span><span class="n">altmodel</span><span class="o">.</span><span class="n">Σ</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">nullmodel</span><span class="o">.</span><span class="n">Σ</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
-<span class="n">altmodel</span><span class="o">.</span><span class="n">Σ</span>
 </pre></div>
 
 </div>
@@ -13279,7 +13457,10 @@ EXIT: Optimal Solution Found.
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>([4.06929], [2.15102])</pre>
+<pre>3×1 Array{Float64,2}:
+ 40.89165372660057  
+ -6.6254981447353645
+  0.0               </pre>
 </div>
 
 </div>
@@ -13291,6 +13472,41 @@ EXIT: Optimal Solution Found.
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">In&nbsp;[31]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-julia"><pre><span></span><span class="n">copyto!</span><span class="p">(</span><span class="n">altmodel</span><span class="o">.</span><span class="n">Σ</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">nullmodel</span><span class="o">.</span><span class="n">Σ</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<span class="n">copyto!</span><span class="p">(</span><span class="n">altmodel</span><span class="o">.</span><span class="n">Σ</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">nullmodel</span><span class="o">.</span><span class="n">Σ</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+<span class="n">altmodel</span><span class="o">.</span><span class="n">Σ</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+<div class="prompt output_prompt">Out[31]:</div>
+
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>([4.06929], [2.15102])</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[32]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-julia"><pre><span></span><span class="nd">@time</span> <span class="n">altlogl1</span><span class="p">,</span> <span class="n">altmodel</span><span class="p">,</span> <span class="o">=</span> <span class="n">fit_mle!</span><span class="p">(</span><span class="n">altmodel</span><span class="p">,</span> <span class="n">altdata</span><span class="p">;</span> <span class="n">algo</span> <span class="o">=</span> <span class="o">:</span><span class="n">FS</span><span class="p">)</span>
@@ -13310,7 +13526,7 @@ EXIT: Optimal Solution Found.
 
 
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>This is Ipopt version 3.12.8, running with linear solver mumps.
+<pre>This is Ipopt version 3.12.10, running with linear solver mumps.
 NOTE: Other linear solvers might be more efficient (see Ipopt documentation).
 
 Number of nonzeros in equality constraint Jacobian...:        0
@@ -13335,11 +13551,11 @@ iter    objective    inf_pr   inf_du lg(mu)  ||d||  lg(rg) alpha_du alpha_pr  ls
 Number of Iterations....: 10
 
                                    (scaled)                 (unscaled)
-Objective...............:   4.6687636522664411e+02    4.6687636522664411e+02
-Dual infeasibility......:   3.8802671029269996e-10    3.8802671029269996e-10
+Objective...............:   4.6687636522664388e+02    4.6687636522664388e+02
+Dual infeasibility......:   3.8783241629066397e-10    3.8783241629066397e-10
 Constraint violation....:   0.0000000000000000e+00    0.0000000000000000e+00
 Complementarity.........:   0.0000000000000000e+00    0.0000000000000000e+00
-Overall NLP error.......:   3.8802671029269996e-10    3.8802671029269996e-10
+Overall NLP error.......:   3.8783241629066397e-10    3.8783241629066397e-10
 
 
 Number of objective function evaluations             = 11
@@ -13349,48 +13565,14 @@ Number of inequality constraint evaluations          = 0
 Number of equality constraint Jacobian evaluations   = 0
 Number of inequality constraint Jacobian evaluations = 0
 Number of Lagrangian Hessian evaluations             = 10
-Total CPU secs in IPOPT (w/o function evaluations)   =      0.013
-Total CPU secs in NLP function evaluations           =      0.105
+Total CPU secs in IPOPT (w/o function evaluations)   =      0.020
+Total CPU secs in NLP function evaluations           =      0.161
 
 EXIT: Optimal Solution Found.
-  0.085607 seconds (14.70 k allocations: 2.230 MiB)
+  0.073112 seconds (13.25 k allocations: 2.145 MiB)
 </pre>
 </div>
 </div>
-
-<div class="output_area">
-
-<div class="prompt output_prompt">Out[31]:</div>
-
-
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>(-466.8763652266441, VarianceComponentModels.VarianceComponentModel{Float64,2,Array{Float64,2},Array{Float64,2}}([40.1067; -6.50856; 1.25051], ([3.37415], [2.2211]), Array{Float64}(0,3), Char[], Float64[], -Inf, Inf), ([0.860443], [0.533578]), [0.740362 -0.317562; -0.317562 0.284705], [0.251915; 0.297616; 0.298098], [0.0634613 -0.0449424 -0.0554297; -0.0449424 0.0885754 0.00754819; -0.0554297 0.00754819 0.0888623])</pre>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[32]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-julia"><pre><span></span><span class="c"># alt model log-likelihood for the single SNP, snp_c1_1235710</span>
-<span class="n">altlogl1</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
 
 <div class="output_area">
 
@@ -13400,7 +13582,7 @@ EXIT: Optimal Solution Found.
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>-466.8763652266441</pre>
+<pre>(-466.8763652266439, VarianceComponentModel{Float64,2,Array{Float64,2},Array{Float64,2}}([42.6077; -6.50856; -1.25051], ([3.37415], [2.2211]), Array{Float64}(0,3), Char[], Float64[], -Inf, Inf), ([0.860443], [0.533578]), [0.740362 -0.317562; -0.317562 0.284705], [0.444063; 0.297616; 0.298098], [0.197192 -0.029846 -0.122295; -0.029846 0.0885754 -0.00754819; -0.122295 -0.00754819 0.0888623])</pre>
 </div>
 
 </div>
@@ -13408,14 +13590,22 @@ EXIT: Optimal Solution Found.
 </div>
 </div>
 
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Below is the alternative model log-likelihood for the single SNP, snp_c1_1235710.</p>
+
+</div>
+</div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">In&nbsp;[33]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-julia"><pre><span></span><span class="c"># alt model mean effects</span>
-<span class="n">altmodel</span><span class="o">.</span><span class="n">B</span>
+<div class=" highlight hl-julia"><pre><span></span><span class="n">altlogl1</span>
 </pre></div>
 
 </div>
@@ -13434,10 +13624,7 @@ EXIT: Optimal Solution Found.
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>3×1 Array{Float64,2}:
- 40.1067 
- -6.50856
-  1.25051</pre>
+<pre>-466.8763652266439</pre>
 </div>
 
 </div>
@@ -13445,14 +13632,22 @@ EXIT: Optimal Solution Found.
 </div>
 </div>
 
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Alternate model mean effects (grand mean, sex effect, snp effect)</p>
+
+</div>
+</div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">In&nbsp;[34]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-julia"><pre><span></span><span class="c"># alt model additive genetic variance</span>
-<span class="n">altmodel</span><span class="o">.</span><span class="n">Σ</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+<div class=" highlight hl-julia"><pre><span></span><span class="n">altmodel</span><span class="o">.</span><span class="n">B</span>
 </pre></div>
 
 </div>
@@ -13471,8 +13666,10 @@ EXIT: Optimal Solution Found.
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>1×1 Array{Float64,2}:
- 3.37415</pre>
+<pre>3×1 Array{Float64,2}:
+ 42.607743982232236 
+ -6.508556564333667 
+ -1.2505148916429307</pre>
 </div>
 
 </div>
@@ -13480,14 +13677,23 @@ EXIT: Optimal Solution Found.
 </div>
 </div>
 
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We take a look at both of the variance components of the alternative model.</p>
+
+</div>
+</div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">In&nbsp;[35]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-julia"><pre><span></span><span class="c"># alt model environmental variance</span>
-<span class="n">altmodel</span><span class="o">.</span><span class="n">Σ</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+<div class=" highlight hl-julia"><pre><span></span><span class="c"># alt model additive genetic variance</span>
+<span class="n">altmodel</span><span class="o">.</span><span class="n">Σ</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
 </pre></div>
 
 </div>
@@ -13507,7 +13713,42 @@ EXIT: Optimal Solution Found.
 
 <div class="output_text output_subarea output_execute_result">
 <pre>1×1 Array{Float64,2}:
- 2.2211</pre>
+ 3.3741522558549444</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[36]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-julia"><pre><span></span><span class="c"># alt model environmental variance</span>
+<span class="n">altmodel</span><span class="o">.</span><span class="n">Σ</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+<div class="prompt output_prompt">Out[36]:</div>
+
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>1×1 Array{Float64,2}:
+ 2.2210993799464838</pre>
 </div>
 
 </div>
@@ -13536,45 +13777,11 @@ EXIT: Optimal Solution Found.
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[36]:</div>
+<div class="prompt input_prompt">In&nbsp;[37]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-julia"><pre><span></span><span class="k">using</span> <span class="n">Distributions</span>
 <span class="n">LRT1</span> <span class="o">=</span> <span class="mi">2</span><span class="p">(</span><span class="n">altlogl1</span> <span class="o">-</span> <span class="n">nulllogl</span><span class="p">)</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-<div class="prompt output_prompt">Out[36]:</div>
-
-
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>16.680291488917874</pre>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[37]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-julia"><pre><span></span><span class="c">#change the degrees of freedom if running a bivariate outcome</span>
-<span class="n">pval_snp_rs10412915</span> <span class="o">=</span> <span class="n">ccdf</span><span class="p">(</span><span class="n">Chisq</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="n">LRT1</span><span class="p">)</span>
 </pre></div>
 
 </div>
@@ -13593,7 +13800,41 @@ EXIT: Optimal Solution Found.
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>4.423820951296014e-5</pre>
+<pre>16.6802914889181</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[38]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-julia"><pre><span></span><span class="c">#change the degrees of freedom if running a bivariate outcome</span>
+<span class="n">pval_snp_rs10412915</span> <span class="o">=</span> <span class="n">ccdf</span><span class="p">(</span><span class="n">Chisq</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="n">LRT1</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+<div class="prompt output_prompt">Out[38]:</div>
+
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>4.4238209512954815e-5</pre>
 </div>
 
 </div>
@@ -13615,52 +13856,19 @@ EXIT: Optimal Solution Found.
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Check-for-an-interaction.">Check for an interaction.<a class="anchor-link" href="#Check-for-an-interaction.">&#182;</a></h2><h3 id="First-calculate-the-log-likelihood-for-additive-effects-of-the-two-snps-snp_rs10412915-and-snp_rs1036231-without-the-interaction">First calculate the log likelihood for additive effects of the two snps snp_rs10412915 and snp_rs1036231 without the interaction<a class="anchor-link" href="#First-calculate-the-log-likelihood-for-additive-effects-of-the-two-snps-snp_rs10412915-and-snp_rs1036231-without-the-interaction">&#182;</a></h3><p>Similar to the single snp case, we first form the design matrix Xalt2 with an intercept, sex, snp_rs10412915 and snp_rs1036231. Then we form the Variance Component Model by calling the VarainceComponents.jl package.</p>
+<h2 id="Check-for-an-interaction.">Check for an interaction.<a class="anchor-link" href="#Check-for-an-interaction.">&#182;</a></h2><p>Similar to the single snp case, we first form the design matrix Xalt2 with an intercept, sex, snp_rs10412915 and snp_rs1036231. Then we form the Variance Component Model by calling the VarainceComponents.jl package.</p>
 
 </div>
 </div>
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[38]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-julia"><pre><span></span><span class="c"># form data as VarianceComponentVariate</span>
-<span class="n">Xalt2</span> <span class="o">=</span> <span class="p">[</span><span class="n">ones</span><span class="p">(</span><span class="n">length</span><span class="p">(</span><span class="n">Trait1</span><span class="p">))</span> <span class="n">sex</span> <span class="n">snp_rs10412915</span> <span class="n">snp_rs1036231</span><span class="p">]</span>
-<span class="n">altdata2</span> <span class="o">=</span> <span class="n">VarianceComponentVariate</span><span class="p">(</span><span class="n">Y</span><span class="p">[</span><span class="o">:</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> <span class="n">Xalt2</span><span class="p">,</span> <span class="p">(</span><span class="mi">2</span><span class="n">Φgrm</span><span class="p">,</span> <span class="n">eye</span><span class="p">(</span><span class="n">length</span><span class="p">(</span><span class="n">Trait1</span><span class="p">))))</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-<div class="prompt output_prompt">Out[38]:</div>
-
-
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>VarianceComponentModels.VarianceComponentVariate{Float64,2,Array{Float64,1},Array{Float64,2},Array{Float64,2}}([30.2056, 35.8214, 36.053, 38.9635, 33.7391, 34.8884, 37.7011, 45.1317, 35.156, 42.4514  …  41.7913, 36.3301, 42.9442, 39.8927, 42.5795, 47.8619, 41.0531, 39.9502, 35.4778, 44.3932], [1.0 1.0 0.0 0.0; 1.0 1.0 2.0 2.0; … ; 1.0 0.0 0.0 0.0; 1.0 0.0 2.0 2.0], ([0.996528 0.0161756 … 0.049365 0.00363711; 0.0161756 0.996108 … -0.0571855 -0.0453049; … ; 0.049365 -0.0571855 … 1.188 0.0994167; 0.00363711 -0.0453049 … 0.0994167 0.983485], [1.0 0.0 … 0.0 0.0; 0.0 1.0 … 0.0 0.0; … ; 0.0 0.0 … 1.0 0.0; 0.0 0.0 … 0.0 1.0]))</pre>
-</div>
-
-</div>
-
-</div>
-</div>
-
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">In&nbsp;[39]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-julia"><pre><span></span><span class="n">altmodel2</span> <span class="o">=</span> <span class="n">VarianceComponentModel</span><span class="p">(</span><span class="n">altdata2</span><span class="p">)</span>
+<div class=" highlight hl-julia"><pre><span></span><span class="c"># form data as VarianceComponentVariate</span>
+<span class="n">Xalt2</span> <span class="o">=</span> <span class="p">[</span><span class="n">ones</span><span class="p">(</span><span class="n">length</span><span class="p">(</span><span class="n">Trait1</span><span class="p">))</span> <span class="n">sex</span> <span class="n">snp_rs10412915</span> <span class="n">snp_rs1036231</span><span class="p">]</span>
+<span class="n">altdata2</span> <span class="o">=</span> <span class="n">VarianceComponentVariate</span><span class="p">(</span><span class="n">Y</span><span class="p">[</span><span class="o">:</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> <span class="n">Xalt2</span><span class="p">,</span> <span class="p">(</span><span class="mi">2</span><span class="n">Φgrm</span><span class="p">,</span> <span class="kt">Matrix</span><span class="p">{</span><span class="kt">Float64</span><span class="p">}(</span><span class="nb">I</span><span class="p">,</span> <span class="n">length</span><span class="p">(</span><span class="n">Trait1</span><span class="p">),</span> <span class="n">length</span><span class="p">(</span><span class="n">Trait1</span><span class="p">))))</span>
 </pre></div>
 
 </div>
@@ -13679,7 +13887,7 @@ EXIT: Optimal Solution Found.
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>VarianceComponentModels.VarianceComponentModel{Float64,2,Array{Float64,2},Array{Float64,2}}([0.0; 0.0; 0.0; 0.0], ([1.0], [1.0]), Array{Float64}(0,4), Char[], Float64[], -Inf, Inf)</pre>
+<pre>VarianceComponentVariate{Float64,2,Array{Float64,1},Array{Float64,2},Array{Float64,2}}([30.2056, 35.8214, 36.053, 38.9635, 33.7391, 34.8884, 37.7011, 45.1317, 35.156, 42.4514  …  41.7913, 36.3301, 42.9442, 39.8927, 42.5795, 47.8619, 41.0531, 39.9502, 35.4778, 44.3932], [1.0 1.0 2.0 2.0; 1.0 1.0 0.0 0.0; … ; 1.0 0.0 2.0 2.0; 1.0 0.0 0.0 0.0], ([0.996528 0.0161756 … 0.049365 0.00363711; 0.0161756 0.996108 … -0.0571855 -0.0453049; … ; 0.049365 -0.0571855 … 1.188 0.0994167; 0.00363711 -0.0453049 … 0.0994167 0.983485], [1.0 0.0 … 0.0 0.0; 0.0 1.0 … 0.0 0.0; … ; 0.0 0.0 … 1.0 0.0; 0.0 0.0 … 0.0 1.0]))</pre>
 </div>
 
 </div>
@@ -13693,8 +13901,7 @@ EXIT: Optimal Solution Found.
 <div class="prompt input_prompt">In&nbsp;[40]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-julia"><pre><span></span><span class="n">altmodel2</span><span class="o">.</span><span class="n">B</span><span class="p">[</span><span class="mi">1</span><span class="o">:</span><span class="mi">2</span><span class="p">,</span> <span class="o">:</span><span class="p">]</span> <span class="o">=</span> <span class="n">nullmodel</span><span class="o">.</span><span class="n">B</span>
-<span class="n">altmodel2</span><span class="o">.</span><span class="n">B</span>
+<div class=" highlight hl-julia"><pre><span></span><span class="n">altmodel2</span> <span class="o">=</span> <span class="n">VarianceComponentModel</span><span class="p">(</span><span class="n">altdata2</span><span class="p">)</span>
 </pre></div>
 
 </div>
@@ -13713,11 +13920,7 @@ EXIT: Optimal Solution Found.
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>4×1 Array{Float64,2}:
- 40.8917
- -6.6255
-  0.0   
-  0.0   </pre>
+<pre>VarianceComponentModel{Float64,2,Array{Float64,2},Array{Float64,2}}([0.0; 0.0; 0.0; 0.0], ([1.0], [1.0]), Array{Float64}(0,4), Char[], Float64[], -Inf, Inf)</pre>
 </div>
 
 </div>
@@ -13731,9 +13934,8 @@ EXIT: Optimal Solution Found.
 <div class="prompt input_prompt">In&nbsp;[41]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-julia"><pre><span></span><span class="n">copy!</span><span class="p">(</span><span class="n">altmodel2</span><span class="o">.</span><span class="n">Σ</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">nullmodel</span><span class="o">.</span><span class="n">Σ</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
-<span class="n">copy!</span><span class="p">(</span><span class="n">altmodel2</span><span class="o">.</span><span class="n">Σ</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">nullmodel</span><span class="o">.</span><span class="n">Σ</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
-<span class="n">altmodel2</span><span class="o">.</span><span class="n">Σ</span>
+<div class=" highlight hl-julia"><pre><span></span><span class="n">altmodel2</span><span class="o">.</span><span class="n">B</span><span class="p">[</span><span class="mi">1</span><span class="o">:</span><span class="mi">2</span><span class="p">,</span> <span class="o">:</span><span class="p">]</span> <span class="o">=</span> <span class="n">nullmodel</span><span class="o">.</span><span class="n">B</span>
+<span class="n">altmodel2</span><span class="o">.</span><span class="n">B</span>
 </pre></div>
 
 </div>
@@ -13752,7 +13954,11 @@ EXIT: Optimal Solution Found.
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>([4.06929], [2.15102])</pre>
+<pre>4×1 Array{Float64,2}:
+ 40.89165372660057  
+ -6.6254981447353645
+  0.0               
+  0.0               </pre>
 </div>
 
 </div>
@@ -13764,6 +13970,41 @@ EXIT: Optimal Solution Found.
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">In&nbsp;[42]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-julia"><pre><span></span><span class="n">copyto!</span><span class="p">(</span><span class="n">altmodel2</span><span class="o">.</span><span class="n">Σ</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">nullmodel</span><span class="o">.</span><span class="n">Σ</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<span class="n">copyto!</span><span class="p">(</span><span class="n">altmodel2</span><span class="o">.</span><span class="n">Σ</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">nullmodel</span><span class="o">.</span><span class="n">Σ</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+<span class="n">altmodel2</span><span class="o">.</span><span class="n">Σ</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+<div class="prompt output_prompt">Out[42]:</div>
+
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>([4.06929], [2.15102])</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[43]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-julia"><pre><span></span><span class="nd">@time</span> <span class="n">altlogl2</span><span class="p">,</span> <span class="n">altmodel2</span><span class="p">,</span> <span class="o">=</span> <span class="n">fit_mle!</span><span class="p">(</span><span class="n">altmodel2</span><span class="p">,</span> <span class="n">altdata2</span><span class="p">;</span> <span class="n">algo</span> <span class="o">=</span> <span class="o">:</span><span class="n">FS</span><span class="p">)</span>
@@ -13783,7 +14024,7 @@ EXIT: Optimal Solution Found.
 
 
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>This is Ipopt version 3.12.8, running with linear solver mumps.
+<pre>This is Ipopt version 3.12.10, running with linear solver mumps.
 NOTE: Other linear solvers might be more efficient (see Ipopt documentation).
 
 Number of nonzeros in equality constraint Jacobian...:        0
@@ -13808,11 +14049,11 @@ iter    objective    inf_pr   inf_du lg(mu)  ||d||  lg(rg) alpha_du alpha_pr  ls
 Number of Iterations....: 10
 
                                    (scaled)                 (unscaled)
-Objective...............:   4.6685471421070332e+02    4.6685471421070332e+02
-Dual infeasibility......:   1.2867360510426806e-09    1.2867360510426806e-09
+Objective...............:   4.6685471421070343e+02    4.6685471421070343e+02
+Dual infeasibility......:   1.2874581052041401e-09    1.2874581052041401e-09
 Constraint violation....:   0.0000000000000000e+00    0.0000000000000000e+00
 Complementarity.........:   0.0000000000000000e+00    0.0000000000000000e+00
-Overall NLP error.......:   1.2867360510426806e-09    1.2867360510426806e-09
+Overall NLP error.......:   1.2874581052041401e-09    1.2874581052041401e-09
 
 
 Number of objective function evaluations             = 11
@@ -13822,47 +14063,14 @@ Number of inequality constraint evaluations          = 0
 Number of equality constraint Jacobian evaluations   = 0
 Number of inequality constraint Jacobian evaluations = 0
 Number of Lagrangian Hessian evaluations             = 10
-Total CPU secs in IPOPT (w/o function evaluations)   =      0.329
-Total CPU secs in NLP function evaluations           =      0.122
+Total CPU secs in IPOPT (w/o function evaluations)   =      0.030
+Total CPU secs in NLP function evaluations           =      0.220
 
 EXIT: Optimal Solution Found.
-  0.838921 seconds (572.34 k allocations: 30.051 MiB, 1.05% gc time)
+  0.103577 seconds (13.38 k allocations: 2.168 MiB)
 </pre>
 </div>
 </div>
-
-<div class="output_area">
-
-<div class="prompt output_prompt">Out[42]:</div>
-
-
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>(-466.8547142107033, VarianceComponentModels.VarianceComponentModel{Float64,2,Array{Float64,2},Array{Float64,2}}([40.1013; -6.5027; 1.05363; 0.203213], ([3.35452], [2.23228]), Array{Float64}(0,4), Char[], Float64[], -Inf, Inf), ([0.858738], [0.534305]), [0.737431 -0.317352; -0.317352 0.285482], [0.253095; 0.298687; 0.98677; 0.970398], [0.0640571 -0.0455503 -0.0324548 -0.0236183; -0.0455503 0.0892141 -0.0162411 0.0245267; -0.0324548 -0.0162411 0.973715 -0.912885; -0.0236183 0.0245267 -0.912885 0.941673])</pre>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[43]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-julia"><pre><span></span><span class="n">altlogl2</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
 
 <div class="output_area">
 
@@ -13872,7 +14080,7 @@ EXIT: Optimal Solution Found.
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>-466.8547142107033</pre>
+<pre>(-466.85471421070343, VarianceComponentModel{Float64,2,Array{Float64,2},Array{Float64,2}}([42.615; -6.5027; -1.05363; -0.203213], ([3.35452], [2.23228]), Array{Float64}(0,4), Char[], Float64[], -Inf, Inf), ([0.858738], [0.534305]), [0.737431 -0.317352; -0.317352 0.285482], [0.445236; 0.298687; 0.98677; 0.970398], [0.198235 -0.0289791 -0.0892051 -0.033957; -0.0289791 0.0892141 0.0162411 -0.0245267; -0.0892051 0.0162411 0.973715 -0.912885; -0.033957 -0.0245267 -0.912885 0.941673])</pre>
 </div>
 
 </div>
@@ -13880,14 +14088,22 @@ EXIT: Optimal Solution Found.
 </div>
 </div>
 
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We first calculate the log likelihood for additive effects of the two snps snp_rs10412915 and snp_rs1036231 without the interaction</p>
+
+</div>
+</div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">In&nbsp;[44]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-julia"><pre><span></span><span class="c"># alt model mean effects</span>
-<span class="n">altmodel2</span><span class="o">.</span><span class="n">B</span>
+<div class=" highlight hl-julia"><pre><span></span><span class="n">altlogl2</span>
 </pre></div>
 
 </div>
@@ -13906,11 +14122,7 @@ EXIT: Optimal Solution Found.
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>4×1 Array{Float64,2}:
- 40.1013  
- -6.5027  
-  1.05363 
-  0.203213</pre>
+<pre>-466.85471421070343</pre>
 </div>
 
 </div>
@@ -13918,14 +14130,22 @@ EXIT: Optimal Solution Found.
 </div>
 </div>
 
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Alternate model mean effects (grand mean, sex effect, snp_rs10412915, snp_rs1036231)</p>
+
+</div>
+</div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">In&nbsp;[45]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-julia"><pre><span></span><span class="c"># alt model additive variance</span>
-<span class="n">altmodel2</span><span class="o">.</span><span class="n">Σ</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+<div class=" highlight hl-julia"><pre><span></span><span class="n">altmodel2</span><span class="o">.</span><span class="n">B</span>
 </pre></div>
 
 </div>
@@ -13944,8 +14164,11 @@ EXIT: Optimal Solution Found.
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>1×1 Array{Float64,2}:
- 3.35452</pre>
+<pre>4×1 Array{Float64,2}:
+ 42.61497623319559 
+ -6.502698818907669
+ -1.053628900877895
+ -0.2032134077743  </pre>
 </div>
 
 </div>
@@ -13953,14 +14176,23 @@ EXIT: Optimal Solution Found.
 </div>
 </div>
 
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Take a look at the variance components in this model with two snps.</p>
+
+</div>
+</div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">In&nbsp;[46]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-julia"><pre><span></span><span class="c"># alt model environmental variance</span>
-<span class="n">altmodel2</span><span class="o">.</span><span class="n">Σ</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+<div class=" highlight hl-julia"><pre><span></span><span class="c"># alt model additive variance</span>
+<span class="n">altmodel2</span><span class="o">.</span><span class="n">Σ</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
 </pre></div>
 
 </div>
@@ -13980,7 +14212,7 @@ EXIT: Optimal Solution Found.
 
 <div class="output_text output_subarea output_execute_result">
 <pre>1×1 Array{Float64,2}:
- 2.23228</pre>
+ 3.354519049853136</pre>
 </div>
 
 </div>
@@ -13988,22 +14220,14 @@ EXIT: Optimal Solution Found.
 </div>
 </div>
 
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div>
-<div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<h3 id="Test-whether-the-addition-of-the-second-SNP-improves-the-model-fit-by-comparing-the-loglikelihood-with-just-snp-snp_rs10412915-to-the-loglikelihood-with-both-snp_rs10412915-and-snp_rs1036231">Test whether the addition of the second SNP improves the model fit by comparing the loglikelihood with just snp snp_rs10412915 to the loglikelihood with both snp_rs10412915 and snp_rs1036231<a class="anchor-link" href="#Test-whether-the-addition-of-the-second-SNP-improves-the-model-fit-by-comparing-the-loglikelihood-with-just-snp-snp_rs10412915-to-the-loglikelihood-with-both-snp_rs10412915-and-snp_rs1036231">&#182;</a></h3>
-</div>
-</div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">In&nbsp;[47]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-julia"><pre><span></span><span class="k">using</span> <span class="n">Distributions</span>
-<span class="n">LRT2</span> <span class="o">=</span> <span class="mi">2</span><span class="p">(</span><span class="n">altlogl2</span> <span class="o">-</span> <span class="n">altlogl1</span><span class="p">)</span>
+<div class=" highlight hl-julia"><pre><span></span><span class="c"># alt model environmental variance</span>
+<span class="n">altmodel2</span><span class="o">.</span><span class="n">Σ</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
 </pre></div>
 
 </div>
@@ -14022,7 +14246,8 @@ EXIT: Optimal Solution Found.
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>0.04330203188158066</pre>
+<pre>1×1 Array{Float64,2}:
+ 2.2322777631801047</pre>
 </div>
 
 </div>
@@ -14030,14 +14255,22 @@ EXIT: Optimal Solution Found.
 </div>
 </div>
 
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Test-whether-the-addition-of-the-second-SNP-improves-the-model-fit-by-comparing-the-loglikelihood-with-just-snp-snp_rs10412915-to-the-loglikelihood-with-both-snp_rs10412915-and-snp_rs1036231">Test whether the addition of the second SNP improves the model fit by comparing the loglikelihood with just snp snp_rs10412915 to the loglikelihood with both snp_rs10412915 and snp_rs1036231<a class="anchor-link" href="#Test-whether-the-addition-of-the-second-SNP-improves-the-model-fit-by-comparing-the-loglikelihood-with-just-snp-snp_rs10412915-to-the-loglikelihood-with-both-snp_rs10412915-and-snp_rs1036231">&#182;</a></h3>
+</div>
+</div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">In&nbsp;[48]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-julia"><pre><span></span><span class="c">#change the degrees of freedom if running a bivariate outcome</span>
-<span class="n">pval_two_snps</span> <span class="o">=</span> <span class="n">ccdf</span><span class="p">(</span><span class="n">Chisq</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="n">LRT2</span><span class="p">)</span>
+<div class=" highlight hl-julia"><pre><span></span><span class="k">using</span> <span class="n">Distributions</span>
+<span class="n">LRT2</span> <span class="o">=</span> <span class="mi">2</span><span class="p">(</span><span class="n">altlogl2</span> <span class="o">-</span> <span class="n">altlogl1</span><span class="p">)</span>
 </pre></div>
 
 </div>
@@ -14056,7 +14289,41 @@ EXIT: Optimal Solution Found.
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>0.8351575998764647</pre>
+<pre>0.04330203188089854</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[49]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-julia"><pre><span></span><span class="c">#change the degrees of freedom if running a bivariate outcome</span>
+<span class="n">pval_two_snps</span> <span class="o">=</span> <span class="n">ccdf</span><span class="p">(</span><span class="n">Chisq</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="n">LRT2</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+<div class="prompt output_prompt">Out[49]:</div>
+
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>0.8351575998777443</pre>
 </div>
 
 </div>
@@ -14085,12 +14352,12 @@ EXIT: Optimal Solution Found.
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[49]:</div>
+<div class="prompt input_prompt">In&nbsp;[50]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-julia"><pre><span></span><span class="c"># form data as VarianceComponentVariate</span>
 <span class="n">Xalt3</span> <span class="o">=</span> <span class="p">[</span><span class="n">ones</span><span class="p">(</span><span class="n">length</span><span class="p">(</span><span class="n">Trait1</span><span class="p">))</span> <span class="n">sex</span> <span class="n">snp_rs10412915</span> <span class="n">snp_rs1036231</span> <span class="n">interaction</span><span class="p">]</span>
-<span class="n">altdata3</span> <span class="o">=</span> <span class="n">VarianceComponentVariate</span><span class="p">(</span><span class="n">Trait1</span><span class="p">,</span> <span class="n">Xalt3</span><span class="p">,</span> <span class="p">(</span><span class="mi">2</span><span class="n">Φgrm</span><span class="p">,</span> <span class="n">eye</span><span class="p">(</span><span class="n">length</span><span class="p">(</span><span class="n">Trait1</span><span class="p">))))</span>
+<span class="n">altdata3</span> <span class="o">=</span> <span class="n">VarianceComponentVariate</span><span class="p">(</span><span class="n">Trait1</span><span class="p">,</span> <span class="n">Xalt3</span><span class="p">,</span> <span class="p">(</span><span class="mi">2</span><span class="n">Φgrm</span><span class="p">,</span> <span class="kt">Matrix</span><span class="p">{</span><span class="kt">Float64</span><span class="p">}(</span><span class="nb">I</span><span class="p">,</span> <span class="n">length</span><span class="p">(</span><span class="n">Trait1</span><span class="p">),</span> <span class="n">length</span><span class="p">(</span><span class="n">Trait1</span><span class="p">))))</span>
 </pre></div>
 
 </div>
@@ -14103,13 +14370,13 @@ EXIT: Optimal Solution Found.
 
 <div class="output_area">
 
-<div class="prompt output_prompt">Out[49]:</div>
+<div class="prompt output_prompt">Out[50]:</div>
 
 
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>VarianceComponentModels.VarianceComponentVariate{Float64,2,Array{Float64,1},Array{Float64,2},Array{Float64,2}}([30.2056, 35.8214, 36.053, 38.9635, 33.7391, 34.8884, 37.7011, 45.1317, 35.156, 42.4514  …  41.7913, 36.3301, 42.9442, 39.8927, 42.5795, 47.8619, 41.0531, 39.9502, 35.4778, 44.3932], [1.0 1.0 … 0.0 0.0; 1.0 1.0 … 2.0 4.0; … ; 1.0 0.0 … 0.0 0.0; 1.0 0.0 … 2.0 4.0], ([0.996528 0.0161756 … 0.049365 0.00363711; 0.0161756 0.996108 … -0.0571855 -0.0453049; … ; 0.049365 -0.0571855 … 1.188 0.0994167; 0.00363711 -0.0453049 … 0.0994167 0.983485], [1.0 0.0 … 0.0 0.0; 0.0 1.0 … 0.0 0.0; … ; 0.0 0.0 … 1.0 0.0; 0.0 0.0 … 0.0 1.0]))</pre>
+<pre>VarianceComponentVariate{Float64,2,Array{Float64,1},Array{Float64,2},Array{Float64,2}}([30.2056, 35.8214, 36.053, 38.9635, 33.7391, 34.8884, 37.7011, 45.1317, 35.156, 42.4514  …  41.7913, 36.3301, 42.9442, 39.8927, 42.5795, 47.8619, 41.0531, 39.9502, 35.4778, 44.3932], [1.0 1.0 … 2.0 4.0; 1.0 1.0 … 0.0 0.0; … ; 1.0 0.0 … 2.0 4.0; 1.0 0.0 … 0.0 0.0], ([0.996528 0.0161756 … 0.049365 0.00363711; 0.0161756 0.996108 … -0.0571855 -0.0453049; … ; 0.049365 -0.0571855 … 1.188 0.0994167; 0.00363711 -0.0453049 … 0.0994167 0.983485], [1.0 0.0 … 0.0 0.0; 0.0 1.0 … 0.0 0.0; … ; 0.0 0.0 … 1.0 0.0; 0.0 0.0 … 0.0 1.0]))</pre>
 </div>
 
 </div>
@@ -14129,44 +14396,10 @@ EXIT: Optimal Solution Found.
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[50]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-julia"><pre><span></span><span class="n">altmodel3</span> <span class="o">=</span> <span class="n">VarianceComponentModel</span><span class="p">(</span><span class="n">altdata3</span><span class="p">)</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-<div class="prompt output_prompt">Out[50]:</div>
-
-
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>VarianceComponentModels.VarianceComponentModel{Float64,2,Array{Float64,2},Array{Float64,2}}([0.0; 0.0; … ; 0.0; 0.0], ([1.0], [1.0]), Array{Float64}(0,5), Char[], Float64[], -Inf, Inf)</pre>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
 <div class="prompt input_prompt">In&nbsp;[51]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-julia"><pre><span></span><span class="n">altmodel3</span><span class="o">.</span><span class="n">B</span><span class="p">[</span><span class="mi">1</span><span class="o">:</span><span class="mi">4</span><span class="p">,</span> <span class="o">:</span><span class="p">]</span> <span class="o">=</span> <span class="n">altmodel2</span><span class="o">.</span><span class="n">B</span>
-<span class="n">altmodel3</span><span class="o">.</span><span class="n">B</span>
+<div class=" highlight hl-julia"><pre><span></span><span class="n">altmodel3</span> <span class="o">=</span> <span class="n">VarianceComponentModel</span><span class="p">(</span><span class="n">altdata3</span><span class="p">)</span>
 </pre></div>
 
 </div>
@@ -14185,12 +14418,7 @@ EXIT: Optimal Solution Found.
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>5×1 Array{Float64,2}:
- 40.1013  
- -6.5027  
-  1.05363 
-  0.203213
-  0.0     </pre>
+<pre>VarianceComponentModel{Float64,2,Array{Float64,2},Array{Float64,2}}([0.0; 0.0; … ; 0.0; 0.0], ([1.0], [1.0]), Array{Float64}(0,5), Char[], Float64[], -Inf, Inf)</pre>
 </div>
 
 </div>
@@ -14204,9 +14432,8 @@ EXIT: Optimal Solution Found.
 <div class="prompt input_prompt">In&nbsp;[52]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-julia"><pre><span></span><span class="n">copy!</span><span class="p">(</span><span class="n">altmodel3</span><span class="o">.</span><span class="n">Σ</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">altmodel2</span><span class="o">.</span><span class="n">Σ</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
-<span class="n">copy!</span><span class="p">(</span><span class="n">altmodel3</span><span class="o">.</span><span class="n">Σ</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">altmodel2</span><span class="o">.</span><span class="n">Σ</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
-<span class="n">altmodel3</span><span class="o">.</span><span class="n">Σ</span>
+<div class=" highlight hl-julia"><pre><span></span><span class="n">altmodel3</span><span class="o">.</span><span class="n">B</span><span class="p">[</span><span class="mi">1</span><span class="o">:</span><span class="mi">4</span><span class="p">,</span> <span class="o">:</span><span class="p">]</span> <span class="o">=</span> <span class="n">altmodel2</span><span class="o">.</span><span class="n">B</span>
+<span class="n">altmodel3</span><span class="o">.</span><span class="n">B</span>
 </pre></div>
 
 </div>
@@ -14225,7 +14452,12 @@ EXIT: Optimal Solution Found.
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>([3.35452], [2.23228])</pre>
+<pre>5×1 Array{Float64,2}:
+ 42.61497623319559 
+ -6.502698818907669
+ -1.053628900877895
+ -0.2032134077743  
+  0.0              </pre>
 </div>
 
 </div>
@@ -14237,6 +14469,41 @@ EXIT: Optimal Solution Found.
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">In&nbsp;[53]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-julia"><pre><span></span><span class="n">copyto!</span><span class="p">(</span><span class="n">altmodel3</span><span class="o">.</span><span class="n">Σ</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">altmodel2</span><span class="o">.</span><span class="n">Σ</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<span class="n">copyto!</span><span class="p">(</span><span class="n">altmodel3</span><span class="o">.</span><span class="n">Σ</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">altmodel2</span><span class="o">.</span><span class="n">Σ</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+<span class="n">altmodel3</span><span class="o">.</span><span class="n">Σ</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+<div class="prompt output_prompt">Out[53]:</div>
+
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>([3.35452], [2.23228])</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[54]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-julia"><pre><span></span><span class="nd">@time</span> <span class="n">altlogl3</span><span class="p">,</span> <span class="n">altmodel3</span><span class="p">,</span> <span class="o">=</span> <span class="n">fit_mle!</span><span class="p">(</span><span class="n">altmodel3</span><span class="p">,</span> <span class="n">altdata3</span><span class="p">;</span> <span class="n">algo</span> <span class="o">=</span> <span class="o">:</span><span class="n">FS</span><span class="p">)</span>
@@ -14256,7 +14523,7 @@ EXIT: Optimal Solution Found.
 
 
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>This is Ipopt version 3.12.8, running with linear solver mumps.
+<pre>This is Ipopt version 3.12.10, running with linear solver mumps.
 NOTE: Other linear solvers might be more efficient (see Ipopt documentation).
 
 Number of nonzeros in equality constraint Jacobian...:        0
@@ -14281,11 +14548,11 @@ iter    objective    inf_pr   inf_du lg(mu)  ||d||  lg(rg) alpha_du alpha_pr  ls
 Number of Iterations....: 10
 
                                    (scaled)                 (unscaled)
-Objective...............:   4.6679524084075194e+02    4.6679524084075194e+02
-Dual infeasibility......:   1.7917187733473838e-09    1.7917187733473838e-09
+Objective...............:   4.6679524084075149e+02    4.6679524084075149e+02
+Dual infeasibility......:   1.7910168700121951e-09    1.7910168700121951e-09
 Constraint violation....:   0.0000000000000000e+00    0.0000000000000000e+00
 Complementarity.........:   0.0000000000000000e+00    0.0000000000000000e+00
-Overall NLP error.......:   1.7917187733473838e-09    1.7917187733473838e-09
+Overall NLP error.......:   1.7910168700121951e-09    1.7910168700121951e-09
 
 
 Number of objective function evaluations             = 11
@@ -14295,47 +14562,14 @@ Number of inequality constraint evaluations          = 0
 Number of equality constraint Jacobian evaluations   = 0
 Number of inequality constraint Jacobian evaluations = 0
 Number of Lagrangian Hessian evaluations             = 10
-Total CPU secs in IPOPT (w/o function evaluations)   =      0.014
-Total CPU secs in NLP function evaluations           =      0.115
+Total CPU secs in IPOPT (w/o function evaluations)   =      0.024
+Total CPU secs in NLP function evaluations           =      0.201
 
 EXIT: Optimal Solution Found.
-  0.098652 seconds (15.00 k allocations: 2.303 MiB)
+  0.089176 seconds (13.55 k allocations: 2.211 MiB)
 </pre>
 </div>
 </div>
-
-<div class="output_area">
-
-<div class="prompt output_prompt">Out[53]:</div>
-
-
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>(-466.79524084075194, VarianceComponentModels.VarianceComponentModel{Float64,2,Array{Float64,2},Array{Float64,2}}([40.0792; -6.50488; … ; 0.311402; -0.121256], ([3.37194], [2.21917]), Array{Float64}(0,5), Char[], Float64[], -Inf, Inf), ([0.859815], [0.533153]), [0.739281 -0.317078; -0.317078 0.284252], [0.261231; 0.298608; … ; 1.02201; 0.350703], [0.0682415 -0.0452335 … -0.044493 0.022822; -0.0452335 0.0891668 … 0.0231133 0.00156835; … ; -0.044493 0.0231133 … 1.0445 -0.112267; 0.022822 0.00156835 … -0.112267 0.122992])</pre>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[54]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-julia"><pre><span></span><span class="n">altlogl3</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
 
 <div class="output_area">
 
@@ -14345,7 +14579,7 @@ EXIT: Optimal Solution Found.
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>-466.79524084075194</pre>
+<pre>(-466.7952408407515, VarianceComponentModel{Float64,2,Array{Float64,2},Array{Float64,2}}([42.4937; -6.50488; … ; -0.0688905; -0.121256], ([3.37194], [2.21917]), Array{Float64}(0,5), Char[], Float64[], -Inf, Inf), ([0.859815], [0.533153]), [0.739281 -0.317078; -0.317078 0.284252], [0.566862; 0.298608; … ; 1.04279; 0.350703], [0.321333 -0.0273671 … -0.167792 0.123026; -0.0273671 0.0891668 … -0.02625 0.00156835; … ; -0.167792 -0.02625 … 1.0874 -0.133718; 0.123026 0.00156835 … -0.133718 0.122992])</pre>
 </div>
 
 </div>
@@ -14353,14 +14587,22 @@ EXIT: Optimal Solution Found.
 </div>
 </div>
 
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Alternate model (with lower order terms and interaction) loglikelihood</p>
+
+</div>
+</div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">In&nbsp;[55]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-julia"><pre><span></span><span class="c"># alt model mean effects</span>
-<span class="n">altmodel3</span><span class="o">.</span><span class="n">B</span>
+<div class=" highlight hl-julia"><pre><span></span><span class="n">altlogl3</span>
 </pre></div>
 
 </div>
@@ -14379,12 +14621,7 @@ EXIT: Optimal Solution Found.
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>5×1 Array{Float64,2}:
- 40.0792  
- -6.50488 
-  1.13837 
-  0.311402
- -0.121256</pre>
+<pre>-466.7952408407515</pre>
 </div>
 
 </div>
@@ -14392,14 +14629,22 @@ EXIT: Optimal Solution Found.
 </div>
 </div>
 
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Alternate model mean effects (overall mean, sex, snp_rs10412915, snp_rs1036231, interaction_snps)</p>
+
+</div>
+</div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">In&nbsp;[56]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-julia"><pre><span></span><span class="c"># alt model additive variance</span>
-<span class="n">altmodel3</span><span class="o">.</span><span class="n">Σ</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+<div class=" highlight hl-julia"><pre><span></span><span class="n">altmodel3</span><span class="o">.</span><span class="n">B</span>
 </pre></div>
 
 </div>
@@ -14418,8 +14663,12 @@ EXIT: Optimal Solution Found.
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>1×1 Array{Float64,2}:
- 3.37194</pre>
+<pre>5×1 Array{Float64,2}:
+ 42.49370979306214   
+ -6.504883977606411  
+ -0.8958636763950464 
+ -0.06889053515794864
+ -0.12125550254961456</pre>
 </div>
 
 </div>
@@ -14427,14 +14676,23 @@ EXIT: Optimal Solution Found.
 </div>
 </div>
 
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Take a look at both variance components of this alternate model.</p>
+
+</div>
+</div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">In&nbsp;[57]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-julia"><pre><span></span><span class="c"># alt model environmental variance</span>
-<span class="n">altmodel3</span><span class="o">.</span><span class="n">Σ</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+<div class=" highlight hl-julia"><pre><span></span><span class="c"># alt model additive variance</span>
+<span class="n">altmodel3</span><span class="o">.</span><span class="n">Σ</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
 </pre></div>
 
 </div>
@@ -14454,7 +14712,42 @@ EXIT: Optimal Solution Found.
 
 <div class="output_text output_subarea output_execute_result">
 <pre>1×1 Array{Float64,2}:
- 2.21917</pre>
+ 3.3719429710435693</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[58]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-julia"><pre><span></span><span class="c"># alt model environmental variance</span>
+<span class="n">altmodel3</span><span class="o">.</span><span class="n">Σ</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+<div class="prompt output_prompt">Out[58]:</div>
+
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>1×1 Array{Float64,2}:
+ 2.2191719545306112</pre>
 </div>
 
 </div>
@@ -14474,45 +14767,11 @@ EXIT: Optimal Solution Found.
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[58]:</div>
+<div class="prompt input_prompt">In&nbsp;[59]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-julia"><pre><span></span><span class="k">using</span> <span class="n">Distributions</span>
 <span class="n">LRT3</span> <span class="o">=</span> <span class="mi">2</span><span class="p">(</span><span class="n">altlogl3</span> <span class="o">-</span> <span class="n">altlogl2</span><span class="p">)</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-<div class="prompt output_prompt">Out[58]:</div>
-
-
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>0.1189467399027535</pre>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[59]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-julia"><pre><span></span><span class="c">#change the degrees of freedom if running a bivariate outcome</span>
-<span class="n">pval_snp_interact</span> <span class="o">=</span> <span class="n">ccdf</span><span class="p">(</span><span class="n">Chisq</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="n">LRT3</span><span class="p">)</span>
 </pre></div>
 
 </div>
@@ -14531,7 +14790,41 @@ EXIT: Optimal Solution Found.
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>0.7301796542888648</pre>
+<pre>0.11894673990389037</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[60]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-julia"><pre><span></span><span class="c">#change the degrees of freedom if running a bivariate outcome</span>
+<span class="n">pval_snp_interact</span> <span class="o">=</span> <span class="n">ccdf</span><span class="p">(</span><span class="n">Chisq</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="n">LRT3</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+<div class="prompt output_prompt">Out[60]:</div>
+
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>0.7301796542876257</pre>
 </div>
 
 </div>
@@ -14572,54 +14865,11 @@ EXIT: Optimal Solution Found.
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[60]:</div>
+<div class="prompt input_prompt">In&nbsp;[61]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-julia"><pre><span></span><span class="c"># ignore if running a bivariate outcome</span>
 <span class="n">her_alt</span> <span class="o">=</span> <span class="n">altmodel3</span><span class="o">.</span><span class="n">Σ</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">/</span><span class="p">(</span><span class="n">altmodel3</span><span class="o">.</span><span class="n">Σ</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">altmodel3</span><span class="o">.</span><span class="n">Σ</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-<div class="prompt output_prompt">Out[60]:</div>
-
-
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>1×1 Array{Float64,2}:
- 0.60309</pre>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div>
-<div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>Portion of the genetic variation explained by the snp is a measure of the effect of the snp on a signal trait. Note that in this simulated example the SNP effect is very large indeed.</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[61]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-julia"><pre><span></span><span class="n">add_proport</span> <span class="o">=</span> <span class="p">(</span><span class="n">nullmodel</span><span class="o">.</span><span class="n">Σ</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">altmodel3</span><span class="o">.</span><span class="n">Σ</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="o">/</span><span class="n">nullmodel</span><span class="o">.</span><span class="n">Σ</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
 </pre></div>
 
 </div>
@@ -14639,7 +14889,7 @@ EXIT: Optimal Solution Found.
 
 <div class="output_text output_subarea output_execute_result">
 <pre>1×1 Array{Float64,2}:
- 0.171368</pre>
+ 0.603089547599898</pre>
 </div>
 
 </div>
@@ -14652,7 +14902,7 @@ EXIT: Optimal Solution Found.
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>Portion of total variation explained by the snp is an alterative way to assess the effect of the snp. Again, typically the effects are not nearly so large.</p>
+<p>Portion of the genetic variation explained by the snp is a measure of the effect of the snp on a signal trait. Note that in this simulated example the SNP effect is very large indeed.</p>
 
 </div>
 </div>
@@ -14662,7 +14912,7 @@ EXIT: Optimal Solution Found.
 <div class="prompt input_prompt">In&nbsp;[62]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-julia"><pre><span></span><span class="n">pheno_proport</span> <span class="o">=</span> <span class="p">(</span><span class="n">nullmodel</span><span class="o">.</span><span class="n">Σ</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">nullmodel</span><span class="o">.</span><span class="n">Σ</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="n">altmodel3</span><span class="o">.</span><span class="n">Σ</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">altmodel3</span><span class="o">.</span><span class="n">Σ</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span><span class="o">/</span><span class="p">(</span><span class="n">nullmodel</span><span class="o">.</span><span class="n">Σ</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">nullmodel</span><span class="o">.</span><span class="n">Σ</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+<div class=" highlight hl-julia"><pre><span></span><span class="n">add_proport</span> <span class="o">=</span> <span class="p">(</span><span class="n">nullmodel</span><span class="o">.</span><span class="n">Σ</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">altmodel3</span><span class="o">.</span><span class="n">Σ</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="o">/</span><span class="n">nullmodel</span><span class="o">.</span><span class="n">Σ</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
 </pre></div>
 
 </div>
@@ -14682,7 +14932,7 @@ EXIT: Optimal Solution Found.
 
 <div class="output_text output_subarea output_execute_result">
 <pre>1×1 Array{Float64,2}:
- 0.101151</pre>
+ 0.17136798137851403</pre>
 </div>
 
 </div>
@@ -14695,8 +14945,7 @@ EXIT: Optimal Solution Found.
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h1 id="Pairwise-Trait-Analysis">Pairwise Trait Analysis<a class="anchor-link" href="#Pairwise-Trait-Analysis">&#182;</a></h1><p>When we ran with just Trait1, snp_rs10412915 was not genomewide significant. However the 29c data have two traits, so we now test if the reference snp_rs10412915 is genomewide significant when we use both traits simultaneously. Similar to the univariate trait analysis above, we will perform a Likelihood Ratio Test to test for significance.</p>
-<p>Following code snippet does the joint analysis of n_traits = 2 traits. Note that if the dataset has more than two traits, the user can just pre-assign n_traits to the number of traits in the dataset and all pairwise analyses will be conducted.</p>
+<p>Portion of total variation explained by the snp is an alterative way to assess the effect of the snp. Again, typically the effects are not nearly so large.</p>
 
 </div>
 </div>
@@ -14706,7 +14955,7 @@ EXIT: Optimal Solution Found.
 <div class="prompt input_prompt">In&nbsp;[63]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-julia"><pre><span></span><span class="n">n_traits</span> <span class="o">=</span> <span class="mi">2</span>
+<div class=" highlight hl-julia"><pre><span></span><span class="n">pheno_proport</span> <span class="o">=</span> <span class="p">(</span><span class="n">nullmodel</span><span class="o">.</span><span class="n">Σ</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">nullmodel</span><span class="o">.</span><span class="n">Σ</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="n">altmodel3</span><span class="o">.</span><span class="n">Σ</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">altmodel3</span><span class="o">.</span><span class="n">Σ</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span><span class="o">/</span><span class="p">(</span><span class="n">nullmodel</span><span class="o">.</span><span class="n">Σ</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">nullmodel</span><span class="o">.</span><span class="n">Σ</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
 </pre></div>
 
 </div>
@@ -14725,7 +14974,8 @@ EXIT: Optimal Solution Found.
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>2</pre>
+<pre>1×1 Array{Float64,2}:
+ 0.10115129354170034</pre>
 </div>
 
 </div>
@@ -14733,16 +14983,23 @@ EXIT: Optimal Solution Found.
 </div>
 </div>
 
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Pairwise-Trait-Analysis">Pairwise Trait Analysis<a class="anchor-link" href="#Pairwise-Trait-Analysis">&#182;</a></h1><p>When we ran with just Trait1, snp_rs10412915 was not genomewide significant. However the data have two traits, so we now test if the reference snp_rs10412915 is genomewide significant when we use both traits simultaneously. Similar to the univariate trait analysis above, we will perform a Likelihood Ratio Test to test for significance.</p>
+<p>Following code snippet does the joint analysis of n_traits = 2 traits. Note that if the dataset has more than two traits, the user can just pre-assign n_traits to the number of traits in the dataset and all pairwise analyses will be conducted.</p>
+
+</div>
+</div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">In&nbsp;[64]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-julia"><pre><span></span><span class="c"># form data as VarianceComponentVariate</span>
-<span class="n">SNP_29Cdata_emp_null</span> <span class="o">=</span> <span class="n">VarianceComponentVariate</span><span class="p">(</span><span class="n">Y</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="p">(</span><span class="mi">2</span><span class="n">Φgrm</span><span class="p">,</span> <span class="n">eye</span><span class="p">(</span><span class="n">size</span><span class="p">(</span><span class="n">Y</span><span class="p">,</span> <span class="mi">1</span><span class="p">))))</span>
-<span class="c">#fieldnames(SNP_29Cdata_emp)</span>
-<span class="n">SNP_29Cdata_rotated_emp_null</span> <span class="o">=</span> <span class="n">TwoVarCompVariateRotate</span><span class="p">(</span><span class="n">SNP_29Cdata_emp_null</span><span class="p">)</span>
+<div class=" highlight hl-julia"><pre><span></span><span class="n">n_traits</span> <span class="o">=</span> <span class="mi">2</span>
 </pre></div>
 
 </div>
@@ -14761,7 +15018,7 @@ EXIT: Optimal Solution Found.
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>VarianceComponentModels.TwoVarCompVariateRotate{Float64,Array{Float64,2},Array{Float64,2}}([-551.252 -268.956; -0.358034 -0.782546; … ; -1.34343 -4.87381; 0.75091 4.59537], [-14.5602 -6.66199; -6.6662e-14 0.197432; … ; 7.23163e-15 -0.0797677; 6.91634e-15 0.142873], [5.78835e-15, 0.0752044, 0.0877463, 0.0915643, 0.0967969, 0.104256, 0.108283, 0.109661, 0.110979, 0.114564  …  3.3852, 3.71687, 3.9086, 4.11158, 4.26956, 4.56256, 5.13676, 5.492, 6.11812, 6.87637], [-0.0686803 0.0119184 … 0.00207223 0.00503436; -0.0686803 0.00929458 … 0.0183992 -0.00115174; … ; -0.0686803 0.00239184 … -0.0203006 0.0363221; -0.0686803 0.000513356 … -0.0033856 0.0127975], 0.0)</pre>
+<pre>2</pre>
 </div>
 
 </div>
@@ -14775,20 +15032,56 @@ EXIT: Optimal Solution Found.
 <div class="prompt input_prompt">In&nbsp;[65]:</div>
 <div class="inner_cell">
     <div class="input_area">
+<div class=" highlight hl-julia"><pre><span></span><span class="c"># form data as VarianceComponentVariate</span>
+<span class="n">SNP_29data_emp_null</span> <span class="o">=</span> <span class="n">VarianceComponentVariate</span><span class="p">(</span><span class="n">Y</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="p">(</span><span class="mi">2</span><span class="n">Φgrm</span><span class="p">,</span> <span class="kt">Matrix</span><span class="p">{</span><span class="kt">Float64</span><span class="p">}(</span><span class="nb">I</span><span class="p">,</span> <span class="n">length</span><span class="p">(</span><span class="n">Trait1</span><span class="p">),</span> <span class="n">length</span><span class="p">(</span><span class="n">Trait1</span><span class="p">))))</span>
+<span class="c">#fieldnames(SNP_29Cdata_emp)</span>
+<span class="n">SNP_29data_rotated_emp_null</span> <span class="o">=</span> <span class="n">TwoVarCompVariateRotate</span><span class="p">(</span><span class="n">SNP_29data_emp_null</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+<div class="prompt output_prompt">Out[65]:</div>
+
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>TwoVarCompVariateRotate{Float64,Array{Float64,2},Array{Float64,2}}([-551.252 -268.956; 0.358034 0.782546; … ; -1.34343 -4.87381; 0.75091 4.59537], [-14.5602 -6.66199; 3.7274e-14 -0.197432; … ; 1.70827e-15 -0.0797677; 3.02536e-15 0.142873], [5.31358e-15, 0.0752044, 0.0877463, 0.0915643, 0.0967969, 0.104256, 0.108283, 0.109661, 0.110979, 0.114564  …  3.3852, 3.71687, 3.9086, 4.11158, 4.26956, 4.56256, 5.13676, 5.492, 6.11812, 6.87637], [-0.0686803 -0.0119184 … 0.00207223 0.00503436; -0.0686803 -0.00929458 … 0.0183992 -0.00115174; … ; -0.0686803 -0.00239184 … -0.0203006 0.0363221; -0.0686803 -0.000513356 … -0.0033856 0.0127975], 0.0)</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[66]:</div>
+<div class="inner_cell">
+    <div class="input_area">
 <div class=" highlight hl-julia"><pre><span></span><span class="c"># additive genetic effects (2x2 psd matrices) from bivariate trait analysis;</span>
-<span class="n">Σa</span> <span class="o">=</span> <span class="kt">Array</span><span class="p">{</span><span class="kt">Matrix</span><span class="p">{</span><span class="kt">Float64</span><span class="p">}}(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="n">Σa</span> <span class="o">=</span> <span class="kt">Array</span><span class="p">{</span><span class="kt">Matrix</span><span class="p">{</span><span class="kt">Float64</span><span class="p">}}(</span><span class="n">undef</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+
 <span class="c"># environmental effects (2x2 psd matrices) from bivariate trait analysis;</span>
-<span class="n">Σe</span> <span class="o">=</span> <span class="kt">Array</span><span class="p">{</span><span class="kt">Matrix</span><span class="p">{</span><span class="kt">Float64</span><span class="p">}}(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="n">Σe</span> <span class="o">=</span> <span class="kt">Array</span><span class="p">{</span><span class="kt">Matrix</span><span class="p">{</span><span class="kt">Float64</span><span class="p">}}(</span><span class="n">undef</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
 
 <span class="n">println</span><span class="p">(</span><span class="s">&quot;Trait1, Trait2 Null Model&quot;</span><span class="p">)</span>
 <span class="c"># form data set for (trait1, trait2)</span>
 
-<span class="n">tic</span><span class="p">()</span>
-<span class="k">for</span> <span class="n">i</span> <span class="kp">in</span> <span class="mi">1</span><span class="o">:</span><span class="n">n_traits</span>
+<span class="nd">@time</span> <span class="k">for</span> <span class="n">i</span> <span class="kp">in</span> <span class="mi">1</span><span class="o">:</span><span class="n">n_traits</span>
     <span class="k">for</span> <span class="n">j</span> <span class="kp">in</span> <span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">:</span><span class="n">n_traits</span>
-    <span class="n">traitij_data</span> <span class="o">=</span> <span class="n">TwoVarCompVariateRotate</span><span class="p">(</span><span class="n">SNP_29Cdata_rotated_emp_null</span><span class="o">.</span><span class="n">Yrot</span><span class="p">[</span><span class="o">:</span><span class="p">,</span> <span class="p">[</span><span class="n">i</span><span class="p">;</span><span class="n">j</span><span class="p">]],</span> 
-    <span class="n">SNP_29Cdata_rotated_emp_null</span><span class="o">.</span><span class="n">Xrot</span><span class="p">,</span> <span class="n">SNP_29Cdata_rotated_emp_null</span><span class="o">.</span><span class="n">eigval</span><span class="p">,</span> 
-    <span class="n">SNP_29Cdata_rotated_emp_null</span><span class="o">.</span><span class="n">eigvec</span><span class="p">,</span> <span class="n">SNP_29Cdata_rotated_emp_null</span><span class="o">.</span><span class="n">logdetV2</span><span class="p">)</span>
+    <span class="n">traitij_data</span> <span class="o">=</span> <span class="n">TwoVarCompVariateRotate</span><span class="p">(</span><span class="n">SNP_29data_rotated_emp_null</span><span class="o">.</span><span class="n">Yrot</span><span class="p">[</span><span class="o">:</span><span class="p">,</span> <span class="p">[</span><span class="n">i</span><span class="p">;</span><span class="n">j</span><span class="p">]],</span> 
+    <span class="n">SNP_29data_rotated_emp_null</span><span class="o">.</span><span class="n">Xrot</span><span class="p">,</span> <span class="n">SNP_29data_rotated_emp_null</span><span class="o">.</span><span class="n">eigval</span><span class="p">,</span> 
+    <span class="n">SNP_29data_rotated_emp_null</span><span class="o">.</span><span class="n">eigvec</span><span class="p">,</span> <span class="n">SNP_29data_rotated_emp_null</span><span class="o">.</span><span class="n">logdetV2</span><span class="p">)</span>
     <span class="c"># initialize model parameters</span>
     <span class="n">traitij_model</span> <span class="o">=</span> <span class="n">VarianceComponentModel</span><span class="p">(</span><span class="n">traitij_data</span><span class="p">)</span>
     <span class="c"># estimate variance components</span>
@@ -14800,7 +15093,6 @@ EXIT: Optimal Solution Found.
     <span class="nd">@show</span> <span class="n">maxlogl</span>
     <span class="k">end</span>
 <span class="k">end</span>
-<span class="n">toc</span><span class="p">()</span>
 </pre></div>
 
 </div>
@@ -14818,7 +15110,7 @@ EXIT: Optimal Solution Found.
 
 <div class="output_subarea output_stream output_stdout output_text">
 <pre>Trait1, Trait2 Null Model
-This is Ipopt version 3.12.8, running with linear solver mumps.
+This is Ipopt version 3.12.10, running with linear solver mumps.
 NOTE: Other linear solvers might be more efficient (see Ipopt documentation).
 
 Number of nonzeros in equality constraint Jacobian...:        0
@@ -14847,11 +15139,11 @@ iter    objective    inf_pr   inf_du lg(mu)  ||d||  lg(rg) alpha_du alpha_pr  ls
 Number of Iterations....: 30
 
                                    (scaled)                 (unscaled)
-Objective...............:   4.0967933386611048e+02    9.4960933184515579e+02
-Dual infeasibility......:   7.2887494609914696e-09    1.6894834407002064e-08
+Objective...............:   4.0967933386611179e+02    9.4960933184515511e+02
+Dual infeasibility......:   7.2886899059796212e-09    1.6894696362462440e-08
 Constraint violation....:   0.0000000000000000e+00    0.0000000000000000e+00
 Complementarity.........:   0.0000000000000000e+00    0.0000000000000000e+00
-Overall NLP error.......:   7.2887494609914696e-09    1.6894834407002064e-08
+Overall NLP error.......:   7.2886899059796212e-09    1.6894696362462440e-08
 
 
 Number of objective function evaluations             = 31
@@ -14861,29 +15153,16 @@ Number of inequality constraint evaluations          = 0
 Number of equality constraint Jacobian evaluations   = 0
 Number of inequality constraint Jacobian evaluations = 0
 Number of Lagrangian Hessian evaluations             = 30
-Total CPU secs in IPOPT (w/o function evaluations)   =      0.186
-Total CPU secs in NLP function evaluations           =      0.178
+Total CPU secs in IPOPT (w/o function evaluations)   =      0.265
+Total CPU secs in NLP function evaluations           =      0.123
 
 EXIT: Optimal Solution Found.
 (Σa[i, j], Σe[i, j]) = ([4.05829 1.35139; 1.35139 4.37547], [2.15759 -0.0965638; -0.0965638 2.07246])
 traitij_model.B = [40.8883 20.4789; -6.61807 -4.38625]
-maxlogl = -949.6093318451558
-elapsed time: 3.391869234 seconds
+maxlogl = -949.6093318451551
+  1.152247 seconds (1.75 M allocations: 88.462 MiB, 4.35% gc time)
 </pre>
 </div>
-</div>
-
-<div class="output_area">
-
-<div class="prompt output_prompt">Out[65]:</div>
-
-
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>3.391869234</pre>
-</div>
-
 </div>
 
 </div>
@@ -14901,13 +15180,13 @@ elapsed time: 3.391869234 seconds
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[66]:</div>
+<div class="prompt input_prompt">In&nbsp;[67]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-julia"><pre><span></span><span class="c"># form data as VarianceComponentVariate</span>
-<span class="n">SNP_29Cdata_emp</span> <span class="o">=</span> <span class="n">VarianceComponentVariate</span><span class="p">(</span><span class="n">Y</span><span class="p">,</span> <span class="n">Xalt</span><span class="p">,</span> <span class="p">(</span><span class="mi">2</span><span class="n">Φgrm</span><span class="p">,</span> <span class="n">eye</span><span class="p">(</span><span class="n">size</span><span class="p">(</span><span class="n">Y</span><span class="p">,</span> <span class="mi">1</span><span class="p">))))</span>
+<span class="n">SNP_29data_emp</span> <span class="o">=</span> <span class="n">VarianceComponentVariate</span><span class="p">(</span><span class="n">Y</span><span class="p">,</span> <span class="n">Xalt</span><span class="p">,</span> <span class="p">(</span><span class="mi">2</span><span class="n">Φgrm</span><span class="p">,</span> <span class="kt">Matrix</span><span class="p">{</span><span class="kt">Float64</span><span class="p">}(</span><span class="nb">I</span><span class="p">,</span> <span class="n">length</span><span class="p">(</span><span class="n">Y</span><span class="p">),</span> <span class="n">length</span><span class="p">(</span><span class="n">Y</span><span class="p">))))</span>
 <span class="c">#fieldnames(SNP_29Cdata_emp)</span>
-<span class="n">SNP_29Cdata_rotated_emp</span> <span class="o">=</span> <span class="n">TwoVarCompVariateRotate</span><span class="p">(</span><span class="n">SNP_29Cdata_emp</span><span class="p">)</span>
+<span class="n">SNP_29data_rotated_emp</span> <span class="o">=</span> <span class="n">TwoVarCompVariateRotate</span><span class="p">(</span><span class="n">SNP_29data_emp</span><span class="p">)</span>
 </pre></div>
 
 </div>
@@ -14920,13 +15199,13 @@ elapsed time: 3.391869234 seconds
 
 <div class="output_area">
 
-<div class="prompt output_prompt">Out[66]:</div>
+<div class="prompt output_prompt">Out[67]:</div>
 
 
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>VarianceComponentModels.TwoVarCompVariateRotate{Float64,Array{Float64,2},Array{Float64,2}}([-551.252 -268.956; -0.358034 -0.782546; … ; -1.34343 -4.87381; 0.75091 4.59537], [-14.5602 -6.66199 -8.51635; -6.6662e-14 0.197432 0.312084; … ; 7.23163e-15 -0.0797677 0.332059; 6.91634e-15 0.142873 0.302486], [5.78835e-15, 0.0752044, 0.0877463, 0.0915643, 0.0967969, 0.104256, 0.108283, 0.109661, 0.110979, 0.114564  …  3.3852, 3.71687, 3.9086, 4.11158, 4.26956, 4.56256, 5.13676, 5.492, 6.11812, 6.87637], [-0.0686803 0.0119184 … 0.00207223 0.00503436; -0.0686803 0.00929458 … 0.0183992 -0.00115174; … ; -0.0686803 0.00239184 … -0.0203006 0.0363221; -0.0686803 0.000513356 … -0.0033856 0.0127975], 0.0)</pre>
+<pre>TwoVarCompVariateRotate{Float64,Array{Float64,2},Array{Float64,2}}([-551.252 -268.956; 0.358034 0.782546; … ; -1.34343 -4.87381; 0.75091 4.59537], [-14.5602 -6.66199 -20.6041; 3.7274e-14 -0.197432 0.312084; … ; 1.70827e-15 -0.0797677 -0.332059; 3.02536e-15 0.142873 -0.302486], [5.31358e-15, 0.0752044, 0.0877463, 0.0915643, 0.0967969, 0.104256, 0.108283, 0.109661, 0.110979, 0.114564  …  3.3852, 3.71687, 3.9086, 4.11158, 4.26956, 4.56256, 5.13676, 5.492, 6.11812, 6.87637], [-0.0686803 -0.0119184 … 0.00207223 0.00503436; -0.0686803 -0.00929458 … 0.0183992 -0.00115174; … ; -0.0686803 -0.00239184 … -0.0203006 0.0363221; -0.0686803 -0.000513356 … -0.0033856 0.0127975], 0.0)</pre>
 </div>
 
 </div>
@@ -14937,23 +15216,22 @@ elapsed time: 3.391869234 seconds
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[67]:</div>
+<div class="prompt input_prompt">In&nbsp;[68]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-julia"><pre><span></span><span class="c"># additive genetic effects (2x2 psd matrices) from bivariate trait analysis;</span>
-<span class="n">Σa</span> <span class="o">=</span> <span class="kt">Array</span><span class="p">{</span><span class="kt">Matrix</span><span class="p">{</span><span class="kt">Float64</span><span class="p">}}(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="n">Σa</span> <span class="o">=</span> <span class="kt">Array</span><span class="p">{</span><span class="kt">Matrix</span><span class="p">{</span><span class="kt">Float64</span><span class="p">}}(</span><span class="n">undef</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
 <span class="c"># environmental effects (2x2 psd matrices) from bivariate trait analysis;</span>
-<span class="n">Σe</span> <span class="o">=</span> <span class="kt">Array</span><span class="p">{</span><span class="kt">Matrix</span><span class="p">{</span><span class="kt">Float64</span><span class="p">}}(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="n">Σe</span> <span class="o">=</span> <span class="kt">Array</span><span class="p">{</span><span class="kt">Matrix</span><span class="p">{</span><span class="kt">Float64</span><span class="p">}}(</span><span class="n">undef</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
 
 <span class="n">println</span><span class="p">(</span><span class="s">&quot;Trait1, Trait2 Alternative Model&quot;</span><span class="p">)</span>
 <span class="c"># form data set for (trait1, trait2)</span>
 
-<span class="n">tic</span><span class="p">()</span>
-<span class="k">for</span> <span class="n">i</span> <span class="kp">in</span> <span class="mi">1</span><span class="o">:</span><span class="n">n_traits</span>
+<span class="nd">@time</span> <span class="k">for</span> <span class="n">i</span> <span class="kp">in</span> <span class="mi">1</span><span class="o">:</span><span class="n">n_traits</span>
     <span class="k">for</span> <span class="n">j</span> <span class="kp">in</span> <span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">:</span><span class="n">n_traits</span>
-    <span class="n">traitij_data</span> <span class="o">=</span> <span class="n">TwoVarCompVariateRotate</span><span class="p">(</span><span class="n">SNP_29Cdata_rotated_emp</span><span class="o">.</span><span class="n">Yrot</span><span class="p">[</span><span class="o">:</span><span class="p">,</span> <span class="p">[</span><span class="n">i</span><span class="p">;</span><span class="n">j</span><span class="p">]],</span> 
-    <span class="n">SNP_29Cdata_rotated_emp</span><span class="o">.</span><span class="n">Xrot</span><span class="p">,</span><span class="n">SNP_29Cdata_rotated_emp</span><span class="o">.</span><span class="n">eigval</span><span class="p">,</span> 
-    <span class="n">SNP_29Cdata_rotated_emp</span><span class="o">.</span><span class="n">eigvec</span><span class="p">,</span> <span class="n">SNP_29Cdata_rotated_emp</span><span class="o">.</span><span class="n">logdetV2</span><span class="p">)</span>
+    <span class="n">traitij_data</span> <span class="o">=</span> <span class="n">TwoVarCompVariateRotate</span><span class="p">(</span><span class="n">SNP_29data_rotated_emp</span><span class="o">.</span><span class="n">Yrot</span><span class="p">[</span><span class="o">:</span><span class="p">,</span> <span class="p">[</span><span class="n">i</span><span class="p">;</span><span class="n">j</span><span class="p">]],</span> 
+    <span class="n">SNP_29data_rotated_emp</span><span class="o">.</span><span class="n">Xrot</span><span class="p">,</span><span class="n">SNP_29data_rotated_emp</span><span class="o">.</span><span class="n">eigval</span><span class="p">,</span> 
+    <span class="n">SNP_29data_rotated_emp</span><span class="o">.</span><span class="n">eigvec</span><span class="p">,</span> <span class="n">SNP_29data_rotated_emp</span><span class="o">.</span><span class="n">logdetV2</span><span class="p">)</span>
     <span class="c"># initialize model parameters</span>
     <span class="n">traitij_model</span> <span class="o">=</span> <span class="n">VarianceComponentModel</span><span class="p">(</span><span class="n">traitij_data</span><span class="p">)</span>
     <span class="c"># estimate variance components</span>
@@ -14965,7 +15243,6 @@ elapsed time: 3.391869234 seconds
     <span class="nd">@show</span> <span class="n">maxlogl</span>
     <span class="k">end</span>
 <span class="k">end</span>
-<span class="n">toc</span><span class="p">()</span>
 </pre></div>
 
 </div>
@@ -14983,7 +15260,7 @@ elapsed time: 3.391869234 seconds
 
 <div class="output_subarea output_stream output_stdout output_text">
 <pre>Trait1, Trait2 Alternative Model
-This is Ipopt version 3.12.8, running with linear solver mumps.
+This is Ipopt version 3.12.10, running with linear solver mumps.
 NOTE: Other linear solvers might be more efficient (see Ipopt documentation).
 
 Number of nonzeros in equality constraint Jacobian...:        0
@@ -15012,11 +15289,11 @@ iter    objective    inf_pr   inf_du lg(mu)  ||d||  lg(rg) alpha_du alpha_pr  ls
 Number of Iterations....: 30
 
                                    (scaled)                 (unscaled)
-Objective...............:   4.5651784272521724e+02    9.3081416798061832e+02
-Dual infeasibility......:   7.3290479483639842e-09    1.4943515958592446e-08
+Objective...............:   4.5651784272522076e+02    9.3081416798061775e+02
+Dual infeasibility......:   7.3292034055334224e-09    1.4943832927004690e-08
 Constraint violation....:   0.0000000000000000e+00    0.0000000000000000e+00
 Complementarity.........:   0.0000000000000000e+00    0.0000000000000000e+00
-Overall NLP error.......:   7.3290479483639842e-09    1.4943515958592446e-08
+Overall NLP error.......:   7.3292034055334224e-09    1.4943832927004690e-08
 
 
 Number of objective function evaluations             = 31
@@ -15026,29 +15303,16 @@ Number of inequality constraint evaluations          = 0
 Number of equality constraint Jacobian evaluations   = 0
 Number of inequality constraint Jacobian evaluations = 0
 Number of Lagrangian Hessian evaluations             = 30
-Total CPU secs in IPOPT (w/o function evaluations)   =      0.011
-Total CPU secs in NLP function evaluations           =      0.114
+Total CPU secs in IPOPT (w/o function evaluations)   =      0.024
+Total CPU secs in NLP function evaluations           =      0.188
 
 EXIT: Optimal Solution Found.
 (Σa[i, j], Σe[i, j]) = ([3.37703 0.297368; 0.297368 2.79615], [2.21935 0.105389; 0.105389 2.4868])
-traitij_model.B = [40.1088 19.4848; -6.50822 -4.24321; 1.24665 1.58764]
-maxlogl = -930.8141679806183
-elapsed time: 0.190632486 seconds
+traitij_model.B = [42.6021 22.6601; -6.50822 -4.24321; -1.24665 -1.58764]
+maxlogl = -930.8141679806178
+  0.204488 seconds (38.72 k allocations: 3.371 MiB)
 </pre>
 </div>
-</div>
-
-<div class="output_area">
-
-<div class="prompt output_prompt">Out[67]:</div>
-
-
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>0.190632486</pre>
-</div>
-
 </div>
 
 </div>
@@ -15067,10 +15331,10 @@ elapsed time: 0.190632486 seconds
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[68]:</div>
+<div class="prompt input_prompt">In&nbsp;[69]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-julia"><pre><span></span><span class="n">LRT4</span> <span class="o">=</span> <span class="mi">2</span><span class="p">(</span><span class="o">-</span><span class="mf">930.8141679806174</span><span class="o">-</span> <span class="o">-</span><span class="mf">949.6093318451551</span><span class="p">)</span>
+<div class=" highlight hl-julia"><pre><span></span><span class="n">LRT4</span> <span class="o">=</span> <span class="mi">2</span><span class="p">(</span><span class="o">-</span><span class="mf">930.8141679806174</span> <span class="o">-</span> <span class="o">-</span><span class="mf">949.6093318451551</span><span class="p">)</span>
 </pre></div>
 
 </div>
@@ -15083,7 +15347,7 @@ elapsed time: 0.190632486 seconds
 
 <div class="output_area">
 
-<div class="prompt output_prompt">Out[68]:</div>
+<div class="prompt output_prompt">Out[69]:</div>
 
 
 
@@ -15109,7 +15373,7 @@ elapsed time: 0.190632486 seconds
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[69]:</div>
+<div class="prompt input_prompt">In&nbsp;[70]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-julia"><pre><span></span><span class="n">pval_bivariate_trait</span> <span class="o">=</span> <span class="n">ccdf</span><span class="p">(</span><span class="n">Chisq</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span> <span class="n">LRT4</span><span class="p">)</span>
@@ -15125,7 +15389,7 @@ elapsed time: 0.190632486 seconds
 
 <div class="output_area">
 
-<div class="prompt output_prompt">Out[69]:</div>
+<div class="prompt output_prompt">Out[70]:</div>
 
 
 
