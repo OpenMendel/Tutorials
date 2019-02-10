@@ -2,7 +2,7 @@
 
 A collection of Jupyter notebooks for using [OpenMendel](https://openmendel.github.io) packages. 
 
-* PLINK binary data input, summary statistics, filtering, and visualization. \[[ipynb](./SnpArrays/genedata.ipynb)\]
+* PLINK binary data input, summary statistics, filtering, and visualization. \[[ipynb](./SnpArrays/SnpArraysTutorial.ipynb)\]
 
 * Kinship calculation and comparison. \[[ipynb](./Kinship/KinshipTutorial.ipynb)\]
 
