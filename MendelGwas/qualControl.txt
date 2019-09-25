@@ -6,6 +6,8 @@ snpdefinition_file = gwassnpdef.txt
 snpdata_file = gwasdata.bed
 output_file = qualOutput.txt
 manhattan_plot_file = qualManhattanPlotOutput.png
+qq_plot_file = qualqq.png
+output_table = qualresults.csv
 #
 # Analysis parameters for GWAS option.
 #

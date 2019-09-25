@@ -15,7 +15,7 @@ Summary for SNP rs1935681
 SNP p-value: 1.515e-9
 Minor allele frequency: 0.2523
 Hardy-Weinberg p-value: 0.3666
-SNP effect estimate: -0.4831
+SNP effect estimate: 0.4831
 SNP model loglikelihood: -1296.8209
  
 
@@ -24,7 +24,7 @@ Summary for SNP rs2256412
 SNP p-value: 6.68e-21
 Minor allele frequency: 0.4741
 Hardy-Weinberg p-value: 0.1844
-SNP effect estimate: -0.6371
+SNP effect estimate: 0.6371
 SNP model loglikelihood: -1271.0984
  
  

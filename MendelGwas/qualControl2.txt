@@ -1,0 +1,13 @@
+#
+# Input and Output files.
+#
+pedigree_file = gwasped.txt
+snpdefinition_file = gwassnpdef.txt
+snpdata_file = gwasdata.bed
+output_file = qualOutput.txt
+output_table = qualresults.csv
+#
+# Analysis parameters for GWAS option.
+#
+regression = logistic
+regression_formula = Case_Control ~ Sex + BMI
