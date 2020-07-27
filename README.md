@@ -14,7 +14,7 @@ A collection of Jupyter notebooks for using [OpenMendel](https://openmendel.gith
 
 * GWAS based on linear mixed model. \[[ipynb](./LmmGwas/demo_LmmGWAS.ipynb)\]
 
-* SNP-set testing. \[[ipynb](./VCTest/demo_exactVC.ipynb)\]
+* SNP-set testing. \[[ipynb](./VCTest/VCtest.ipynb)\]
 
 ## Citation
 
